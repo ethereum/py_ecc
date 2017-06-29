@@ -10,9 +10,9 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='py_pairing',
-    version='0.0.1',
-    description='Optimal ate pairings over alt_bn128',
+    name='py_ecc',
+    version='1.0.0',
+    description='Elliptic curve crypto in python including secp256k1 and alt_bn128',
     long_description=readme,
     author='Vitalik Buterin',
     author_email='',
@@ -20,7 +20,5 @@ setup(
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=[
-        'ethereum == 1.3.7',
-        'nose',
     ],
 )

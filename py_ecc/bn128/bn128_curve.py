@@ -1,6 +1,4 @@
-from bn128_field_elements import field_modulus, FQ
-from optimized_field_elements import FQ2, FQ12
-# from bn128_field_elements import FQ2, FQ12
+from .bn128_field_elements import field_modulus, FQ, FQ2, FQ12
 
 curve_order = 21888242871839275222246405745257275088548364400416034343698204186575808495617
 
@@ -22,9 +20,13 @@ G1 = (FQ(1), FQ(2))
 G2 = (FQ2([10857046999023057135944570762232829481370756359578518086990519993285655852781, 11559732032986387107991004021392285783925812861821192530917403151452391805634]),
       FQ2([8495653923123431417604973247489272438418190587263600148770280649306958101930, 4082367875863433681332203403145435568316851327593401208105741076214120093531]))
 
+# Check if a point is the point at infinity
+def is_inf(pt):
+    return pt is None
+
 # Check that a point is on the curve defined by y**2 == x**3 + b
 def is_on_curve(pt, b):
-    if pt is None:
+    if is_inf(pt):
         return True
     x, y = pt
     return y**2 - x**3 == b
@@ -68,19 +70,8 @@ def multiply(pt, n):
     else:
         return add(multiply(double(pt), int(n // 2)), pt)
 
-# Check that the G1 curve works fine
-assert add(add(double(G1), G1), G1) == double(double(G1))
-assert double(G1) != G1
-assert add(multiply(G1, 9), multiply(G1, 5)) == add(multiply(G1, 12), multiply(G1, 2))
-assert multiply(G1, curve_order) is None
-
-# Check that the G2 curve works fine
-assert add(add(double(G2), G2), G2) == double(double(G2))
-assert double(G2) != G2
-assert add(multiply(G2, 9), multiply(G2, 5)) == add(multiply(G2, 12), multiply(G2, 2))
-assert multiply(G2, curve_order) is None
-assert multiply(G2, 2 * field_modulus - curve_order) is not None
-assert is_on_curve(multiply(G2, 9), b2)
+def eq(p1, p2):
+    return p1 == p2
 
 # "Twist" a point in E(FQ2) into a point in E(FQ12)
 w = FQ12([0, 1] + [0] * 10)
@@ -106,14 +97,6 @@ def twist(pt):
     # Divide x coord by w**2 and y coord by w**3
     return (nx * w **2, ny * w**3)
 
-# Check that the twist creates a point that is on the curve
-assert is_on_curve(twist(G2), b12)
-
-# Check that the G12 curve works fine
-
 G12 = twist(G2)
-assert add(add(double(G12), G12), G12) == double(double(G12))
-assert double(G12) != G12
-assert add(multiply(G12, 9), multiply(G12, 5)) == add(multiply(G12, 12), multiply(G12, 2))
-assert is_on_curve(multiply(G12, 9), b12)
-assert multiply(G12, curve_order) is None
+# Check that the twist creates a point that is on the curve
+assert is_on_curve(G12, b12)
