@@ -69,3 +69,6 @@ def pairing(Q, P):
     assert is_on_curve(Q, b2)
     assert is_on_curve(P, b)
     return miller_loop(twist(Q), cast_point_to_fq12(P))
+
+def final_exponentiate(p):
+    return p ** ((field_modulus ** 12 - 1) // curve_order)
