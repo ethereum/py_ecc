@@ -1,5 +1,4 @@
-field_modulus = 21888242871839275222246405745257275088696311157297823662689037894645226208583
-FQ12_modulus_coeffs = [82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0] # Implied + [1]
+from .parameters import field_modulus, FQ12_modulus_coeffs
 FQ12_mc_tuples = [(i, c) for i, c in enumerate(FQ12_modulus_coeffs) if c]
 
 # python3 compatibility
