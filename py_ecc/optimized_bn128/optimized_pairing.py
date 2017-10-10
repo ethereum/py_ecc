@@ -1,15 +1,6 @@
-from .optimized_curve import double, add, multiply, is_on_curve, neg, twist, b, b2, b12, curve_order, G1, G2, G12, normalize
+from .optimized_curve import double, add, multiply, is_on_curve, neg, twist, b, b2, b12, curve_order, G1, normalize
 from .optimized_field_elements import FQ2, FQ12, field_modulus, FQ
-
-ate_loop_count = 29793968203157093288
-log_ate_loop_count = 63
-pseudo_binary_encoding = [0, 0, 0, 1, 0, 1, 0, -1, 0, 0, 1, -1, 0, 0, 1, 0,
-                          0, 1, 1, 0, -1, 0, 0, 1, 0, -1, 0, 0, 0, 0, 1, 1,
-                          1, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, -1, 0, 0, 1,
-                          1, 0, 0, -1, 0, 0, 0, 1, 1, 0, -1, 0, 0, 1, 0, 1, 1]
-
-assert sum([e * 2**i for i, e in enumerate(pseudo_binary_encoding)]) == ate_loop_count
-                          
+from .parameters import pseudo_binary_encoding
 
 def normalize1(p):
     x, y = normalize(p)
@@ -68,7 +59,7 @@ def miller_loop(Q, P, final_exponentiate=True):
         return FQ12.one()
     R = Q
     f_num, f_den = FQ12.one(), FQ12.one()
-    for b in pseudo_binary_encoding[63::-1]:
+    for b in pseudo_binary_encoding[-2::-1]:
     #for i in range(log_ate_loop_count, -1, -1):
         _n, _d = linefunc(R, R, P)
         f_num = f_num * f_num * _n
