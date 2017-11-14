@@ -57,9 +57,9 @@ assert is_on_curve(G2, b2)
 # Elliptic curve doubling
 def double(pt):
     x, y = pt
-    v = 3 * x**2 / (2 * y)
-    newx = v**2 - 2 * x
-    newy = -v * newx + v * x - y
+    m = 3 * x**2 / (2 * y)
+    newx = m**2 - 2 * x
+    newy = -m * newx + m * x - y
     return newx, newy
 
 
@@ -74,10 +74,10 @@ def add(p1, p2):
     elif x2 == x1:
         return None
     else:
-        v = (y2 - y1) / (x2 - x1)
-    newx = v**2 - x1 - x2
-    newy = -v * newx + v * x1 - y1
-    assert newy == (-v * newx + v * x2 - y2)
+        m = (y2 - y1) / (x2 - x1)
+    newx = m**2 - x1 - x2
+    newy = -m * newx + m * x1 - y1
+    assert newy == (-m * newx + m * x2 - y2)
     return (newx, newy)
 
 
