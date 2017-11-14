@@ -1,13 +1,31 @@
-from .bn128_curve import double, add, multiply, is_on_curve, neg, twist, b, b2, b12, curve_order, G1, G2, G12
-from .bn128_field_elements import field_modulus, FQ, FQ2, FQ12
+from __future__ import absolute_import
+
+from .bn128_curve import (
+    double,
+    add,
+    multiply,
+    is_on_curve,
+    twist,
+    b,
+    b2,
+    curve_order,
+    G1,
+)
+from .bn128_field_elements import (
+    field_modulus,
+    FQ,
+    FQ12,
+)
+
 
 ate_loop_count = 29793968203157093288
 log_ate_loop_count = 63
 
+
 # Create a function representing the line between P1 and P2,
 # and evaluate it at T
 def linefunc(P1, P2, T):
-    assert P1 and P2 and T # No points-at-infinity allowed, sorry
+    assert P1 and P2 and T  # No points-at-infinity allowed, sorry
     x1, y1 = P1
     x2, y2 = P2
     xt, yt = T
@@ -20,15 +38,22 @@ def linefunc(P1, P2, T):
     else:
         return xt - x1
 
+
 def cast_point_to_fq12(pt):
     if pt is None:
         return None
     x, y = pt
     return (FQ12([x.n] + [0] * 11), FQ12([y.n] + [0] * 11))
 
+
 # Check consistency of the "line function"
 one, two, three = G1, double(G1), multiply(G1, 3)
-negone, negtwo, negthree = multiply(G1, curve_order - 1), multiply(G1, curve_order - 2), multiply(G1, curve_order - 3)
+negone, negtwo, negthree = (
+    multiply(G1, curve_order - 1),
+    multiply(G1, curve_order - 2),
+    multiply(G1, curve_order - 3),
+)
+
 
 assert linefunc(one, two, one) == FQ(0)
 assert linefunc(one, two, two) == FQ(0)
@@ -40,6 +65,7 @@ assert linefunc(one, negone, two) != FQ(0)
 assert linefunc(one, one, one) == FQ(0)
 assert linefunc(one, one, two) != FQ(0)
 assert linefunc(one, one, negtwo) == FQ(0)
+
 
 # Main miller loop
 def miller_loop(Q, P):
@@ -64,11 +90,13 @@ def miller_loop(Q, P):
     # R = add(R, nQ2) This line is in many specifications but it technically does nothing
     return f ** ((field_modulus ** 12 - 1) // curve_order)
 
+
 # Pairing computation
 def pairing(Q, P):
     assert is_on_curve(Q, b2)
     assert is_on_curve(P, b)
     return miller_loop(twist(Q), cast_point_to_fq12(P))
+
 
 def final_exponentiate(p):
     return p ** ((field_modulus ** 12 - 1) // curve_order)

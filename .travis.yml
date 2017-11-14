@@ -1,0 +1,28 @@
+language: python
+dist: trusty
+env:
+  global:
+    - PYTEST_ADDOPTS="-n 3"
+matrix:
+  include:
+  # lint
+  - python: "3.5"
+    env: TOX_ENV=flake8
+  # core
+  - python: "2.7"
+    env: TOX_ENV=py27
+  - python: "3.4"
+    env: TOX_ENV=py34
+  - python: "3.5"
+    env: TOX_ENV=py35
+  - python: "3.6"
+    env: TOX_ENV=py36
+cache:
+  pip: true
+install:
+  - "travis_retry pip install pip setuptools --upgrade"
+  - "travis_retry pip install tox"
+script:
+  - tox -e $TOX_ENV
+after_script:
+  - cat .tox/$TOX_ENV/log/*.log

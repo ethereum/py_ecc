@@ -1,19 +1,43 @@
-from .optimized_curve import double, add, multiply, is_on_curve, neg, twist, b, b2, b12, curve_order, G1, G2, G12, normalize
-from .optimized_field_elements import FQ2, FQ12, field_modulus, FQ
+from __future__ import absolute_import
+
+from .optimized_curve import (
+    double,
+    add,
+    multiply,
+    is_on_curve,
+    neg,
+    twist,
+    b,
+    b2,
+    curve_order,
+    G1,
+    normalize,
+)
+from .optimized_field_elements import (
+    FQ12,
+    field_modulus,
+    FQ,
+)
+
 
 ate_loop_count = 29793968203157093288
 log_ate_loop_count = 63
-pseudo_binary_encoding = [0, 0, 0, 1, 0, 1, 0, -1, 0, 0, 1, -1, 0, 0, 1, 0,
-                          0, 1, 1, 0, -1, 0, 0, 1, 0, -1, 0, 0, 0, 0, 1, 1,
-                          1, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, -1, 0, 0, 1,
-                          1, 0, 0, -1, 0, 0, 0, 1, 1, 0, -1, 0, 0, 1, 0, 1, 1]
+pseudo_binary_encoding = [
+    0, 0, 0, 1, 0, 1, 0, -1, 0, 0, 1, -1, 0, 0, 1, 0,
+    0, 1, 1, 0, -1, 0, 0, 1, 0, -1, 0, 0, 0, 0, 1, 1,
+    1, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, -1, 0, 0, 1,
+    1, 0, 0, -1, 0, 0, 0, 1, 1, 0, -1, 0, 0, 1, 0, 1, 1,
+]
+
 
 assert sum([e * 2**i for i, e in enumerate(pseudo_binary_encoding)]) == ate_loop_count
-                          
+
 
 def normalize1(p):
     x, y = normalize(p)
+
     return x, y, x.__class__.one()
+
 
 # Create a function representing the line between P1 and P2,
 # and evaluate it at T. Returns a numerator and a denominator
@@ -41,15 +65,22 @@ def linefunc(P1, P2, T):
     else:
         return xt * z1 - x1 * zt, z1 * zt
 
+
 def cast_point_to_fq12(pt):
     if pt is None:
         return None
     x, y, z = pt
     return (FQ12([x.n] + [0] * 11), FQ12([y.n] + [0] * 11), FQ12([z.n] + [0] * 11))
 
+
 # Check consistency of the "line function"
 one, two, three = G1, double(G1), multiply(G1, 3)
-negone, negtwo, negthree = multiply(G1, curve_order - 1), multiply(G1, curve_order - 2), multiply(G1, curve_order - 3)
+negone, negtwo, negthree = (
+    multiply(G1, curve_order - 1),
+    multiply(G1, curve_order - 2),
+    multiply(G1, curve_order - 3),
+)
+
 
 assert linefunc(one, two, one)[0] == FQ(0)
 assert linefunc(one, two, two)[0] == FQ(0)
@@ -62,25 +93,26 @@ assert linefunc(one, one, one)[0] == FQ(0)
 assert linefunc(one, one, two)[0] != FQ(0)
 assert linefunc(one, one, negtwo)[0] == FQ(0)
 
+
 # Main miller loop
 def miller_loop(Q, P, final_exponentiate=True):
     if Q is None or P is None:
         return FQ12.one()
     R = Q
     f_num, f_den = FQ12.one(), FQ12.one()
-    for b in pseudo_binary_encoding[63::-1]:
-    #for i in range(log_ate_loop_count, -1, -1):
+    # for i in range(log_ate_loop_count, -1, -1):
+    for v in pseudo_binary_encoding[63::-1]:
         _n, _d = linefunc(R, R, P)
         f_num = f_num * f_num * _n
         f_den = f_den * f_den * _d
         R = double(R)
-        #if ate_loop_count & (2**i):
-        if b == 1:
+        # if ate_loop_count & (2**i):
+        if v == 1:
             _n, _d = linefunc(R, Q, P)
             f_num = f_num * _n
             f_den = f_den * _d
             R = add(R, Q)
-        elif b == -1:
+        elif v == -1:
             nQ = neg(Q)
             _n, _d = linefunc(R, nQ, P)
             f_num = f_num * _n
@@ -101,6 +133,7 @@ def miller_loop(Q, P, final_exponentiate=True):
     else:
         return f
 
+
 # Pairing computation
 def pairing(Q, P, final_exponentiate=True):
     assert is_on_curve(Q, b2)
@@ -108,6 +141,7 @@ def pairing(Q, P, final_exponentiate=True):
     if P[-1] == P[-1].__class__.zero() or Q[-1] == Q[-1].__class__.zero():
         return FQ12.one()
     return miller_loop(twist(Q), cast_point_to_fq12(P), final_exponentiate=final_exponentiate)
+
 
 def final_exponentiate(p):
     return p ** ((field_modulus ** 12 - 1) // curve_order)
