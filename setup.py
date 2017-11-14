@@ -11,7 +11,7 @@ with open('LICENSE') as f:
 
 setup(
     name='py_ecc',
-    version='1.0.0',
+    version='1.0.1',
     description='Elliptic curve crypto in python including secp256k1 and alt_bn128',
     long_description=readme,
     author='Vitalik Buterin',
