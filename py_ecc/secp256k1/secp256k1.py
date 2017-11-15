@@ -6,8 +6,11 @@ import sys
 if sys.version_info.major == 2:
     safe_ord = ord
 else:
-    def safe_ord(x):
-        return x
+    def safe_ord(value):
+        if isinstance(value, int):
+            return value
+        else:
+            return ord(value)
 
 
 # Elliptic curve parameters (secp256k1)
