@@ -1,0 +1,4 @@
+1.4.2
+-----
+
+* Bugfix for `safe_ord` helper function.
