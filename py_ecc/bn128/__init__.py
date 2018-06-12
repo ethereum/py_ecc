@@ -22,6 +22,8 @@ from .bn128_curve import (  # noqa: F401
     curve_order,
     G1,
     G2,
+    Z1,
+    Z2,
     G12,
 )
 from .bn128_pairing import (  # noqa: F401

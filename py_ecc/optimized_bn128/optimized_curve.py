@@ -36,6 +36,10 @@ G2 = (
     ]),
     FQ2.one(),
 )
+# Point at infinity over FQ
+Z1 = (FQ.one(), FQ.one(), FQ.zero())
+# Point at infinity for twisted curve over FQ2
+Z2 = (FQ2.one(), FQ2.one(), FQ2.zero())
 
 
 # Check if a point is the point at infinity

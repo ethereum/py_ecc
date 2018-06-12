@@ -35,7 +35,10 @@ G2 = (
         4082367875863433681332203403145435568316851327593401208105741076214120093531,
     ]),
 )
-
+# Point at infinity over FQ
+Z1 = None
+# Point at infinity for twisted curve over FQ2
+Z2 = None
 
 # Check if a point is the point at infinity
 def is_inf(pt):
