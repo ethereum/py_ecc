@@ -1,0 +1,25 @@
+language: python
+sudo: false
+python:
+    - 2.7
+    - 3
+    - 3.5
+    - 3.6
+    - pypy
+    - pypy3
+# python 3.7 issue - https://github.com/travis-ci/travis-ci/issues/9815
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+virtualenv:
+  system_site_packages: true
+install:
+  - pip install -Ur requirements-dev.txt
+script:
+  - tox -vv
+after_success:
+    - coveralls
+notifications:
+    email: false

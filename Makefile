@@ -22,7 +22,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 py_ecc
+	flake8 --max-line-length=100 py_ecc
 
 test:
 	py.test tests
