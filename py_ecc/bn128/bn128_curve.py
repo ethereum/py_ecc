@@ -6,6 +6,7 @@ from .bn128_field_elements import (
     FQ2,
     FQ12,
 )
+from typing import Tuple, Union
 
 
 curve_order = 21888242871839275222246405745257275088548364400416034343698204186575808495617
@@ -42,7 +43,7 @@ Z2 = None
 
 
 # Check if a point is the point at infinity
-def is_inf(pt):
+def is_inf(pt: Tuple[int]) -> bool:
     return pt is None
 
 

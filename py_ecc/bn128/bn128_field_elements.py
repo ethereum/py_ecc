@@ -1,7 +1,8 @@
 from __future__ import absolute_import
 
 import sys
-
+from typing import NewType, Tuple
+from py_ecc.types import Point2D, Point3D
 
 sys.setrecursionlimit(10000)
 
@@ -11,7 +12,6 @@ if sys.version_info.major == 2:
     int_types = (int, long)  # noqa: F821
 else:
     int_types = (int,)
-
 
 # The prime modulus of the field
 field_modulus = 21888242871839275222246405745257275088696311157297823662689037894645226208583
@@ -24,7 +24,7 @@ FQ12_modulus_coeffs = [82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0]  # Implied + [1]
 
 # Extended euclidean algorithm to find modular inverses for
 # integers
-def inv(a, n):
+def inv(a: int, n: int) -> int:
     if a == 0:
         return 0
     lm, hm = 1, 0
@@ -119,14 +119,14 @@ class FQ(object):
 
 
 # Utility methods for polynomial math
-def deg(p):
+def deg(p: Point3D) -> int:
     d = len(p) - 1
     while p[d] == 0 and d:
         d -= 1
     return d
 
 
-def poly_rounded_div(a, b):
+def poly_rounded_div(a: Point3D, b: Point3D) -> Point2D:
     dega = deg(a)
     degb = deg(b)
     temp = [x for x in a]

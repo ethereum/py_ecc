@@ -1,7 +1,8 @@
 import hashlib
 import hmac
 import sys
-
+from typing import NewType, Tuple, Union
+from py_ecc.types import Point2D, Point3D
 
 if sys.version_info.major == 2:
     safe_ord = ord
@@ -11,7 +12,6 @@ else:
             return value
         else:
             return ord(value)
-
 
 # Elliptic curve parameters (secp256k1)
 P = 2**256 - 2**32 - 977
@@ -43,12 +43,12 @@ def inv(a, n):
     return lm % n
 
 
-def to_jacobian(p):
+def to_jacobian(p: Point2D) -> Point3D:
     o = (p[0], p[1], 1)
     return o
 
 
-def jacobian_double(p):
+def jacobian_double(p: Point3D) -> Point3D:
     if not p[1]:
         return (0, 0, 0)
     ysq = (p[1] ** 2) % P
@@ -60,7 +60,7 @@ def jacobian_double(p):
     return (nx, ny, nz)
 
 
-def jacobian_add(p, q):
+def jacobian_add(p: Point3D, q: Point3D) -> Point3D:
     if not p[1]:
         return q
     if not q[1]:
@@ -84,7 +84,7 @@ def jacobian_add(p, q):
     return (nx, ny, nz)
 
 
-def from_jacobian(p):
+def from_jacobian(p: Point3D) -> Point2D:
     z = inv(p[2], P)
     return ((p[0] * z**2) % P, (p[1] * z**3) % P)
 
@@ -102,7 +102,7 @@ def jacobian_multiply(a, n):
         return jacobian_add(jacobian_double(jacobian_multiply(a, n // 2)), a)
 
 
-def multiply(a, n):
+def multiply(a: Point2D, n: int) -> Point2D:
     return from_jacobian(jacobian_multiply(to_jacobian(a), n))
 
 
@@ -110,7 +110,7 @@ def add(a, b):
     return from_jacobian(jacobian_add(to_jacobian(a), to_jacobian(b)))
 
 
-def privtopub(privkey):
+def privtopub(privkey: str) -> Point2D:
     return multiply(G, bytes_to_int(privkey))
 
 
@@ -125,7 +125,7 @@ def deterministic_generate_k(msghash, priv):
 
 
 # bytes32, bytes32 -> v, r, s (as numbers)
-def ecdsa_raw_sign(msghash, priv):
+def ecdsa_raw_sign(msghash: str, priv: str) -> Point3D:
 
     z = bytes_to_int(msghash)
     k = deterministic_generate_k(msghash, priv)
@@ -137,7 +137,7 @@ def ecdsa_raw_sign(msghash, priv):
     return v, r, s
 
 
-def ecdsa_raw_recover(msghash, vrs):
+def ecdsa_raw_recover(msghash: str, vrs: Point3D) -> Point2D:
     v, r, s = vrs
     if not (27 <= v <= 34):
         raise ValueError("%d must in range 27-31" % v)
@@ -148,7 +148,7 @@ def ecdsa_raw_recover(msghash, vrs):
     # If xcubedaxb is not a quadratic residue, then r cannot be the x coord
     # for a point on the curve, and so the sig is invalid
     if (xcubedaxb - y * y) % P != 0 or not (r % N) or not (s % N):
-        return False
+        raise ValueError("sig is invalid, %d cannot be the x coord for point on curve" % r)
     z = bytes_to_int(msghash)
     Gz = jacobian_multiply((Gx, Gy, 1), (N - z) % N)
     XY = jacobian_multiply((x, y, 1), s)
