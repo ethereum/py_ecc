@@ -40,6 +40,7 @@ Z1 = None
 # Point at infinity for twisted curve over FQ2
 Z2 = None
 
+
 # Check if a point is the point at infinity
 def is_inf(pt):
     return pt is None
