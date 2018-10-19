@@ -35,6 +35,7 @@ setup(
     url='https://github.com/ethereum/py_ecc',
     license="MIT",
     packages=find_packages(exclude=('tests', 'docs')),
+    package_data={'py_ecc': ['py.typed']},
     install_requires=[
     ],
     python_requires='>=2.7, <4',
