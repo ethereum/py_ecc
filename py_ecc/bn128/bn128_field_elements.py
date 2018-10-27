@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import sys
-from typing import NewType, Tuple
 from py_ecc.types import Point2D, Point3D
 
 sys.setrecursionlimit(10000)

@@ -1,7 +1,6 @@
 import hashlib
 import hmac
 import sys
-from typing import NewType, Tuple, Union
 from py_ecc.types import Point2D, Point3D
 
 if sys.version_info.major == 2:
