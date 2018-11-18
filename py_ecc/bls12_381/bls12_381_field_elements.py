@@ -14,12 +14,12 @@ else:
 
 
 # The prime modulus of the field
-field_modulus = 21888242871839275222246405745257275088696311157297823662689037894645226208583
+field_modulus = 4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787
 # See, it's prime!
 assert pow(2, field_modulus, field_modulus) == 2
 
 # The modulus of the polynomial in this representation of FQ12
-FQ12_modulus_coeffs = [82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0]  # Implied + [1]
+FQ12_modulus_coeffs = [2, 0, 0, 0, 0, 0, -2, 0, 0, 0, 0, 0]  # Implied + [1]
 
 
 # Extended euclidean algorithm to find modular inverses for

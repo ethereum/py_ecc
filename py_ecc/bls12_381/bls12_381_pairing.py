@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from .bn128_curve import (
+from .bls12_381_curve import (
     double,
     add,
     multiply,
@@ -11,7 +11,7 @@ from .bn128_curve import (
     curve_order,
     G1,
 )
-from .bn128_field_elements import (
+from .bls12_381_field_elements import (
     field_modulus,
     FQ,
     FQ12,
