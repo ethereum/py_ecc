@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import sys
 
 
-sys.setrecursionlimit(10000)
+sys.setrecursionlimit(100000)
 
 
 # python3 compatibility
