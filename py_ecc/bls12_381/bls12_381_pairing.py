@@ -19,7 +19,7 @@ from .bls12_381_field_elements import (
 
 
 ate_loop_count = 15132376222941642752
-log_ate_loop_count = 63
+log_ate_loop_count = 62
 
 
 # Create a function representing the line between P1 and P2,
@@ -72,18 +72,14 @@ def miller_loop(Q, P):
     if Q is None or P is None:
         return FQ12.one()
     R = Q
-    #s = 0
     f = FQ12.one()
     for i in range(log_ate_loop_count, -1, -1):
         f = f * f * linefunc(R, R, P)
         R = double(R)
-        #s *= 2
         if ate_loop_count & (2**i):
             f = f * linefunc(R, Q, P)
             R = add(R, Q)
-            #s += 1
-    print(s, ate_loop_count)
-    assert R == multiply(Q, ate_loop_count)
+    #assert R == multiply(Q, ate_loop_count)
     # Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus)
     # assert is_on_curve(Q1, b12)
     # nQ2 = (Q1[0] ** field_modulus, -Q1[1] ** field_modulus)
