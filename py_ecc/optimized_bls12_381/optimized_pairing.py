@@ -20,13 +20,13 @@ from .optimized_field_elements import (
 )
 
 
-ate_loop_count = 29793968203157093288
-log_ate_loop_count = 63
+ate_loop_count = 15132376222941642752
+log_ate_loop_count = 62
 pseudo_binary_encoding = [
-    0, 0, 0, 1, 0, 1, 0, -1, 0, 0, 1, -1, 0, 0, 1, 0,
-    0, 1, 1, 0, -1, 0, 0, 1, 0, -1, 0, 0, 0, 0, 1, 1,
-    1, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, -1, 0, 0, 1,
-    1, 0, 0, -1, 0, 0, 0, 1, 1, 0, -1, 0, 0, 1, 0, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1
 ]
 
 
@@ -101,12 +101,11 @@ def miller_loop(Q, P, final_exponentiate=True):
     R = Q
     f_num, f_den = FQ12.one(), FQ12.one()
     # for i in range(log_ate_loop_count, -1, -1):
-    for v in pseudo_binary_encoding[63::-1]:
+    for v in pseudo_binary_encoding[62::-1]:
         _n, _d = linefunc(R, R, P)
         f_num = f_num * f_num * _n
         f_den = f_den * f_den * _d
         R = double(R)
-        # if ate_loop_count & (2**i):
         if v == 1:
             _n, _d = linefunc(R, Q, P)
             f_num = f_num * _n
@@ -119,14 +118,15 @@ def miller_loop(Q, P, final_exponentiate=True):
             f_den = f_den * _d
             R = add(R, nQ)
     # assert R == multiply(Q, ate_loop_count)
-    Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus, Q[2] ** field_modulus)
+    #Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus, Q[2] ** field_modulus)
     # assert is_on_curve(Q1, b12)
-    nQ2 = (Q1[0] ** field_modulus, -Q1[1] ** field_modulus, Q1[2] ** field_modulus)
+    #nQ2 = (Q1[0] ** field_modulus, -Q1[1] ** field_modulus, Q1[2] ** field_modulus)
     # assert is_on_curve(nQ2, b12)
-    _n1, _d1 = linefunc(R, Q1, P)
-    R = add(R, Q1)
-    _n2, _d2 = linefunc(R, nQ2, P)
-    f = f_num * _n1 * _n2 / (f_den * _d1 * _d2)
+    #_n1, _d1 = linefunc(R, Q1, P)
+    #R = add(R, Q1)
+    #_n2, _d2 = linefunc(R, nQ2, P)
+    #f = f_num * _n1 * _n2 / (f_den * _d1 * _d2)
+    f = f_num / f_den
     # R = add(R, nQ2) This line is in many specifications but it technically does nothing
     if final_exponentiate:
         return f ** ((field_modulus ** 12 - 1) // curve_order)

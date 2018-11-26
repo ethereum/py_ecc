@@ -3,8 +3,8 @@ from __future__ import absolute_import
 import sys
 
 
-field_modulus = 21888242871839275222246405745257275088696311157297823662689037894645226208583
-FQ12_modulus_coeffs = [82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0]  # Implied + [1]
+field_modulus = 4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787
+FQ12_modulus_coeffs = [2, 0, 0, 0, 0, 0, -2, 0, 0, 0, 0, 0]  # Implied + [1]
 FQ12_mc_tuples = [(i, c) for i, c in enumerate(FQ12_modulus_coeffs) if c]
 
 # python3 compatibility
