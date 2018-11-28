@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from typing import (
     cast,
-    List,
+    Tuple,
     Sequence,
     Union,
 )
@@ -208,7 +208,7 @@ class FQP(object):
         lm, hm = [1] + [0] * self.degree, [0] * (self.degree + 1)
         low, high = self.coeffs + (0,), self.modulus_coeffs + (1,)  # type: ignore
         while deg(low):
-            r = cast(List[Union[int, "FQ"]], poly_rounded_div(high, low))
+            r = cast(Tuple[Union[int, "FQ"]], poly_rounded_div(high, low))
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
