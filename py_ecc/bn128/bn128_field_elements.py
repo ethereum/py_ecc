@@ -19,7 +19,7 @@ field_modulus = 2188824287183927522224640574525727508869631115729782366268903789
 assert pow(2, field_modulus, field_modulus) == 2
 
 # The modulus of the polynomial in this representation of FQ12
-FQ12_modulus_coeffs = [82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0]  # Implied + [1]
+FQ12_modulus_coeffs = (82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0)  # Implied + [1]
 
 
 # Extended euclidean algorithm to find modular inverses for
@@ -145,7 +145,7 @@ int_types_or_FQ = (FQ,) + int_types
 class FQP(object):
     def __init__(self, coeffs, modulus_coeffs):
         assert len(coeffs) == len(modulus_coeffs)
-        self.coeffs = [FQ(c) for c in coeffs]
+        self.coeffs = tuple(FQ(c) for c in coeffs)
         # The coefficients of the modulus, without the leading [1]
         self.modulus_coeffs = modulus_coeffs
         # The degree of the extension field
@@ -200,7 +200,7 @@ class FQP(object):
     # Extended euclidean algorithm used to find the modular inverse
     def inv(self):
         lm, hm = [1] + [0] * self.degree, [0] * (self.degree + 1)
-        low, high = self.coeffs + [0], self.modulus_coeffs + [1]
+        low, high = self.coeffs + (0,), self.modulus_coeffs + (1,)
         while deg(low):
             r = poly_rounded_div(high, low)
             r += [0] * (self.degree + 1 - len(r))
@@ -244,8 +244,8 @@ class FQP(object):
 # The quadratic extension field
 class FQ2(FQP):
     def __init__(self, coeffs):
-        self.coeffs = [FQ(c) for c in coeffs]
-        self.modulus_coeffs = [1, 0]
+        self.coeffs = tuple(FQ(c) for c in coeffs)
+        self.modulus_coeffs = (1, 0)
         self.degree = 2
         self.__class__.degree = 2
 
@@ -253,7 +253,7 @@ class FQ2(FQP):
 # The 12th-degree extension field
 class FQ12(FQP):
     def __init__(self, coeffs):
-        self.coeffs = [FQ(c) for c in coeffs]
+        self.coeffs = tuple(FQ(c) for c in coeffs)
         self.modulus_coeffs = FQ12_modulus_coeffs
         self.degree = 12
         self.__class__.degree = 12
