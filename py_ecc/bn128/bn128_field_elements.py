@@ -1,16 +1,11 @@
 from __future__ import absolute_import
 
-import sys
-
 from typing import (
     cast,
     List,
     Sequence,
     Union,
 )
-
-
-sys.setrecursionlimit(10000)
 
 
 # The prime modulus of the field

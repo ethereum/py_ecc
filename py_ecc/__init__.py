@@ -1,5 +1,9 @@
-from __future__ import absolute_import
+import sys
 
-from . import secp256k1  # noqa: F401
-from . import bn128  # noqa: F401
-from . import optimized_bn128  # noqa: F401
+
+sys.setrecursionlimit(max(10000, sys.getrecursionlimit()))
+
+
+from py_ecc import secp256k1  # noqa: F401
+from py_ecc import bn128  # noqa: F401
+from py_ecc import optimized_bn128  # noqa: F401
