@@ -14,8 +14,8 @@ field_modulus = 2188824287183927522224640574525727508869631115729782366268903789
 assert pow(2, field_modulus, field_modulus) == 2
 
 # The modulus of the polynomial in this representation of FQ12
-FQ12_MODULUS_COEFFS = [82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0]  # Implied + [1]
-FQ2_MODULUS_COEFFS = [1, 0]
+FQ12_MODULUS_COEFFS = (82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0)  # Implied + [1]
+FQ2_MODULUS_COEFFS = (1, 0)
 
 
 # Extended euclidean algorithm to find modular inverses for
@@ -151,7 +151,7 @@ class FQP(object):
                  coeffs: Sequence[Union[int, "FQ"]],
                  modulus_coeffs: Sequence[Union[int, "FQ"]]=None) -> None:
         assert len(coeffs) == len(modulus_coeffs)
-        self.coeffs = [FQ(c) for c in coeffs]
+        self.coeffs = tuple(FQ(c) for c in coeffs)
         # The coefficients of the modulus, without the leading [1]
         self.modulus_coeffs = modulus_coeffs
         # The degree of the extension field
@@ -206,7 +206,7 @@ class FQP(object):
     # Extended euclidean algorithm used to find the modular inverse
     def inv(self) -> "FQP":
         lm, hm = [1] + [0] * self.degree, [0] * (self.degree + 1)
-        low, high = self.coeffs + [0], self.modulus_coeffs + [1]  # type: ignore
+        low, high = self.coeffs + (0,), self.modulus_coeffs + (1,)  # type: ignore
         while deg(low):
             r = cast(List[Union[int, "FQ"]], poly_rounded_div(high, low))
             r += [0] * (self.degree + 1 - len(r))
@@ -249,13 +249,17 @@ class FQP(object):
 
 # The quadratic extension field
 class FQ2(FQP):
+    degree = 2
+
     def __init__(self, coeffs: Sequence[Union[int, "FQ"]]) -> None:
         super().__init__(coeffs, FQ2_MODULUS_COEFFS)
-        type(self).degree = 2
+        assert self.degree == 2
 
 
 # The 12th-degree extension field
 class FQ12(FQP):
+    degree = 12
+
     def __init__(self, coeffs: Sequence[Union[int, "FQ"]]) -> None:
         super().__init__(coeffs, FQ12_MODULUS_COEFFS)
-        type(self).degree = 12
+        assert self.degree == 12
