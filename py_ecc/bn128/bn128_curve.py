@@ -1,10 +1,21 @@
 from __future__ import absolute_import
 
+from typing import (
+    cast,
+)
+
+from py_ecc.typing import (
+    Field,
+    GeneralPoint,
+    Point2D,
+)
+
 from .bn128_field_elements import (
     field_modulus,
     FQ,
     FQ2,
     FQ12,
+    FQP,
 )
 
 
@@ -23,7 +34,7 @@ b2 = FQ2([3, 0]) / FQ2([9, 1])
 b12 = FQ12([3] + [0] * 11)
 
 # Generator for curve over FQ
-G1 = (FQ(1), FQ(2))
+G1 = cast(Point2D[FQ], (FQ(1), FQ(2)))
 # Generator for twisted curve over FQ2
 G2 = (
     FQ2([
@@ -42,12 +53,12 @@ Z2 = None
 
 
 # Check if a point is the point at infinity
-def is_inf(pt):
+def is_inf(pt: GeneralPoint[Field]) -> bool:
     return pt is None
 
 
 # Check that a point is on the curve defined by y**2 == x**3 + b
-def is_on_curve(pt, b):
+def is_on_curve(pt: Point2D[Field], b: Field) -> bool:
     if is_inf(pt):
         return True
     x, y = pt
@@ -55,20 +66,21 @@ def is_on_curve(pt, b):
 
 
 assert is_on_curve(G1, b)
-assert is_on_curve(G2, b2)
+assert is_on_curve(cast(Point2D[FQ2], G2), b2)
 
 
 # Elliptic curve doubling
-def double(pt):
+def double(pt: Point2D[Field]) -> Point2D[Field]:
     x, y = pt
     m = 3 * x**2 / (2 * y)
     newx = m**2 - 2 * x
     newy = -m * newx + m * x - y
-    return newx, newy
+    return (newx, newy)
 
 
 # Elliptic curve addition
-def add(p1, p2):
+def add(p1: Point2D[Field],
+        p2: Point2D[Field]) -> Point2D[Field]:
     if p1 is None or p2 is None:
         return p1 if p2 is None else p2
     x1, y1 = p1
@@ -86,7 +98,7 @@ def add(p1, p2):
 
 
 # Elliptic curve point multiplication
-def multiply(pt, n):
+def multiply(pt: Point2D[Field], n: int) -> Point2D[Field]:
     if n == 0:
         return None
     elif n == 1:
@@ -97,7 +109,7 @@ def multiply(pt, n):
         return add(multiply(double(pt), int(n // 2)), pt)
 
 
-def eq(p1, p2):
+def eq(p1: GeneralPoint[Field], p2: GeneralPoint[Field]) -> bool:
     return p1 == p2
 
 
@@ -106,14 +118,14 @@ w = FQ12([0, 1] + [0] * 10)
 
 
 # Convert P => -P
-def neg(pt):
+def neg(pt: Point2D[Field]) -> Point2D[Field]:
     if pt is None:
         return None
     x, y = pt
     return (x, -y)
 
 
-def twist(pt):
+def twist(pt: Point2D[FQP]) -> Point2D[FQP]:
     if pt is None:
         return None
     _x, _y = pt
@@ -122,12 +134,12 @@ def twist(pt):
     ycoeffs = [_y.coeffs[0] - _y.coeffs[1] * 9, _y.coeffs[1]]
     # Isomorphism into subfield of Z[p] / w**12 - 18 * w**6 + 82,
     # where w**6 = x
-    nx = FQ12([xcoeffs[0]] + [0] * 5 + [xcoeffs[1]] + [0] * 5)
-    ny = FQ12([ycoeffs[0]] + [0] * 5 + [ycoeffs[1]] + [0] * 5)
+    nx = FQ12([int(xcoeffs[0])] + [0] * 5 + [int(xcoeffs[1])] + [0] * 5)
+    ny = FQ12([int(ycoeffs[0])] + [0] * 5 + [int(ycoeffs[1])] + [0] * 5)
     # Divide x coord by w**2 and y coord by w**3
     return (nx * w ** 2, ny * w**3)
 
 
-G12 = twist(G2)
+G12 = twist(cast(Point2D[FQP], G2))
 # Check that the twist creates a point that is on the curve
 assert is_on_curve(G12, b12)
