@@ -195,9 +195,9 @@ class FQP(object):
     # Extended euclidean algorithm used to find the modular inverse
     def inv(self):
         lm, hm = [1] + [0] * self.degree, [0] * (self.degree + 1)
-        low, high = self.coeffs + [0], self.modulus_coeffs + [1]
+        low, high = self.coeffs + (0,), self.modulus_coeffs + (1,)
         while deg(low):
-            r = poly_rounded_div(high, low)
+            r = list(poly_rounded_div(high, low))
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
