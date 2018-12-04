@@ -1,16 +1,12 @@
 from __future__ import absolute_import
 
-import sys
-
 from typing import (
     cast,
     List,
+    Tuple,
     Sequence,
     Union,
 )
-
-
-sys.setrecursionlimit(10000)
 
 
 # The prime modulus of the field
@@ -19,8 +15,8 @@ field_modulus = 2188824287183927522224640574525727508869631115729782366268903789
 assert pow(2, field_modulus, field_modulus) == 2
 
 # The modulus of the polynomial in this representation of FQ12
-FQ12_MODULUS_COEFFS = [82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0]  # Implied + [1]
-FQ2_MODULUS_COEFFS = [1, 0]
+FQ12_MODULUS_COEFFS = (82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0)  # Implied + [1]
+FQ2_MODULUS_COEFFS = (1, 0)
 
 
 # Extended euclidean algorithm to find modular inverses for
@@ -37,54 +33,57 @@ def inv(a: int, n: int) -> int:
     return lm % n
 
 
+IntOrFQ = Union[int, "FQ"]
+
+
 # A class for field elements in FQ. Wrap a number in this class,
 # and it becomes a field element.
 class FQ(object):
     n = None  # type: int
 
-    def __init__(self, val: Union[int, "FQ"]) -> None:
+    def __init__(self, val: IntOrFQ) -> None:
         if isinstance(val, FQ):
             self.n = val.n
         else:
             self.n = val % field_modulus
         assert isinstance(self.n, int)
 
-    def __add__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __add__(self, other: IntOrFQ) -> "FQ":
         on = other.n if isinstance(other, FQ) else other
         return FQ((self.n + on) % field_modulus)
 
-    def __mul__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __mul__(self, other: IntOrFQ) -> "FQ":
         on = other.n if isinstance(other, FQ) else other
         return FQ((self.n * on) % field_modulus)
 
-    def __rmul__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __rmul__(self, other: IntOrFQ) -> "FQ":
         return self * other
 
-    def __radd__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __radd__(self, other: IntOrFQ) -> "FQ":
         return self + other
 
-    def __rsub__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __rsub__(self, other: IntOrFQ) -> "FQ":
         on = other.n if isinstance(other, FQ) else other
         return FQ((on - self.n) % field_modulus)
 
-    def __sub__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __sub__(self, other: IntOrFQ) -> "FQ":
         on = other.n if isinstance(other, FQ) else other
         return FQ((self.n - on) % field_modulus)
 
-    def __div__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __div__(self, other: IntOrFQ) -> "FQ":
         on = other.n if isinstance(other, FQ) else other
         assert isinstance(on, int)
         return FQ(self.n * inv(on, field_modulus) % field_modulus)
 
-    def __truediv__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __truediv__(self, other: IntOrFQ) -> "FQ":
         return self.__div__(other)
 
-    def __rdiv__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __rdiv__(self, other: IntOrFQ) -> "FQ":
         on = other.n if isinstance(other, FQ) else other
         assert isinstance(on, int), on
         return FQ(inv(self.n, field_modulus) * on % field_modulus)
 
-    def __rtruediv__(self, other: Union[int, "FQ"]) -> "FQ":
+    def __rtruediv__(self, other: IntOrFQ) -> "FQ":
         return self.__rdiv__(other)
 
     def __pow__(self, other: int) -> "FQ":
@@ -97,13 +96,13 @@ class FQ(object):
         else:
             return ((self * self) ** int(other // 2)) * self
 
-    def __eq__(self, other: Union[int, "FQ"]) -> bool:  # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __eq__(self, other: IntOrFQ) -> bool:  # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         if isinstance(other, FQ):
             return self.n == other.n
         else:
             return self.n == other
 
-    def __ne__(self, other: Union[int, "FQ"]) -> bool:    # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __ne__(self, other: IntOrFQ) -> bool:    # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         return not self == other
 
     def __neg__(self) -> "FQ":
@@ -125,15 +124,15 @@ class FQ(object):
 
 
 # Utility methods for polynomial math
-def deg(p: Sequence[Union[int, "FQ"]]) -> int:
+def deg(p: Sequence[IntOrFQ]) -> int:
     d = len(p) - 1
     while p[d] == 0 and d:
         d -= 1
     return d
 
 
-def poly_rounded_div(a: Sequence[Union[int, "FQ"]],
-                     b: Sequence[Union[int, "FQ"]]) -> Sequence[Union[int, "FQ"]]:
+def poly_rounded_div(a: Sequence[IntOrFQ],
+                     b: Sequence[IntOrFQ]) -> Tuple[IntOrFQ]:
     dega = deg(a)
     degb = deg(b)
     temp = [x for x in a]
@@ -142,7 +141,7 @@ def poly_rounded_div(a: Sequence[Union[int, "FQ"]],
         o[i] += int(temp[degb + i] / b[degb])
         for c in range(degb + 1):
             temp[c + i] -= o[c]
-    return o[:deg(o) + 1]
+    return cast(Tuple[IntOrFQ], tuple(o[:deg(o) + 1]))
 
 
 int_types_or_FQ = (int, FQ)
@@ -153,10 +152,10 @@ class FQP(object):
     degree = 0
 
     def __init__(self,
-                 coeffs: Sequence[Union[int, "FQ"]],
-                 modulus_coeffs: Sequence[Union[int, "FQ"]]=None) -> None:
+                 coeffs: Sequence[IntOrFQ],
+                 modulus_coeffs: Sequence[IntOrFQ]=None) -> None:
         assert len(coeffs) == len(modulus_coeffs)
-        self.coeffs = [FQ(c) for c in coeffs]
+        self.coeffs = tuple(FQ(c) for c in coeffs)
         # The coefficients of the modulus, without the leading [1]
         self.modulus_coeffs = modulus_coeffs
         # The degree of the extension field
@@ -210,10 +209,17 @@ class FQP(object):
 
     # Extended euclidean algorithm used to find the modular inverse
     def inv(self) -> "FQP":
-        lm, hm = [1] + [0] * self.degree, [0] * (self.degree + 1)
-        low, high = self.coeffs + [0], self.modulus_coeffs + [1]  # type: ignore
+        lm, hm = (
+            [1] + [0] * self.degree,
+            [0] * (self.degree + 1),
+        )
+        low, high = (
+            # Ignore mypy yelling about the inner types for  the tuples being incompatible
+            cast(List[IntOrFQ], list(self.coeffs + (0,))),  # type: ignore
+            cast(List[IntOrFQ], list(self.modulus_coeffs + (1,))),  # type: ignore
+        )
         while deg(low):
-            r = cast(List[Union[int, "FQ"]], poly_rounded_div(high, low))
+            r = cast(List[IntOrFQ], list(poly_rounded_div(high, low)))
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
@@ -254,13 +260,17 @@ class FQP(object):
 
 # The quadratic extension field
 class FQ2(FQP):
-    def __init__(self, coeffs: Sequence[Union[int, "FQ"]]) -> None:
+    degree = 2
+
+    def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         super().__init__(coeffs, FQ2_MODULUS_COEFFS)
-        type(self).degree = 2
+        assert self.degree == 2
 
 
 # The 12th-degree extension field
 class FQ12(FQP):
-    def __init__(self, coeffs: Sequence[Union[int, "FQ"]]) -> None:
+    degree = 12
+
+    def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         super().__init__(coeffs, FQ12_MODULUS_COEFFS)
-        type(self).degree = 12
+        assert self.degree == 12

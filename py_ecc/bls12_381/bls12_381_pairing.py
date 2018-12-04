@@ -79,7 +79,7 @@ def miller_loop(Q, P):
         if ate_loop_count & (2**i):
             f = f * linefunc(R, Q, P)
             R = add(R, Q)
-    #assert R == multiply(Q, ate_loop_count)
+    # assert R == multiply(Q, ate_loop_count)
     # Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus)
     # assert is_on_curve(Q1, b12)
     # nQ2 = (Q1[0] ** field_modulus, -Q1[1] ** field_modulus)

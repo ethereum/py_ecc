@@ -118,14 +118,14 @@ def miller_loop(Q, P, final_exponentiate=True):
             f_den = f_den * _d
             R = add(R, nQ)
     # assert R == multiply(Q, ate_loop_count)
-    #Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus, Q[2] ** field_modulus)
+    # Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus, Q[2] ** field_modulus)
     # assert is_on_curve(Q1, b12)
-    #nQ2 = (Q1[0] ** field_modulus, -Q1[1] ** field_modulus, Q1[2] ** field_modulus)
+    # nQ2 = (Q1[0] ** field_modulus, -Q1[1] ** field_modulus, Q1[2] ** field_modulus)
     # assert is_on_curve(nQ2, b12)
-    #_n1, _d1 = linefunc(R, Q1, P)
-    #R = add(R, Q1)
-    #_n2, _d2 = linefunc(R, nQ2, P)
-    #f = f_num * _n1 * _n2 / (f_den * _d1 * _d2)
+    # _n1, _d1 = linefunc(R, Q1, P)
+    # R = add(R, Q1)
+    # _n2, _d2 = linefunc(R, nQ2, P)
+    # f = f_num * _n1 * _n2 / (f_den * _d1 * _d2)
     f = f_num / f_den
     # R = add(R, nQ2) This line is in many specifications but it technically does nothing
     if final_exponentiate:
