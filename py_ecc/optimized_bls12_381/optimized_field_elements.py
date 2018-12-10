@@ -126,9 +126,9 @@ def poly_rounded_div(a, b):
 class FQP(object):
     def __init__(self, coeffs, modulus_coeffs):
         assert len(coeffs) == len(modulus_coeffs)
-        self.coeffs = coeffs
+        self.coeffs = tuple(coeffs)
         # The coefficients of the modulus, without the leading [1]
-        self.modulus_coeffs = modulus_coeffs
+        self.modulus_coeffs = tuple(modulus_coeffs)
         # The degree of the extension field
         self.degree = len(self.modulus_coeffs)
 
@@ -239,8 +239,8 @@ class FQP(object):
 # The quadratic extension field
 class FQ2(FQP):
     def __init__(self, coeffs):
-        self.coeffs = coeffs
-        self.modulus_coeffs = [1, 0]
+        self.coeffs = tuple(coeffs)
+        self.modulus_coeffs = (1, 0)
         self.mc_tuples = [(0, 1)]
         self.degree = 2
         self.__class__.degree = 2
@@ -249,7 +249,7 @@ class FQ2(FQP):
 # The 12th-degree extension field
 class FQ12(FQP):
     def __init__(self, coeffs):
-        self.coeffs = coeffs
+        self.coeffs = tuple(coeffs)
         self.modulus_coeffs = FQ12_modulus_coeffs
         self.mc_tuples = FQ12_mc_tuples
         self.degree = 12
