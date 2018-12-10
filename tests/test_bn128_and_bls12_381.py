@@ -2,10 +2,10 @@ import time
 
 import pytest
 
-from py_ecc import bn128, optimized_bn128
+from py_ecc import bn128, optimized_bn128, bls12_381, optimized_bls12_381
 
 
-@pytest.fixture(params=[bn128, optimized_bn128])
+@pytest.fixture(params=[bn128, optimized_bn128, bls12_381, optimized_bls12_381])
 def lib(request):
     return request.param
 

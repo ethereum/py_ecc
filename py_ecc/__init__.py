@@ -1,7 +1,7 @@
 import sys
 
 
-sys.setrecursionlimit(max(10000, sys.getrecursionlimit()))
+sys.setrecursionlimit(max(100000, sys.getrecursionlimit()))
 
 
 from py_ecc import secp256k1  # noqa: F401

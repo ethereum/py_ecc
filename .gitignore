@@ -35,6 +35,7 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+.python-version
 
 # Complexity
 output/*.html
@@ -55,6 +56,7 @@ chains
 
 # tox/pytest cache
 .cache
+.pytest_cache
 
 # Test output logs
 logs
@@ -106,4 +108,3 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-
