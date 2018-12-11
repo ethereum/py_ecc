@@ -11,10 +11,15 @@ extras_require = {
         "flake8==3.4.1",
         "mypy==0.641",
     ],
+    'dev': [
+        "bumpversion>=0.5.3,<1",
+        'twine',
+    ],
 }
 
 
 extras_require['dev'] = (
+    extras_require['dev'] +
     extras_require['test'] +
     extras_require['lint']
 )
@@ -27,6 +32,7 @@ with open('LICENSE') as f:
 
 setup(
     name='py_ecc',
+    # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
     version='1.4.5',
     description='Elliptic curve crypto in python including secp256k1 and alt_bn128',
     long_description=readme,
