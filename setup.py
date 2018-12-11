@@ -36,7 +36,7 @@ setup(
     version='1.4.5',
     description='Elliptic curve crypto in python including secp256k1 and alt_bn128',
     long_description=readme,
-    long_description_content_type='Elliptic curve crypto in python including secp256k1 and alt_bn128',
+    long_description_content_type='text/markdown',
     author='Vitalik Buterin',
     author_email='',
     url='https://github.com/ethereum/py_ecc',
