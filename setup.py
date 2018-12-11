@@ -39,13 +39,14 @@ setup(
     package_data={'py_ecc': ['py.typed']},
     install_requires=[
     ],
-    python_requires='>=3.6, <4',
+    python_requires='>=3.5, <4',
     extras_require=extras_require,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: PyPy',
