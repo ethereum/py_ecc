@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 extras_require = {
     'test': [
-        "pytest===3.2.2",
+        "pytest==3.2.2",
         "pytest-xdist"
     ],
     'lint': [
