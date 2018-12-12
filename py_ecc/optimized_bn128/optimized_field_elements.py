@@ -66,6 +66,9 @@ class FQ(object):
         on = other.n if isinstance(other, FQ) else other
         return FQ((self.n - on) % field_modulus)
 
+    def __mod__(self, other: Union[int, "FQ"]) -> "FQ":
+        return self.__mod__(other)
+
     def __div__(self, other: IntOrFQ) -> "FQ":
         on = other.n if isinstance(other, FQ) else other
         assert isinstance(on, int)
@@ -170,6 +173,9 @@ class FQP(object):
             for x, y
             in zip(self.coeffs, other.coeffs)
         ])
+
+    def __mod__(self, other: Union[int, "FQP"]) -> "FQP":
+        return self.__mod__(other)
 
     def __mul__(self, other: Union[int, "FQP"]) -> "FQP":
         if isinstance(other, int):
