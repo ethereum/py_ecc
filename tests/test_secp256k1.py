@@ -1,5 +1,11 @@
-from py_ecc.secp256k1 import privtopub, ecdsa_raw_sign, ecdsa_raw_recover
 import binascii
+
+from py_ecc.secp256k1 import (
+    ecdsa_raw_recover,
+    ecdsa_raw_sign,
+    privtopub,
+)
+
 
 priv = binascii.unhexlify('792eca682b890b31356247f2b04662bff448b6bb19ea1c8ab48da222c894ef9b')
 pub = (20033694065814990006010338153307081985267967222430278129327181081381512401190, 72089573118161052907088366229362685603474623289048716349537937839432544970413)
