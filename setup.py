@@ -4,15 +4,18 @@ from setuptools import setup, find_packages
 
 extras_require = {
     'test': [
-        "pytest==3.2.2",
-        "pytest-xdist"
+        "mypy-extensions>=0.4.1",
+        "pytest>=3.6.0",
+        "pytest-xdist",
     ],
     'lint': [
         "flake8==3.4.1",
         "mypy==0.641",
+        "mypy-extensions>=0.4.1",
     ],
     'dev': [
         "bumpversion>=0.5.3,<1",
+        "mypy-extensions>=0.4.1",
         "twine",
     ],
 }
