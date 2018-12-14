@@ -2,16 +2,18 @@ from abc import (
     abstractmethod,
 )
 
-from typing import (
+from typing import (  # noqa: F401
     cast,
+    List,
 )
 
-from py_ecc.field_elements import (
+from py_ecc.field_elements import (  # noqa: F401
+    FQ,
     FQP,
     FQ12,
 )
 
-from py_ecc.optimized_field_elements import (
+from py_ecc.optimized_field_elements import (  # noqa: F401
     FQ as optimized_FQ,
     FQP as optimized_FQP,
     FQ12 as optimized_FQ12,
@@ -34,31 +36,31 @@ from py_ecc.typing import (
 
 class BaseCurve:
     # Name of the curve can be "bn128" or "bls12_381"
-    curve_name = None
-    curve_order = None
-    field_modulus = None
+    curve_name = None  # type: str
+    curve_order = None  # type: int
+    field_modulus = None  # type: int
     # Curve is y**2 = x**3 + b
-    b = None
+    b = None  # type: FQ
     # Twisted curve over FQ**2
-    b2 = None
+    b2 = None  # type: FQP
     # Extension curve over FQ**12; same b value as over FQ
-    b12 = None
+    b12 = None  # type: FQP
     # Generator for curve over FQ
-    G1 = None
+    G1 = None  # type: Point2D[FQ]
     # Generator for twisted curve over FQ2
-    G2 = None
+    G2 = None  # type: Point2D[FQP]
     # Generator for twisted curve over FQ12
-    G12 = None
+    G12 = None  # type: Point2D[FQP]
     # Point at infinity over FQ
     Z1 = None
     # Point at infinity for twisted curve over FQ2
     Z2 = None
-    ate_loop_count = None
-    log_ate_loop_count = None
-    pseudo_binary_encoding = None
+    ate_loop_count = None  # type: int
+    log_ate_loop_count = None  # type: int
+    pseudo_binary_encoding = None  # type: List[int]
 
-    def __init__(self):
-        self.G12 = self.twist(cast(Point2D[FQP], self.G2))
+    def __init__(self) -> None:
+        self.G12 = self.twist(self.G2)
 
     def is_inf(self, pt: GeneralPoint[Field]) -> bool:
         """
@@ -185,31 +187,31 @@ class BaseCurve:
 
 class BaseOptimizedCurve:
     # Name of the curve can be "bn128" or "bls12_381"
-    curve_name = None
-    curve_order = None
-    field_modulus = None
+    curve_name = None  # type: str
+    curve_order = None  # type: int
+    field_modulus = None  # type: int
     # Curve is y**2 = x**3 + b
-    b = None
+    b = None  # type: optimized_FQ
     # Twisted curve over FQ**2
-    b2 = None
+    b2 = None  # type: optimized_FQP
     # Extension curve over FQ**12; same b value as over FQ
-    b12 = None
+    b12 = None  # type: optimized_FQP
     # Generator for curve over FQ
-    G1 = None
+    G1 = None  # type: Optimized_Point3D[optimized_FQ]
     # Generator for twisted curve over FQ2
-    G2 = None
+    G2 = None  # type: Optimized_Point3D[optimized_FQP]
     # Generator for curve over FQ12
-    G12 = None
+    G12 = None  # type: Optimized_Point3D[optimized_FQP]
     # Point at infinity over FQ
-    Z1 = None
+    Z1 = None  # type: Optimized_Point3D[optimized_FQ]
     # Point at infinity for twisted curve over FQ2
-    Z2 = None
-    ate_loop_count = None
-    log_ate_loop_count = None
-    pseudo_binary_encoding = None
+    Z2 = None  # type: Optimized_Point3D[optimized_FQP]
+    ate_loop_count = None  # type: int
+    log_ate_loop_count = None  # type: int
+    pseudo_binary_encoding = None  # type: List[int]
 
-    def __init__(self):
-        self.G12 = self.twist(cast(Optimized_Point3D[optimized_FQP], self.G2))
+    def __init__(self) -> None:
+        self.G12 = self.twist(self.G2)
 
     def is_inf(self, pt: Optimized_Point3D[Optimized_Field]) -> bool:
         """
@@ -217,7 +219,7 @@ class BaseOptimizedCurve:
         """
         return pt[-1] == (type(pt[-1]).zero(self.curve_name))
 
-    def is_on_curve(self, pt: Optimized_Point3D[Optimized_Field], b: Field) -> bool:
+    def is_on_curve(self, pt: Optimized_Point3D[Optimized_Field], b: Optimized_Field) -> bool:
         """
         Check that a point is on the curve defined by y**2 == x**3 + b
         """
@@ -379,7 +381,7 @@ class BaseOptimizedCurve:
     def pairing(self,
                 Q: Optimized_FQ2Point3D,
                 P: Optimized_FQPoint3D,
-                final_exponentiate: bool=True) -> FQP:
+                final_exponentiate: bool=True) -> optimized_FQP:
         assert self.is_on_curve(Q, self.b2)
         assert self.is_on_curve(P, self.b)
         if P[-1] == (type(P[-1]).zero(self.curve_name)) or Q[-1] == (type(Q[-1]).zero(self.curve_name)):  # noqa: E501

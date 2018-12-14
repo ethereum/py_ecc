@@ -10,6 +10,9 @@ if TYPE_CHECKING:
     from py_ecc.field_elements import (  # noqa: F401
         FQ,
     )
+    from py_ecc.optimized_field_elements import (  # noqa: F401
+        FQ as optimized_FQ,
+    )
 
 
 IntOrFQ = Union[int, "FQ"]
@@ -31,7 +34,7 @@ def prime_field_inv(a: int, n: int) -> int:
 
 
 # Utility methods for polynomial math
-def deg(p: Sequence[IntOrFQ]) -> int:
+def deg(p: Sequence[Union[int, "FQ", "optimized_FQ"]]) -> int:
     d = len(p) - 1
     while p[d] == 0 and d:
         d -= 1

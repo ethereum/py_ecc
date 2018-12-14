@@ -1,22 +1,65 @@
 from typing import (
+    Any,
     cast,
+    Dict,
+    List,
+    Optional,
 )
+
+from mypy_extensions import TypedDict
 
 from py_ecc.field_elements import (
     FQ,
+    FQP,
     FQ2,
     FQ12,
 )
 
 from py_ecc.optimized_field_elements import (
     FQ as optimized_FQ,
+    FQP as optimized_FQP,
     FQ2 as optimized_FQ2,
     FQ12 as optimized_FQ12,
 )
 
 from py_ecc.typing import (
     Point2D,
+    Optimized_Point3D,
 )
+
+
+Curve_Properties_Type = TypedDict('Curve_Properties_Type',
+                                  {
+                                      'curve_order': int,
+                                      'b': FQ,
+                                      'b2': FQP,
+                                      'b12': FQP,
+                                      'G1': Point2D[FQ],
+                                      'G2': Point2D[FQP],
+                                      'Z1': Optional[Any],
+                                      'Z2': Optional[Any],
+                                      'ate_loop_count': int,
+                                      'log_ate_loop_count': int,
+                                      'pseudo_binary_encoding': List[int],
+                                  })
+Curve_Properties = Dict[str, Curve_Properties_Type]
+
+
+Optimized_Curve_Properties_Type = TypedDict('Optimized_Curve_Properties_Type',
+                                            {
+                                                'curve_order': int,
+                                                'b': optimized_FQ,
+                                                'b2': optimized_FQP,
+                                                'b12': optimized_FQP,
+                                                'G1': Optimized_Point3D[optimized_FQ],
+                                                'G2': Optimized_Point3D[optimized_FQP],
+                                                'Z1': Optimized_Point3D[optimized_FQ],
+                                                'Z2': Optimized_Point3D[optimized_FQP],
+                                                'ate_loop_count': int,
+                                                'log_ate_loop_count': int,
+                                                'pseudo_binary_encoding': List[int],
+                                            })
+Optimized_Curve_Properties = Dict[str, Optimized_Curve_Properties_Type]
 
 
 curve_properties = {
@@ -93,7 +136,7 @@ curve_properties = {
             1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1
         ],
     },
-}
+}   # type: Curve_Properties
 
 optimized_curve_properties = {
     "bn128": {
@@ -192,4 +235,4 @@ optimized_curve_properties = {
             1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1
         ],
     },
-}
+}   # type: Optimized_Curve_Properties
