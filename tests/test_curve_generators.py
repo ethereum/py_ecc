@@ -1,10 +1,5 @@
 import pytest
 
-from py_ecc import (
-    field_elements,
-    optimized_field_elements,
-)
-
 from py_ecc.bls12_381_curve import (
     BLS12_381_Curve,
     Optimized_BLS12_381_Curve,
@@ -18,7 +13,6 @@ from py_ecc.curve_properties import (
     curve_properties,
     optimized_curve_properties,
 )
-
 from py_ecc.field_properties import (
     field_properties,
 )
