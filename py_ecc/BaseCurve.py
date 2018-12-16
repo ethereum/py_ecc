@@ -62,22 +62,25 @@ class BaseCurve:
     def __init__(self) -> None:
         self.G12 = self.twist(self.G2)
 
-    def is_inf(self, pt: GeneralPoint[Field]) -> bool:
+    @staticmethod
+    def is_inf(pt: GeneralPoint[Field]) -> bool:
         """
         Check if a point is the point at infinity
         """
         return pt is None
 
-    def is_on_curve(self, pt: Point2D[Field], b: Field) -> bool:
+    @classmethod
+    def is_on_curve(cls, pt: Point2D[Field], b: Field) -> bool:
         """
         Check that a point is on the curve
         """
-        if self.is_inf(pt):
+        if cls.is_inf(pt):
             return True
         x, y = pt
         return y**2 == x**3 + b
 
-    def double(self, pt: Point2D[Field]) -> Point2D[Field]:
+    @staticmethod
+    def double(pt: Point2D[Field]) -> Point2D[Field]:
         """
         Elliptic Curve Doubling (P+P).
         """
@@ -87,7 +90,8 @@ class BaseCurve:
         newy = -m * newx + m * x - y
         return (newx, newy)
 
-    def add(self,
+    @classmethod
+    def add(cls,
             p1: Point2D[Field],
             p2: Point2D[Field]) -> Point2D[Field]:
         """
@@ -98,7 +102,7 @@ class BaseCurve:
         x1, y1 = p1
         x2, y2 = p2
         if x2 == x1 and y2 == y1:
-            return self.double(p1)
+            return cls.double(p1)
         elif x2 == x1:
             return None
         else:
@@ -108,7 +112,8 @@ class BaseCurve:
         assert newy == (-m * newx + m * x2 - y2)
         return (newx, newy)
 
-    def multiply(self, pt: Point2D[Field], n: int) -> Point2D[Field]:
+    @classmethod
+    def multiply(cls, pt: Point2D[Field], n: int) -> Point2D[Field]:
         """
         Elliptic curve point multiplication.
         """
@@ -117,17 +122,19 @@ class BaseCurve:
         elif n == 1:
             return pt
         elif not n % 2:
-            return self.multiply(self.double(pt), n // 2)
+            return cls.multiply(cls.double(pt), n // 2)
         else:
-            return self.add(self.multiply(self.double(pt), n // 2), pt)
+            return cls.add(cls.multiply(cls.double(pt), n // 2), pt)
 
-    def eq(self, p1: GeneralPoint[Field], p2: GeneralPoint[Field]) -> bool:
+    @staticmethod
+    def eq(p1: GeneralPoint[Field], p2: GeneralPoint[Field]) -> bool:
         """
         Check if 2 points are equal.
         """
         return p1 == p2
 
-    def neg(self, pt: Point2D[Field]) -> Point2D[Field]:
+    @staticmethod
+    def neg(pt: Point2D[Field]) -> Point2D[Field]:
         """
         Gives the reflection of point wrt x-axis (P => -P).
         """
@@ -136,26 +143,28 @@ class BaseCurve:
         x, y = pt
         return (x, -y)
 
+    @staticmethod
     @abstractmethod
-    def twist(self, pt: Point2D[FQP]) -> Point2D[FQP]:
+    def twist(pt: Point2D[FQP]) -> Point2D[FQP]:
         """
         'Twist' a point in E(FQ2) into a point in E(FQ12)
         """
         raise NotImplementedError("Must be implemented by subclasses")
 
     # Pairing Related Functionalities
-    def cast_point_to_fq12(self, pt: FQPoint2D) -> FQ12Point2D:
+    @classmethod
+    def cast_point_to_fq12(cls, pt: FQPoint2D) -> FQ12Point2D:
         if pt is None:
             return None
         x, y = pt
         fq12_point = (
-            FQ12([x.n] + [0] * 11, self.curve_name),
-            FQ12([y.n] + [0] * 11, self.curve_name),
+            FQ12([x.n] + [0] * 11, cls.curve_name),
+            FQ12([y.n] + [0] * 11, cls.curve_name),
         )
         return cast(FQ12Point2D, fq12_point)
 
-    def linefunc(self,
-                 P1: Point2D[Field],
+    @staticmethod
+    def linefunc(P1: Point2D[Field],
                  P2: Point2D[Field],
                  T: Point2D[Field]) -> Field:
         """
@@ -175,14 +184,16 @@ class BaseCurve:
         else:
             return xt - x1
 
+    @classmethod
     @abstractmethod
-    def miller_loop(self, Q: Point2D[Field], P: Point2D[Field]) -> FQP:
+    def miller_loop(cls, Q: Point2D[Field], P: Point2D[Field]) -> FQP:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    def pairing(self, Q: FQ2Point2D, P: FQPoint2D) -> FQP:
-        assert self.is_on_curve(Q, self.b2)
-        assert self.is_on_curve(P, self.b)
-        return self.miller_loop(self.twist(Q), self.cast_point_to_fq12(P))
+    @classmethod
+    def pairing(cls, Q: FQ2Point2D, P: FQPoint2D) -> FQP:
+        assert cls.is_on_curve(Q, cls.b2)
+        assert cls.is_on_curve(P, cls.b)
+        return cls.miller_loop(cls.twist(Q), cls.cast_point_to_fq12(P))
 
 
 class BaseOptimizedCurve:
@@ -213,22 +224,25 @@ class BaseOptimizedCurve:
     def __init__(self) -> None:
         self.G12 = self.twist(self.G2)
 
-    def is_inf(self, pt: Optimized_Point3D[Optimized_Field]) -> bool:
+    @classmethod
+    def is_inf(cls, pt: Optimized_Point3D[Optimized_Field]) -> bool:
         """
         Check if a point is the point at infinity
         """
-        return pt[-1] == (type(pt[-1]).zero(self.curve_name))
+        return pt[-1] == (type(pt[-1]).zero(cls.curve_name))
 
-    def is_on_curve(self, pt: Optimized_Point3D[Optimized_Field], b: Optimized_Field) -> bool:
+    @classmethod
+    def is_on_curve(cls, pt: Optimized_Point3D[Optimized_Field], b: Optimized_Field) -> bool:
         """
         Check that a point is on the curve defined by y**2 == x**3 + b
         """
-        if self.is_inf(pt):
+        if cls.is_inf(pt):
             return True
         x, y, z = pt
         return y**2 * z == x**3 + (b * z**3)
 
-    def double(self, pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
+    @staticmethod
+    def double(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
         """
         Elliptic curve doubling
         """
@@ -243,13 +257,14 @@ class BaseOptimizedCurve:
         newz = 8 * S * S_squared
         return (newx, newy, newz)
 
-    def add(self,
+    @classmethod
+    def add(cls,
             p1: Optimized_Point3D[Optimized_Field],
             p2: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
         """
         Elliptic curve addition
         """
-        one, zero = type(p1[0]).one(self.curve_name), type(p1[0]).zero(self.curve_name)
+        one, zero = type(p1[0]).one(cls.curve_name), type(p1[0]).zero(cls.curve_name)
         if p1[2] == zero or p2[2] == zero:
             return p1 if p2[2] == zero else p2
         x1, y1, z1 = p1
@@ -259,7 +274,7 @@ class BaseOptimizedCurve:
         V1 = x2 * z1
         V2 = x1 * z2
         if V1 == V2 and U1 == U2:
-            return self.double(p1)
+            return cls.double(p1)
         elif V1 == V2:
             return (one, one, zero)
         U = U1 - U2
@@ -274,7 +289,8 @@ class BaseOptimizedCurve:
         newz = V_cubed * W
         return (newx, newy, newz)
 
-    def multiply(self,
+    @classmethod
+    def multiply(cls,
                  pt: Optimized_Point3D[Optimized_Field],
                  n: int) -> Optimized_Point3D[Optimized_Field]:
         """
@@ -282,19 +298,19 @@ class BaseOptimizedCurve:
         """
         if n == 0:
             return (
-                type(pt[0]).one(self.curve_name),
-                type(pt[0]).one(self.curve_name),
-                type(pt[0]).zero(self.curve_name)
+                type(pt[0]).one(cls.curve_name),
+                type(pt[0]).one(cls.curve_name),
+                type(pt[0]).zero(cls.curve_name)
             )
         elif n == 1:
             return pt
         elif not n % 2:
-            return self.multiply(self.double(pt), n // 2)
+            return cls.multiply(cls.double(pt), n // 2)
         else:
-            return self.add(self.multiply(self.double(pt), int(n // 2)), pt)
+            return cls.add(cls.multiply(cls.double(pt), int(n // 2)), pt)
 
-    def eq(self,
-           p1: Optimized_Point3D[Optimized_Field],
+    @staticmethod
+    def eq(p1: Optimized_Point3D[Optimized_Field],
            p2: Optimized_Point3D[Optimized_Field]) -> bool:
         """
         Check if 2 points are equal.
@@ -303,15 +319,16 @@ class BaseOptimizedCurve:
         x2, y2, z2 = p2
         return x1 * z2 == x2 * z1 and y1 * z2 == y2 * z1
 
-    def normalize(self,
-                  pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point2D[Optimized_Field]:
+    @staticmethod
+    def normalize(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point2D[Optimized_Field]:
         """
         Convert the Jacobian Point to a normal point
         """
         x, y, z = pt
         return (x / z, y / z)
 
-    def neg(self, pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
+    @staticmethod
+    def neg(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
         """
         Gives the reflection of point wrt x-axis (P => -P).
         """
@@ -320,27 +337,30 @@ class BaseOptimizedCurve:
         x, y, z = pt
         return (x, -y, z)
 
+    @staticmethod
     @abstractmethod
-    def twist(self, pt: Optimized_Point3D[optimized_FQP]) -> Optimized_Point3D[optimized_FQP]:
+    def twist(pt: Optimized_Point3D[optimized_FQP]) -> Optimized_Point3D[optimized_FQP]:
         """
         'Twist' a point in E(FQ2) into a point in E(FQ12)
         """
         raise NotImplementedError("Must be implemented by subclasses")
 
     # Pairing Related Functionalities
+    @classmethod
     def cast_point_to_fq12(
-            self,
+            cls,
             pt: Optimized_Point3D[optimized_FQ]) -> Optimized_Point3D[optimized_FQ12]:
         if pt is None:
             return None
         x, y, z = pt
         return (
-            optimized_FQ12([x.n] + [0] * 11, self.curve_name),
-            optimized_FQ12([y.n] + [0] * 11, self.curve_name),
-            optimized_FQ12([z.n] + [0] * 11, self.curve_name),
+            optimized_FQ12([x.n] + [0] * 11, cls.curve_name),
+            optimized_FQ12([y.n] + [0] * 11, cls.curve_name),
+            optimized_FQ12([z.n] + [0] * 11, cls.curve_name),
         )
 
-    def linefunc(self,
+    @classmethod
+    def linefunc(cls,
                  P1: Optimized_Point3D[Optimized_Field],
                  P2: Optimized_Point3D[Optimized_Field],
                  T: Optimized_Point3D[Optimized_Field]) -> Optimized_Point2D[Optimized_Field]:
@@ -349,7 +369,7 @@ class BaseOptimizedCurve:
         and evaluate it at T.
         Returns a numerator and a denominator to avoid unneeded divisions
         """
-        zero = type(P1[0]).zero(self.curve_name)
+        zero = type(P1[0]).zero(cls.curve_name)
         x1, y1, z1 = P1
         x2, y2, z2 = P2
         xt, yt, zt = T
@@ -371,23 +391,25 @@ class BaseOptimizedCurve:
         else:
             return xt * z1 - x1 * zt, z1 * zt
 
+    @classmethod
     @abstractmethod
-    def miller_loop(self,
+    def miller_loop(cls,
                     Q: Optimized_Point3D[optimized_FQP],
                     P: Optimized_Point3D[optimized_FQP],
                     final_exponentiate: bool=True) -> optimized_FQP:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    def pairing(self,
+    @classmethod
+    def pairing(cls,
                 Q: Optimized_FQ2Point3D,
                 P: Optimized_FQPoint3D,
                 final_exponentiate: bool=True) -> optimized_FQP:
-        assert self.is_on_curve(Q, self.b2)
-        assert self.is_on_curve(P, self.b)
-        if P[-1] == (type(P[-1]).zero(self.curve_name)) or Q[-1] == (type(Q[-1]).zero(self.curve_name)):  # noqa: E501
-            return optimized_FQ12.one(self.curve_name)
-        return self.miller_loop(
-            self.twist(Q),
-            self.cast_point_to_fq12(P),
+        assert cls.is_on_curve(Q, cls.b2)
+        assert cls.is_on_curve(P, cls.b)
+        if P[-1] == (type(P[-1]).zero(cls.curve_name)) or Q[-1] == (type(Q[-1]).zero(cls.curve_name)):  # noqa: E501
+            return optimized_FQ12.one(cls.curve_name)
+        return cls.miller_loop(
+            cls.twist(Q),
+            cls.cast_point_to_fq12(P),
             final_exponentiate=final_exponentiate,
         )

@@ -47,7 +47,8 @@ class BLS12_381_Curve(BaseCurve):
     def __init__(self) -> None:
         super().__init__()
 
-    def twist(self, pt: Point2D[FQP]) -> Point2D[FQP]:
+    @staticmethod
+    def twist(pt: Point2D[FQP]) -> Point2D[FQP]:
         if pt is None:
             return None
         w = FQ12([0, 1] + [0] * 10, "bls12_381")
@@ -62,17 +63,18 @@ class BLS12_381_Curve(BaseCurve):
         # Divide x coord by w**2 and y coord by w**3
         return (nx / w**2, ny / w**3)
 
-    def miller_loop(self, Q: Point2D[Field], P: Point2D[Field]) -> FQP:
+    @classmethod
+    def miller_loop(cls, Q: Point2D[Field], P: Point2D[Field]) -> FQP:
         if Q is None or P is None:
-            return FQ12.one(self.curve_name)
+            return FQ12.one(cls.curve_name)
         R = Q
-        f = FQ12.one(self.curve_name)
-        for i in range(self.log_ate_loop_count, -1, -1):
-            f = f * f * self.linefunc(R, R, P)
-            R = self.double(R)
-            if self.ate_loop_count & (2**i):
-                f = f * self.linefunc(R, Q, P)
-                R = self.add(R, Q)
+        f = FQ12.one(cls.curve_name)
+        for i in range(cls.log_ate_loop_count, -1, -1):
+            f = f * f * cls.linefunc(R, R, P)
+            R = cls.double(R)
+            if cls.ate_loop_count & (2**i):
+                f = f * cls.linefunc(R, Q, P)
+                R = cls.add(R, Q)
         # assert R == multiply(Q, ate_loop_count)
         # Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus)
         # assert is_on_curve(Q1, b12)
@@ -82,7 +84,7 @@ class BLS12_381_Curve(BaseCurve):
         # R = add(R, Q1)
         # f = f * linefunc(R, nQ2, P)
         # R = add(R, nQ2) This line is in many specifications but it technically does nothing
-        return f ** ((self.field_modulus ** 12 - 1) // self.curve_order)
+        return f ** ((cls.field_modulus ** 12 - 1) // cls.curve_order)
 
 
 class Optimized_BLS12_381_Curve(BaseOptimizedCurve):
@@ -103,7 +105,8 @@ class Optimized_BLS12_381_Curve(BaseOptimizedCurve):
     def __init__(self) -> None:
         super().__init__()
 
-    def twist(self, pt: Optimized_Point3D[optimized_FQP]) -> Optimized_Point3D[optimized_FQP]:
+    @staticmethod
+    def twist(pt: Optimized_Point3D[optimized_FQP]) -> Optimized_Point3D[optimized_FQP]:
         if pt is None:
             return None
         w = optimized_FQ12([0, 1] + [0] * 10, "bls12_381")
@@ -118,31 +121,32 @@ class Optimized_BLS12_381_Curve(BaseOptimizedCurve):
         # Divide x coord by w**2 and y coord by w**3
         return (nx / w**2, ny / w**3, nz)
 
-    def miller_loop(self,
+    @classmethod
+    def miller_loop(cls,
                     Q: Optimized_Point3D[optimized_FQP],
                     P: Optimized_Point3D[optimized_FQP],
                     final_exponentiate: bool=True) -> optimized_FQP:
         if Q is None or P is None:
-            return optimized_FQ12.one(self.curve_name)
+            return optimized_FQ12.one(cls.curve_name)
         R = Q
-        f_num, f_den = optimized_FQ12.one(self.curve_name), optimized_FQ12.one(self.curve_name)
+        f_num, f_den = optimized_FQ12.one(cls.curve_name), optimized_FQ12.one(cls.curve_name)
         # for i in range(log_ate_loop_count, -1, -1):
-        for v in self.pseudo_binary_encoding[62::-1]:
-            _n, _d = self.linefunc(R, R, P)
+        for v in cls.pseudo_binary_encoding[62::-1]:
+            _n, _d = cls.linefunc(R, R, P)
             f_num = f_num * f_num * _n
             f_den = f_den * f_den * _d
-            R = self.double(R)
+            R = cls.double(R)
             if v == 1:
-                _n, _d = self.linefunc(R, Q, P)
+                _n, _d = cls.linefunc(R, Q, P)
                 f_num = f_num * _n
                 f_den = f_den * _d
-                R = self.add(R, Q)
+                R = cls.add(R, Q)
             elif v == -1:
-                nQ = self.neg(Q)
-                _n, _d = self.linefunc(R, nQ, P)
+                nQ = cls.neg(Q)
+                _n, _d = cls.linefunc(R, nQ, P)
                 f_num = f_num * _n
                 f_den = f_den * _d
-                R = self.add(R, nQ)
+                R = cls.add(R, nQ)
         # assert R == multiply(Q, ate_loop_count)
         # Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus, Q[2] ** field_modulus)
         # assert is_on_curve(Q1, b12)
@@ -155,6 +159,6 @@ class Optimized_BLS12_381_Curve(BaseOptimizedCurve):
         f = f_num / f_den
         # R = add(R, nQ2) This line is in many specifications but it technically does nothing
         if final_exponentiate:
-            return f ** ((self.field_modulus ** 12 - 1) // self.curve_order)
+            return f ** ((cls.field_modulus ** 12 - 1) // cls.curve_order)
         else:
             return f
