@@ -109,7 +109,7 @@ class BaseCurve:
             m = (y2 - y1) / (x2 - x1)
         newx = m**2 - x1 - x2
         newy = -m * newx + m * x1 - y1
-        assert newy == (-m * newx + m * x2 - y2)
+
         return (newx, newy)
 
     @classmethod
@@ -171,7 +171,8 @@ class BaseCurve:
         Create a function representing the line between P1 and P2,
         and evaluate it at T
         """
-        assert P1 and P2 and T  # No points-at-infinity allowed, sorry
+        if not P1 or not P2 or not T:
+            raise ValueError("No points-at-infinity allowed")
         x1, y1 = P1
         x2, y2 = P2
         xt, yt = T
@@ -191,8 +192,11 @@ class BaseCurve:
 
     @classmethod
     def pairing(cls, Q: FQ2Point2D, P: FQPoint2D) -> FQP:
-        assert cls.is_on_curve(Q, cls.b2)
-        assert cls.is_on_curve(P, cls.b)
+        if not cls.is_on_curve(Q, cls.b2):
+            raise ValueError("Point Q is not on the curve defined by b2")
+        if not cls.is_on_curve(P, cls.b):
+            raise ValueError("Point P is not on the curve defined by b")
+
         return cls.miller_loop(cls.twist(Q), cls.cast_point_to_fq12(P))
 
 
@@ -404,8 +408,11 @@ class BaseOptimizedCurve:
                 Q: Optimized_FQ2Point3D,
                 P: Optimized_FQPoint3D,
                 final_exponentiate: bool=True) -> optimized_FQP:
-        assert cls.is_on_curve(Q, cls.b2)
-        assert cls.is_on_curve(P, cls.b)
+        if not cls.is_on_curve(Q, cls.b2):
+            raise ValueError("Point Q is not on the curve defined by b2")
+        if not cls.is_on_curve(P, cls.b):
+            raise ValueError("Point P is not on the curve defined by b")
+
         if P[-1] == (type(P[-1]).zero(cls.curve_name)) or Q[-1] == (type(Q[-1]).zero(cls.curve_name)):  # noqa: E501
             return optimized_FQ12.one(cls.curve_name)
         return cls.miller_loop(
