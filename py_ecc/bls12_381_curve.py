@@ -162,3 +162,7 @@ class Optimized_BLS12_381_Curve(BaseOptimizedCurve):
             return f ** ((cls.field_modulus ** 12 - 1) // cls.curve_order)
         else:
             return f
+
+
+bls12_381 = BLS12_381_Curve()
+optimized_bls12_381 = Optimized_BLS12_381_Curve()

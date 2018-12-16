@@ -34,8 +34,6 @@ class FQ(object):
         """
         self.curve_name = curve_name
         self.field_modulus = field_properties[curve_name]["field_modulus"]
-        # See, it's prime!
-        # assert pow(2, self.field_modulus, self.field_modulus) == 2
 
         if isinstance(val, FQ):
             self.n = val.n

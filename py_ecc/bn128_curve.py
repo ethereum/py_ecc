@@ -174,3 +174,7 @@ class Optimized_BN128_Curve(BaseOptimizedCurve):
             return f ** ((cls.field_modulus ** 12 - 1) // cls.curve_order)
         else:
             return f
+
+
+bn128 = BN128_Curve()
+optimized_bn128 = Optimized_BN128_Curve()
