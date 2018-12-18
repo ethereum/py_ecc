@@ -5,7 +5,7 @@ from typing import (
     Union,
 )
 
-from py_ecc.bn128.bn128_field_elements import (
+from py_ecc.field_elements import (
     FQ,
     FQP,
     FQ2,
@@ -13,7 +13,7 @@ from py_ecc.bn128.bn128_field_elements import (
 )
 
 if TYPE_CHECKING:
-    from py_ecc.optimized_bn128.optimized_field_elements import (  # noqa: F401
+    from py_ecc.optimized_field_elements import (  # noqa: F401
         FQ as Optimized_FQ,
         FQP as Optimized_FQP,
         FQ2 as Optimized_FQ2,

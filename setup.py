@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 
 extras_require = {
     'test': [
-        "pytest==3.2.2",
-        "pytest-xdist"
+        "pytest>=3.6.0",
+        "pytest-xdist",
     ],
     'lint': [
         "flake8==3.4.1",
@@ -44,6 +44,7 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     package_data={'py_ecc': ['py.typed']},
     install_requires=[
+        "mypy-extensions>=0.4.1",
     ],
     python_requires='>=3.5, <4',
     extras_require=extras_require,

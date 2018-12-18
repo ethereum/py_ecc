@@ -58,6 +58,9 @@ chains
 .cache
 .pytest_cache
 
+# mypy
+.mypy_cache/
+
 # Test output logs
 logs
 ### JetBrains template
