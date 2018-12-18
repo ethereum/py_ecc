@@ -22,7 +22,7 @@ from py_ecc.field_properties import (
 
 def validate_field_properties() -> None:
     for curve_name in field_properties:
-        # Check if field_modulus is prime
+        # Do a smoke test to be sure that field_modulus is prime
         field_modulus = field_properties[curve_name]["field_modulus"]
         if pow(2, field_modulus, field_modulus) != 2:
             raise ValueError(
@@ -32,7 +32,7 @@ def validate_field_properties() -> None:
 
 def validate_curve_properties() -> None:
     for curve_name in curve_properties:
-        # Check if curve_order is prime
+        # Do a smoke test to be sure that curve_order is prime
         curve_order = curve_properties[curve_name]["curve_order"]
         if pow(2, curve_order, curve_order) != 2:
             raise ValueError(
@@ -58,7 +58,7 @@ def validate_curve_properties() -> None:
 
 def validate_optimized_curve_properties() -> None:
     for curve_name in optimized_curve_properties:
-        # Check if curve_order is prime
+        # Do a smoke test to be sure that curve_order is prime
         curve_order = optimized_curve_properties[curve_name]["curve_order"]
         if pow(2, curve_order, curve_order) != 2:
             raise ValueError(

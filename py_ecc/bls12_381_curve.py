@@ -44,9 +44,6 @@ class BLS12_381_Curve(BaseCurve):
     log_ate_loop_count = curve_properties[curve_name]["log_ate_loop_count"]
     pseudo_binary_encoding = curve_properties[curve_name]["pseudo_binary_encoding"]
 
-    def __init__(self) -> None:
-        super().__init__()
-
     @staticmethod
     def twist(pt: Point2D[FQP]) -> Point2D[FQP]:
         if pt is None:
@@ -101,9 +98,6 @@ class Optimized_BLS12_381_Curve(BaseOptimizedCurve):
     ate_loop_count = optimized_curve_properties[curve_name]["ate_loop_count"]
     log_ate_loop_count = optimized_curve_properties[curve_name]["log_ate_loop_count"]
     pseudo_binary_encoding = optimized_curve_properties[curve_name]["pseudo_binary_encoding"]
-
-    def __init__(self) -> None:
-        super().__init__()
 
     @staticmethod
     def twist(pt: Optimized_Point3D[optimized_FQP]) -> Optimized_Point3D[optimized_FQP]:

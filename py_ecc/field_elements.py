@@ -37,16 +37,38 @@ class FQ(object):
 
         if isinstance(val, FQ):
             self.n = val.n
-        else:
+        elif isinstance(val, int):
             self.n = val % self.field_modulus
-        assert isinstance(self.n, int)
+        else:
+            raise ValueError(
+                "Expected an int or FQ object, but got object of type {}"
+                .format(type(val))
+            )
 
     def __add__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
+        if isinstance(other, FQ):
+            on = other.n
+        elif isinstance(other, int):
+            on = other
+        else:
+            raise ValueError(
+                "Expected an int or FQ object, but got object of type {}"
+                .format(type(other))
+            )
+
         return FQ((self.n + on) % self.field_modulus, self.curve_name)
 
     def __mul__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
+        if isinstance(other, FQ):
+            on = other.n
+        elif isinstance(other, int):
+            on = other
+        else:
+            raise ValueError(
+                "Expected an int or FQ object, but got object of type {}"
+                .format(type(other))
+            )
+
         return FQ((self.n * on) % self.field_modulus, self.curve_name)
 
     def __rmul__(self, other: IntOrFQ) -> "FQ":
@@ -56,16 +78,42 @@ class FQ(object):
         return self + other
 
     def __rsub__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
+        if isinstance(other, FQ):
+            on = other.n
+        elif isinstance(other, int):
+            on = other
+        else:
+            raise ValueError(
+                "Expected an int or FQ object, but got object of type {}"
+                .format(type(other))
+            )
+
         return FQ((on - self.n) % self.field_modulus, self.curve_name)
 
     def __sub__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
+        if isinstance(other, FQ):
+            on = other.n
+        elif isinstance(other, int):
+            on = other
+        else:
+            raise ValueError(
+                "Expected an int or FQ object, but got object of type {}"
+                .format(type(other))
+            )
+
         return FQ((self.n - on) % self.field_modulus, self.curve_name)
 
     def __div__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
-        assert isinstance(on, int)
+        if isinstance(other, FQ):
+            on = other.n
+        elif isinstance(other, int):
+            on = other
+        else:
+            raise ValueError(
+                "Expected an int or FQ object, but got object of type {}"
+                .format(type(other))
+            )
+
         return FQ(
             self.n * prime_field_inv(on, self.field_modulus) % self.field_modulus,
             self.curve_name
@@ -75,8 +123,16 @@ class FQ(object):
         return self.__div__(other)
 
     def __rdiv__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
-        assert isinstance(on, int), on
+        if isinstance(other, FQ):
+            on = other.n
+        elif isinstance(other, int):
+            on = other
+        else:
+            raise ValueError(
+                "Expected an int or FQ object, but got object of type {}"
+                .format(type(other))
+            )
+
         return FQ(
             prime_field_inv(self.n, self.field_modulus) * on % self.field_modulus,
             self.curve_name
@@ -98,8 +154,13 @@ class FQ(object):
     def __eq__(self, other: IntOrFQ) -> bool:  # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         if isinstance(other, FQ):
             return self.n == other.n
-        else:
+        elif isinstance(other, int):
             return self.n == other
+        else:
+            raise ValueError(
+                "Expected an int or FQ object, but got object of type {}"
+                .format(type(other))
+            )
 
     def __ne__(self, other: IntOrFQ) -> bool:    # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         return not self == other
@@ -134,7 +195,10 @@ class FQP(object):
                  coeffs: Sequence[IntOrFQ],
                  curve_name: str,
                  modulus_coeffs: Sequence[IntOrFQ]=None) -> None:
-        assert len(coeffs) == len(modulus_coeffs)
+        if len(coeffs) != len(modulus_coeffs):
+            raise Exception(
+                "coeffs and modulus_coeffs aren't of the same length"
+            )
         self.coeffs = tuple(FQ(c, curve_name) for c in coeffs)
         self.curve_name = curve_name
         # The coefficients of the modulus, without the leading [1]
@@ -143,18 +207,27 @@ class FQP(object):
         self.degree = len(self.modulus_coeffs)
 
     def __add__(self, other: "FQP") -> "FQP":
-        assert isinstance(other, type(self))
+        if not isinstance(other, type(self)):
+            raise ValueError(
+                "Expected an FQP object, but got object of type {}"
+                .format(type(other))
+            )
+
         return type(self)([x + y for x, y in zip(self.coeffs, other.coeffs)], self.curve_name)
 
     def __sub__(self, other: "FQP") -> "FQP":
-        assert isinstance(other, type(self))
+        if not isinstance(other, type(self)):
+            raise ValueError(
+                "Expected an FQP object, but got object of type {}"
+                .format(type(other))
+            )
+
         return type(self)([x - y for x, y in zip(self.coeffs, other.coeffs)], self.curve_name)
 
     def __mul__(self, other: Union[int, "FQ", "FQP"]) -> "FQP":
         if isinstance(other, int) or isinstance(other, FQ):
             return type(self)([c * other for c in self.coeffs], self.curve_name)
-        else:
-            assert isinstance(other, FQP)
+        elif isinstance(other, FQP):
             b = [FQ(0, self.curve_name) for i in range(self.degree * 2 - 1)]
             for i in range(self.degree):
                 for j in range(self.degree):
@@ -164,6 +237,11 @@ class FQP(object):
                 for i in range(self.degree):
                     b[exp + i] -= top * FQ(self.modulus_coeffs[i], self.curve_name)
             return type(self)(b, self.curve_name)
+        else:
+            raise ValueError(
+                "Expected an int or FQ object or FQP object, but got object of type {}"
+                .format(type(other))
+            )
 
     def __rmul__(self, other: Union[int, "FQ", "FQP"]) -> "FQP":
         return self * other
@@ -171,9 +249,13 @@ class FQP(object):
     def __div__(self, other: Union[int, "FQ", "FQP"]) -> "FQP":
         if isinstance(other, int_types_or_FQ):
             return type(self)([c / other for c in self.coeffs], self.curve_name)
-        else:
-            assert isinstance(other, FQP)
+        elif isinstance(other, FQP):
             return self * other.inv()
+        else:
+            raise ValueError(
+                "Expected an int or FQ object or FQP object, but got object of type {}"
+                .format(type(other))
+            )
 
     def __truediv__(self, other: Union[int, "FQ", "FQP"]) -> "FQP":
         return self.__div__(other)
@@ -204,9 +286,11 @@ class FQP(object):
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
-            assert len(set(
+            if len(set(
                 [len(lm), len(hm), len(low), len(high), len(nm), len(new), self.degree + 1]
-            )) == 1
+            )) != 1:
+                raise Exception("Mismatch between the lengths of lm, hm, low, high, nm, new")
+
             for i in range(self.degree + 1):
                 for j in range(self.degree + 1 - i):
                     nm[i + j] -= lm[i] * int(r[j])
@@ -218,7 +302,12 @@ class FQP(object):
         return repr(self.coeffs)
 
     def __eq__(self, other: "FQP") -> bool:     # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
-        assert isinstance(other, type(self))
+        if not isinstance(other, type(self)):
+            raise ValueError(
+                "Expected an FQP object, but got object of type {}"
+                .format(type(other))
+            )
+
         for c1, c2 in zip(self.coeffs, other.coeffs):
             if c1 != c2:
                 return False
@@ -246,7 +335,6 @@ class FQ2(FQP):
     def __init__(self, coeffs: Sequence[IntOrFQ], curve_name: str) -> None:
         FQ2_MODULUS_COEFFS = field_properties[curve_name]["fq2_modulus_coeffs"]
         super().__init__(coeffs, curve_name, FQ2_MODULUS_COEFFS)
-        assert self.degree == 2
 
 
 # The 12th-degree extension field
@@ -256,4 +344,3 @@ class FQ12(FQP):
     def __init__(self, coeffs: Sequence[IntOrFQ], curve_name: str) -> None:
         FQ12_MODULUS_COEFFS = field_properties[curve_name]["fq12_modulus_coeffs"]
         super().__init__(coeffs, curve_name, FQ12_MODULUS_COEFFS)
-        assert self.degree == 12
