@@ -4,17 +4,13 @@ from py_ecc.BaseCurve import (
 )
 
 from py_ecc.curve_properties import (
-    curve_properties,
-    optimized_curve_properties,
+    bls12_381_props,
+    optimized_bls12_381_props,
 )
 
 from py_ecc.field_elements import (
     FQP,
     FQ12,
-)
-
-from py_ecc.field_properties import (
-    field_properties,
 )
 
 from py_ecc.optimized_field_elements import (
@@ -31,18 +27,18 @@ from py_ecc.typing import (
 
 class BLS12_381_Curve(BaseCurve):
     curve_name = "bls12_381"
-    curve_order = curve_properties[curve_name]["curve_order"]
-    field_modulus = field_properties[curve_name]["field_modulus"]
-    b = curve_properties[curve_name]["b"]
-    b2 = curve_properties[curve_name]["b2"]
-    b12 = curve_properties[curve_name]["b12"]
-    G1 = curve_properties[curve_name]["G1"]
-    G2 = curve_properties[curve_name]["G2"]
-    Z1 = curve_properties[curve_name]["Z1"]
-    Z2 = curve_properties[curve_name]["Z2"]
-    ate_loop_count = curve_properties[curve_name]["ate_loop_count"]
-    log_ate_loop_count = curve_properties[curve_name]["log_ate_loop_count"]
-    pseudo_binary_encoding = curve_properties[curve_name]["pseudo_binary_encoding"]
+    curve_order = bls12_381_props.curve_order
+    field_modulus = bls12_381_props.field_modulus
+    b = bls12_381_props.b
+    b2 = bls12_381_props.b2
+    b12 = bls12_381_props.b12
+    G1 = bls12_381_props.G1
+    G2 = bls12_381_props.G2
+    Z1 = bls12_381_props.Z1
+    Z2 = bls12_381_props.Z2
+    ate_loop_count = bls12_381_props.ate_loop_count
+    log_ate_loop_count = bls12_381_props.log_ate_loop_count
+    pseudo_binary_encoding = bls12_381_props.pseudo_binary_encoding
 
     @staticmethod
     def twist(pt: Point2D[FQP]) -> Point2D[FQP]:
@@ -86,18 +82,18 @@ class BLS12_381_Curve(BaseCurve):
 
 class Optimized_BLS12_381_Curve(BaseOptimizedCurve):
     curve_name = "bls12_381"
-    curve_order = optimized_curve_properties[curve_name]["curve_order"]
-    field_modulus = field_properties[curve_name]["field_modulus"]
-    b = optimized_curve_properties[curve_name]["b"]
-    b2 = optimized_curve_properties[curve_name]["b2"]
-    b12 = optimized_curve_properties[curve_name]["b12"]
-    G1 = optimized_curve_properties[curve_name]["G1"]
-    G2 = optimized_curve_properties[curve_name]["G2"]
-    Z1 = optimized_curve_properties[curve_name]["Z1"]
-    Z2 = optimized_curve_properties[curve_name]["Z2"]
-    ate_loop_count = optimized_curve_properties[curve_name]["ate_loop_count"]
-    log_ate_loop_count = optimized_curve_properties[curve_name]["log_ate_loop_count"]
-    pseudo_binary_encoding = optimized_curve_properties[curve_name]["pseudo_binary_encoding"]
+    curve_order = optimized_bls12_381_props.curve_order
+    field_modulus = optimized_bls12_381_props.field_modulus
+    b = optimized_bls12_381_props.b
+    b2 = optimized_bls12_381_props.b2
+    b12 = optimized_bls12_381_props.b12
+    G1 = optimized_bls12_381_props.G1
+    G2 = optimized_bls12_381_props.G2
+    Z1 = optimized_bls12_381_props.Z1
+    Z2 = optimized_bls12_381_props.Z2
+    ate_loop_count = optimized_bls12_381_props.ate_loop_count
+    log_ate_loop_count = optimized_bls12_381_props.log_ate_loop_count
+    pseudo_binary_encoding = optimized_bls12_381_props.pseudo_binary_encoding
 
     @staticmethod
     def twist(pt: Optimized_Point3D[optimized_FQP]) -> Optimized_Point3D[optimized_FQP]:

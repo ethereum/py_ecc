@@ -9,25 +9,18 @@ from py_ecc.bn128_curve import (
     Optimized_BN128_Curve,
 )
 
-from py_ecc.curve_properties import (
-    curve_properties,
-    optimized_curve_properties,
-)
-from py_ecc.field_properties import (
-    field_properties,
-)
-
 
 @pytest.mark.parametrize(
-    'curve_obj,G1',
+    'curve_obj',
     (
-        (BN128_Curve(), curve_properties["bn128"]["G1"]),
-        (Optimized_BN128_Curve(), optimized_curve_properties["bn128"]["G1"]),
-        (BLS12_381_Curve(), curve_properties["bls12_381"]["G1"]),
-        (Optimized_BLS12_381_Curve(), optimized_curve_properties["bls12_381"]["G1"]),
+        BN128_Curve(),
+        Optimized_BN128_Curve(),
+        BLS12_381_Curve(),
+        Optimized_BLS12_381_Curve(),
     ),
 )
-def test_G1_object(curve_obj, G1):
+def test_G1_object(curve_obj):
+    G1 = curve_obj.G1
     assert curve_obj.eq(curve_obj.add(curve_obj.add(curve_obj.double(G1), G1), G1), curve_obj.double(curve_obj.double(G1)))
     assert not curve_obj.eq(curve_obj.double(G1), G1)
     assert curve_obj.eq(curve_obj.add(curve_obj.multiply(G1, 9), curve_obj.multiply(G1, 5)), curve_obj.add(curve_obj.multiply(G1, 12), curve_obj.multiply(G1, 2)))
@@ -35,15 +28,17 @@ def test_G1_object(curve_obj, G1):
 
 
 @pytest.mark.parametrize(
-    'curve_obj,G2,field_modulus',
+    'curve_obj',
     (
-        (BN128_Curve(), curve_properties["bn128"]["G2"], field_properties["bn128"]["field_modulus"]),
-        (Optimized_BN128_Curve(), optimized_curve_properties["bn128"]["G2"], field_properties["bn128"]["field_modulus"]),
-        (BLS12_381_Curve(), curve_properties["bls12_381"]["G2"], field_properties["bls12_381"]["field_modulus"]),
-        (Optimized_BLS12_381_Curve(), optimized_curve_properties["bls12_381"]["G2"], field_properties["bls12_381"]["field_modulus"]),
+        BN128_Curve(),
+        Optimized_BN128_Curve(),
+        BLS12_381_Curve(),
+        Optimized_BLS12_381_Curve(),
     ),
 )
-def test_G2_object(curve_obj, G2, field_modulus):
+def test_G2_object(curve_obj):
+    G2 = curve_obj.G2
+    field_modulus = curve_obj.field_modulus
     assert curve_obj.eq(curve_obj.add(curve_obj.add(curve_obj.double(G2), G2), G2), curve_obj.double(curve_obj.double(G2)))
     assert not curve_obj.eq(curve_obj.double(G2), G2)
     assert curve_obj.eq(curve_obj.add(curve_obj.multiply(G2, 9), curve_obj.multiply(G2, 5)), curve_obj.add(curve_obj.multiply(G2, 12), curve_obj.multiply(G2, 2)))
