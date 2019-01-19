@@ -142,15 +142,15 @@ w = FQ12([0, 1] + [0] * 10)
 
 # Convert P => -P
 def neg(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
-    if pt is None:
-        return None
+    if is_inf(pt):
+        return pt
     x, y, z = pt
     return (x, -y, z)
 
 
 def twist(pt: Optimized_Point3D[FQP]) -> Optimized_Point3D[FQP]:
-    if pt is None:
-        return None
+    if is_inf(pt):
+        return pt
     _x, _y, _z = pt
     # Field isomorphism from Z[p] / x**2 to Z[p] / x**2 - 18*x + 82
     xcoeffs = [_x.coeffs[0] - _x.coeffs[1] * 9, _x.coeffs[1]]
