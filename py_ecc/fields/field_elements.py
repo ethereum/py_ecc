@@ -207,7 +207,7 @@ class FQP(object):
         self.coeffs = tuple(FQ(c, curve_name) for c in coeffs)
         self.curve_name = curve_name
         # The coefficients of the modulus, without the leading [1]
-        self.modulus_coeffs = modulus_coeffs
+        self.modulus_coeffs = tuple(modulus_coeffs)
         # The degree of the extension field
         self.degree = len(self.modulus_coeffs)
 
@@ -230,7 +230,7 @@ class FQP(object):
         return type(self)([x - y for x, y in zip(self.coeffs, other.coeffs)], self.curve_name)
 
     def __mul__(self, other: Union[int, "FQ", "FQP"]) -> "FQP":
-        if isinstance(other, int) or isinstance(other, FQ):
+        if isinstance(other, int_types_or_FQ):
             return type(self)([c * other for c in self.coeffs], self.curve_name)
         elif isinstance(other, FQP):
             b = [FQ(0, self.curve_name) for i in range(self.degree * 2 - 1)]

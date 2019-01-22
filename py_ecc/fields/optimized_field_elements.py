@@ -207,14 +207,14 @@ class FQP(object):
         This is needed to obtain field_modulus, FQ2_MODULUS_COEFFS
         and FQ12_MODULUS_COEFFS from the curve properties
         """
-        self.curve_name = curve_name
-        self.field_modulus = field_properties[curve_name]["field_modulus"]
-
         if len(coeffs) != len(modulus_coeffs):
             raise Exception(
                 "coeffs and modulus_coeffs aren't of the same length"
             )
+        # Not converting coeffs to FQ or explicitly making them integers for performance reasons
         self.coeffs = tuple(coeffs)
+        self.curve_name = curve_name
+        self.field_modulus = field_properties[curve_name]["field_modulus"]
         # The coefficients of the modulus, without the leading [1]
         self.modulus_coeffs = tuple(modulus_coeffs)
         # The degree of the extension field
@@ -325,7 +325,6 @@ class FQP(object):
             cast(List[IntOrFQ], list(self.coeffs + (0,))),
             cast(List[IntOrFQ], list(self.modulus_coeffs + (1,))),
         )
-        low, high = list(self.coeffs + (0,)), self.modulus_coeffs + (1,)  # type: ignore
         while deg(low):
             r = cast(List[IntOrFQ], list(self.optimized_poly_rounded_div(high, low)))
             r += [0] * (self.degree + 1 - len(r))
