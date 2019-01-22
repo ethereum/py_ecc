@@ -43,7 +43,7 @@ class FQ(object):
         elif isinstance(val, int):
             self.n = val % self.field_modulus
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQ object, but got object of type {}"
                 .format(type(val))
             )
@@ -54,7 +54,7 @@ class FQ(object):
         elif isinstance(other, int):
             on = other
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQ object, but got object of type {}"
                 .format(type(other))
             )
@@ -67,7 +67,7 @@ class FQ(object):
         elif isinstance(other, int):
             on = other
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQ object, but got object of type {}"
                 .format(type(other))
             )
@@ -86,7 +86,7 @@ class FQ(object):
         elif isinstance(other, int):
             on = other
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQ object, but got object of type {}"
                 .format(type(other))
             )
@@ -99,7 +99,7 @@ class FQ(object):
         elif isinstance(other, int):
             on = other
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQ object, but got object of type {}"
                 .format(type(other))
             )
@@ -115,7 +115,7 @@ class FQ(object):
         elif isinstance(other, int):
             on = other
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQ object, but got object of type {}"
                 .format(type(other))
             )
@@ -134,7 +134,7 @@ class FQ(object):
         elif isinstance(other, int):
             on = other
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQ object, but got object of type {}"
                 .format(type(other))
             )
@@ -163,7 +163,7 @@ class FQ(object):
         elif isinstance(other, int):
             return self.n == other
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQ object, but got object of type {}"
                 .format(type(other))
             )
@@ -222,7 +222,7 @@ class FQP(object):
 
     def __add__(self, other: "FQP") -> "FQP":
         if not isinstance(other, type(self)):
-            raise ValueError(
+            raise TypeError(
                 "Expected an FQP object, but got object of type {}"
                 .format(type(other))
             )
@@ -235,7 +235,7 @@ class FQP(object):
 
     def __sub__(self, other: "FQP") -> "FQP":
         if not isinstance(other, type(self)):
-            raise ValueError(
+            raise TypeError(
                 "Expected an FQP object, but got object of type {}"
                 .format(type(other))
             )
@@ -269,7 +269,7 @@ class FQP(object):
                     b[exp + i] -= top * c
             return type(self)([x % self.field_modulus for x in b], self.curve_name)
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQP object, but got object of type {}"
                 .format(type(other))
             )
@@ -287,7 +287,7 @@ class FQP(object):
         elif isinstance(other, type(self)):
             return self * other.inv()
         else:
-            raise ValueError(
+            raise TypeError(
                 "Expected an int or FQP object, but got object of type {}"
                 .format(type(other))
             )
@@ -346,7 +346,7 @@ class FQP(object):
 
     def __eq__(self, other: "FQP") -> bool:     # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         if not isinstance(other, type(self)):
-            raise ValueError(
+            raise TypeError(
                 "Expected an FQP object, but got object of type {}"
                 .format(type(other))
             )
