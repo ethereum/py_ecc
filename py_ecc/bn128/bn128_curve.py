@@ -71,6 +71,8 @@ assert is_on_curve(cast(Point2D[FQ2], G2), b2)
 
 # Elliptic curve doubling
 def double(pt: Point2D[Field]) -> Point2D[Field]:
+    if is_inf(pt):
+        return pt
     x, y = pt
     m = 3 * x**2 / (2 * y)
     newx = m**2 - 2 * x

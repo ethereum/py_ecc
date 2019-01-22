@@ -63,6 +63,8 @@ assert is_on_curve(G2, b2)
 
 # Elliptic curve doubling
 def double(pt):
+    if is_inf(pt):
+        return pt
     x, y = pt
     m = 3 * x**2 / (2 * y)
     newx = m**2 - 2 * x
