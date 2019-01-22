@@ -106,8 +106,8 @@ class FQ(object):
 
         return FQ((self.n - on) % self.field_modulus, self.curve_name)
 
-    def __mod__(self, other: Union[int, "FQ"]) -> "FQ":
-        return self.__mod__(other)
+    def __mod__(self, other: IntOrFQ) -> "FQ":
+        raise NotImplementedError("Modulo Operation not yet supported by fields")
 
     def __div__(self, other: IntOrFQ) -> "FQ":
         if isinstance(other, FQ):
@@ -247,7 +247,7 @@ class FQP(object):
         ], self.curve_name)
 
     def __mod__(self, other: Union[int, "FQP"]) -> "FQP":
-        return self.__mod__(other)
+        raise NotImplementedError("Modulo Operation not yet supported by fields")
 
     def __mul__(self, other: Union[int, "FQP"]) -> "FQP":
         if isinstance(other, int):
