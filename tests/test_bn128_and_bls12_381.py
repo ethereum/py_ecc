@@ -182,7 +182,8 @@ def test_Z1_object(add, eq, double, FQ, G1, multiply, neg, twist, Z1):
     assert eq(Z1, multiply(Z1, 1))
     assert eq(Z1, multiply(Z1, 2))
     assert eq(Z1, multiply(Z1, 3))
-    assert eq(Z1, neg(Z1))
+    # the 'is' test makes sure that neg is optimized for infinity by returning the same point
+    assert Z1 is neg(Z1)
     assert eq(Z1, twist(Z1))
 
 
@@ -193,7 +194,8 @@ def test_Z2_object(add, eq, double, FQ2, G2, multiply, neg, twist, Z2):
     assert eq(Z2, multiply(Z2, 1))
     assert eq(Z2, multiply(Z2, 2))
     assert eq(Z2, multiply(Z2, 3))
-    assert eq(Z2, neg(Z2))
+    # the 'is' test makes sure that neg is optimized for infinity by returning the same point
+    assert Z2 is neg(Z2)
     assert eq(Z2, twist(Z2))
 
 
