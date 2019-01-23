@@ -134,8 +134,6 @@ w = FQ12([0, 1] + [0] * 10)
 
 # Convert P => -P
 def neg(pt):
-    if is_inf(pt):
-        return pt
     x, y, z = pt
     return (x, -y, z)
 
