@@ -141,8 +141,6 @@ def neg(pt):
 
 
 def twist(pt):
-    if is_inf(pt):
-        return pt
     _x, _y, _z = pt
     # Field isomorphism from Z[p] / x**2 to Z[p] / x**2 - 2*x + 2
     xcoeffs = [_x.coeffs[0] - _x.coeffs[1], _x.coeffs[1]]
