@@ -45,6 +45,16 @@ def G12(lib):
 
 
 @pytest.fixture
+def Z1(lib):
+    return lib.Z1
+
+
+@pytest.fixture
+def Z2(lib):
+    return lib.Z2
+
+
+@pytest.fixture
 def b(lib):
     return lib.b
 
@@ -104,6 +114,11 @@ def neg(lib):
     return lib.neg
 
 
+@pytest.fixture
+def twist(lib):
+    return lib.twist
+
+
 def test_FQ_object(FQ, field_modulus):
     assert FQ(2) * FQ(2) == FQ(4)
     assert FQ(2) / FQ(7) + FQ(9) / FQ(7) == FQ(11) / FQ(7)
@@ -158,6 +173,34 @@ def test_G12_object(G12, b12, eq, add, double, multiply, is_on_curve, is_inf, cu
     assert eq(add(multiply(G12, 9), multiply(G12, 5)), add(multiply(G12, 12), multiply(G12, 2)))
     assert is_on_curve(multiply(G12, 9), b12)
     assert is_inf(multiply(G12, curve_order))
+
+
+def test_Z1_object(add, eq, double, FQ, G1, is_inf, multiply, neg, twist, Z1):
+    assert eq(G1, add(G1, Z1))
+    assert eq(Z1, double(Z1))
+    assert eq(Z1, multiply(Z1, 0))
+    assert eq(Z1, multiply(Z1, 1))
+    assert eq(Z1, multiply(Z1, 2))
+    assert eq(Z1, multiply(Z1, 3))
+    assert is_inf(neg(Z1))
+
+def test_Z2_object(add, eq, double, FQ2, G2, is_inf, multiply, neg, twist, Z2):
+    assert eq(G2, add(G2, Z2))
+    assert eq(Z2, double(Z2))
+    assert eq(Z2, multiply(Z2, 0))
+    assert eq(Z2, multiply(Z2, 1))
+    assert eq(Z2, multiply(Z2, 2))
+    assert eq(Z2, multiply(Z2, 3))
+    assert is_inf(neg(Z2))
+    assert is_inf(twist(Z2))
+
+def test_none_point(lib, neg, twist):
+    if lib not in [optimized_bn128, optimized_bls12_381]:
+        pytest.skip()
+    with pytest.raises(Exception):
+        neg(None)
+    with pytest.raises(Exception):
+        twist(None)
 
 
 def test_pairing_negative_G1(pairing, G1, G2, FQ12, curve_order, multiply, neg):

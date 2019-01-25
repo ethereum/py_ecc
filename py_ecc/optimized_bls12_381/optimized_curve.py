@@ -134,15 +134,11 @@ w = FQ12([0, 1] + [0] * 10)
 
 # Convert P => -P
 def neg(pt):
-    if pt is None:
-        return None
     x, y, z = pt
     return (x, -y, z)
 
 
 def twist(pt):
-    if pt is None:
-        return None
     _x, _y, _z = pt
     # Field isomorphism from Z[p] / x**2 to Z[p] / x**2 - 2*x + 2
     xcoeffs = [_x.coeffs[0] - _x.coeffs[1], _x.coeffs[1]]
