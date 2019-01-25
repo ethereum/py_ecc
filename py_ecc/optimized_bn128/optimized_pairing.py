@@ -1,5 +1,11 @@
 from __future__ import absolute_import
 
+from py_ecc.fields import (
+    optimized_bn128_FQ as FQ,
+    optimized_bn128_FQP as FQP,
+    optimized_bn128_FQ12 as FQ12,
+)
+
 from py_ecc.typing import (
     Optimized_Field,
     Optimized_FQPoint3D,
@@ -23,9 +29,6 @@ from .optimized_curve import (
 )
 from .optimized_field_elements import (
     field_modulus,
-    FQ,
-    FQ12,
-    FQP,
 )
 
 

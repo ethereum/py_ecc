@@ -4,6 +4,12 @@ from typing import (
     cast,
 )
 
+from py_ecc.fields import (
+    bn128_FQ as FQ,
+    bn128_FQ12 as FQ12,
+    bn128_FQP as FQP,
+)
+
 from py_ecc.typing import (
     Field,
     FQPoint2D,
@@ -25,9 +31,6 @@ from .bn128_curve import (
 )
 from .bn128_field_elements import (
     field_modulus,
-    FQ,
-    FQ12,
-    FQP,
 )
 
 
