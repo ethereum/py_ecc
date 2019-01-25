@@ -257,10 +257,19 @@ class FQP(object):
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
-            if len(set(
-                [len(lm), len(hm), len(low), len(high), len(nm), len(new), self.degree + 1]
-            )) != 1:
-                raise Exception("Mismatch between the lengths of lm, hm, low, high, nm, new")
+
+            if len(lm) != self.degree + 1:
+                raise Exception("Length of lm is not {}".format(self.degree + 1))
+            elif len(hm) != self.degree + 1:
+                raise Exception("Length of hm is not {}".format(self.degree + 1))
+            elif len(nm) != self.degree + 1:
+                raise Exception("Length of nm is not {}".format(self.degree + 1))
+            elif len(low) != self.degree + 1:
+                raise Exception("Length of low is not {}".format(self.degree + 1))
+            elif len(high) != self.degree + 1:
+                raise Exception("Length of high is not {}".format(self.degree + 1))
+            elif len(new) != self.degree + 1:
+                raise Exception("Length of new is not {}".format(self.degree + 1))
 
             for i in range(self.degree + 1):
                 for j in range(self.degree + 1 - i):
