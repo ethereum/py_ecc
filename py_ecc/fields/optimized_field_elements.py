@@ -19,6 +19,21 @@ from py_ecc.utils import (
 IntOrFQ = Union[int, "FQ"]
 
 
+def normalize_FQ_point(value: IntOrFQ) -> int:
+    """
+    Normalize FQ Point or any integer to integer
+    """
+    if isinstance(value, int):
+        return value
+    elif isinstance(value, FQ):
+        return value.n
+    else:
+        raise TypeError(
+            "Expected an int or FQ object, but got object of type {}"
+            .format(type(value))
+        )
+
+
 class FQ(object):
     """
     A class for field elements in FQ. Wrap a number in this class,
@@ -48,29 +63,11 @@ class FQ(object):
             )
 
     def __add__(self, other: IntOrFQ) -> "FQ":
-        if isinstance(other, FQ):
-            on = other.n
-        elif isinstance(other, int):
-            on = other
-        else:
-            raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
-            )
-
+        on = normalize_FQ_point(other)
         return type(self)((self.n + on) % self.field_modulus)
 
     def __mul__(self, other: IntOrFQ) -> "FQ":
-        if isinstance(other, FQ):
-            on = other.n
-        elif isinstance(other, int):
-            on = other
-        else:
-            raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
-            )
-
+        on = normalize_FQ_point(other)
         return type(self)((self.n * on) % self.field_modulus)
 
     def __rmul__(self, other: IntOrFQ) -> "FQ":
@@ -80,45 +77,18 @@ class FQ(object):
         return self + other
 
     def __rsub__(self, other: IntOrFQ) -> "FQ":
-        if isinstance(other, FQ):
-            on = other.n
-        elif isinstance(other, int):
-            on = other
-        else:
-            raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
-            )
-
+        on = normalize_FQ_point(other)
         return type(self)((on - self.n) % self.field_modulus)
 
     def __sub__(self, other: IntOrFQ) -> "FQ":
-        if isinstance(other, FQ):
-            on = other.n
-        elif isinstance(other, int):
-            on = other
-        else:
-            raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
-            )
-
+        on = normalize_FQ_point(other)
         return type(self)((self.n - on) % self.field_modulus)
 
     def __mod__(self, other: IntOrFQ) -> "FQ":
         raise NotImplementedError("Modulo Operation not yet supported by fields")
 
     def __div__(self, other: IntOrFQ) -> "FQ":
-        if isinstance(other, FQ):
-            on = other.n
-        elif isinstance(other, int):
-            on = other
-        else:
-            raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
-            )
-
+        on = normalize_FQ_point(other)
         return type(self)(
             self.n * prime_field_inv(on, self.field_modulus) % self.field_modulus
         )
@@ -127,16 +97,7 @@ class FQ(object):
         return self.__div__(other)
 
     def __rdiv__(self, other: IntOrFQ) -> "FQ":
-        if isinstance(other, FQ):
-            on = other.n
-        elif isinstance(other, int):
-            on = other
-        else:
-            raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
-            )
-
+        on = normalize_FQ_point(other)
         return type(self)(
             prime_field_inv(self.n, self.field_modulus) * on % self.field_modulus
         )
