@@ -2,7 +2,27 @@ import time
 
 import pytest
 
-from py_ecc import bn128, optimized_bn128, bls12_381, optimized_bls12_381
+from py_ecc import (
+    bn128,
+    optimized_bn128,
+    bls12_381,
+    optimized_bls12_381,
+)
+
+from py_ecc.fields import (
+    bls12_381_FQ,
+    bls12_381_FQ2,
+    bls12_381_FQ12,
+    bn128_FQ,
+    bn128_FQ2,
+    bn128_FQ12,
+    optimized_bls12_381_FQ,
+    optimized_bls12_381_FQ2,
+    optimized_bls12_381_FQ12,
+    optimized_bn128_FQ,
+    optimized_bn128_FQ2,
+    optimized_bn128_FQ12,
+)
 
 
 @pytest.fixture(params=[bn128, optimized_bn128, bls12_381, optimized_bls12_381])
@@ -12,17 +32,44 @@ def lib(request):
 
 @pytest.fixture
 def FQ(lib):
-    return lib.FQ
+    if lib == bn128:
+        return bn128_FQ
+    elif lib == optimized_bn128:
+        return optimized_bn128_FQ
+    elif lib == bls12_381:
+        return bls12_381_FQ
+    elif lib == optimized_bls12_381:
+        return optimized_bls12_381_FQ
+    else:
+        raise Exception("Library Not Found")
 
 
 @pytest.fixture
 def FQ2(lib):
-    return lib.FQ2
+    if lib == bn128:
+        return bn128_FQ2
+    elif lib == optimized_bn128:
+        return optimized_bn128_FQ2
+    elif lib == bls12_381:
+        return bls12_381_FQ2
+    elif lib == optimized_bls12_381:
+        return optimized_bls12_381_FQ2
+    else:
+        raise Exception("Library Not Found")
 
 
 @pytest.fixture
 def FQ12(lib):
-    return lib.FQ12
+    if lib == bn128:
+        return bn128_FQ12
+    elif lib == optimized_bn128:
+        return optimized_bn128_FQ12
+    elif lib == bls12_381:
+        return bls12_381_FQ12
+    elif lib == optimized_bls12_381:
+        return optimized_bls12_381_FQ12
+    else:
+        raise Exception("Library Not Found")
 
 
 @pytest.fixture
