@@ -8,7 +8,7 @@ extras_require = {
         "pytest-xdist==1.26.0"
     ],
     'lint': [
-        "flake8==3.4.1",
+        "flake8==3.5.0",
         "mypy==0.641",
         "mypy-extensions>=0.4.1",
     ],
