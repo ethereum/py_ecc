@@ -1,3 +1,12 @@
+1.4.8
+-----
+
+2019-02-14
+
+* Bugfix Optimized FQP curves to run modulus on integers during initialization
+* Bugfix check against elliptic curve points at infinity
+* Testing tool upgrades
+
 1.4.2
 -----
 
