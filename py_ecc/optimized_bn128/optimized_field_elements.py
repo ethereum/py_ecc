@@ -150,9 +150,13 @@ class FQP(object):
 
     def __init__(self,
                  coeffs: Sequence[IntOrFQ],
-                 modulus_coeffs: Sequence[IntOrFQ]=None) -> None:
+                 modulus_coeffs: Sequence[IntOrFQ] = None) -> None:
         assert len(coeffs) == len(modulus_coeffs)
-        self.coeffs = coeffs
+
+        if isinstance(coeffs[0], int):
+            self.coeffs = [coeff % field_modulus for coeff in coeffs]
+        else:
+            self.coeffs = list(coeffs)
         # The coefficients of the modulus, without the leading [1]
         self.modulus_coeffs = modulus_coeffs
         # The degree of the extension field
@@ -225,8 +229,8 @@ class FQP(object):
     def inv(self) -> "FQP":
         lm, hm = [1] + [0] * self.degree, [0] * (self.degree + 1)
         low, high = (
+            self.coeffs + [0],
             # Ignore mypy yelling about the inner types for the lists being incompatible
-            cast(List[IntOrFQ], list(self.coeffs + [0])),  # type: ignore
             cast(List[IntOrFQ], list(self.modulus_coeffs + [1])),  # type: ignore
         )
         low, high = list(self.coeffs + [0]), self.modulus_coeffs + [1]  # type: ignore

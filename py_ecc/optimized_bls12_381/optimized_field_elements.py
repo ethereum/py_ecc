@@ -239,7 +239,10 @@ class FQP(object):
 # The quadratic extension field
 class FQ2(FQP):
     def __init__(self, coeffs):
-        self.coeffs = tuple(coeffs)
+        if isinstance(coeffs[0], int):
+            self.coeffs = tuple(coeff % field_modulus for coeff in coeffs)
+        else:
+            self.coeffs = tuple(coeffs)
         self.modulus_coeffs = (1, 0)
         self.mc_tuples = [(0, 1)]
         self.degree = 2
@@ -249,7 +252,10 @@ class FQ2(FQP):
 # The 12th-degree extension field
 class FQ12(FQP):
     def __init__(self, coeffs):
-        self.coeffs = tuple(coeffs)
+        if isinstance(coeffs[0], int):
+            self.coeffs = tuple(coeff % field_modulus for coeff in coeffs)
+        else:
+            self.coeffs = tuple(coeffs)
         self.modulus_coeffs = FQ12_modulus_coeffs
         self.mc_tuples = FQ12_mc_tuples
         self.degree = 12

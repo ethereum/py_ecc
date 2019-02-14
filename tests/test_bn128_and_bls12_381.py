@@ -29,6 +29,7 @@ def FQ12(lib):
 def field_modulus(lib):
     return lib.field_modulus
 
+
 @pytest.fixture
 def G1(lib):
     return lib.G1
@@ -124,6 +125,7 @@ def test_FQ_object(FQ, field_modulus):
     assert FQ(2) / FQ(7) + FQ(9) / FQ(7) == FQ(11) / FQ(7)
     assert FQ(2) * FQ(7) + FQ(9) * FQ(7) == FQ(11) * FQ(7)
     assert FQ(9) ** field_modulus == FQ(9)
+    assert FQ(-1).n > 0
 
 
 def test_FQ2_object(FQ2, field_modulus):
@@ -131,11 +133,18 @@ def test_FQ2_object(FQ2, field_modulus):
     f = FQ2([1, 2])
     fpx = FQ2([2, 2])
     one = FQ2.one()
+    z1, z2 = FQ2([-1, -1]).coeffs
     assert x + f == fpx
     assert f / f == one
     assert one / f + x / f == (one + x) / f
     assert one * f + x * f == (one + x) * f
     assert x ** (field_modulus ** 2 - 1) == one
+    if isinstance(z1, int):
+        assert z1 > 0
+        assert z2 > 0
+    else:
+        assert z1.n > 0
+        assert z2.n > 0
 
 
 def test_FQ12_object(FQ12, field_modulus):
@@ -143,10 +152,15 @@ def test_FQ12_object(FQ12, field_modulus):
     f = FQ12([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     fpx = FQ12([2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     one = FQ12.one()
+    zs = FQ12([-1]*12).coeffs
     assert x + f == fpx
     assert f / f == one
     assert one / f + x / f == (one + x) / f
     assert one * f + x * f == (one + x) * f
+    if isinstance(zs[0], int):
+        assert all(z > 0 for z in zs)
+    else:
+        assert all(z.n > 0 for z in zs)
     # This check takes too long
     # assert x ** (field_modulus ** 12 - 1) == one
 
@@ -184,6 +198,7 @@ def test_Z1_object(add, eq, double, FQ, G1, is_inf, multiply, neg, twist, Z1):
     assert eq(Z1, multiply(Z1, 3))
     assert is_inf(neg(Z1))
 
+
 def test_Z2_object(add, eq, double, FQ2, G2, is_inf, multiply, neg, twist, Z2):
     assert eq(G2, add(G2, Z2))
     assert eq(Z2, double(Z2))
@@ -193,6 +208,7 @@ def test_Z2_object(add, eq, double, FQ2, G2, is_inf, multiply, neg, twist, Z2):
     assert eq(Z2, multiply(Z2, 3))
     assert is_inf(neg(Z2))
     assert is_inf(twist(Z2))
+
 
 def test_none_point(lib, neg, twist):
     if lib not in [optimized_bn128, optimized_bls12_381]:
