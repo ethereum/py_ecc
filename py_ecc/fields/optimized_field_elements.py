@@ -334,6 +334,10 @@ class FQ2(FQP):
         if self.curve_name is None:
             raise AttributeError("Curve Name hasn't been specified")
 
+        if isinstance(coeffs[0], int):
+            coeffs = tuple(coeff % field_modulus for coeff in coeffs)
+        else:
+            coeffs = tuple(coeffs)
         FQ2_MODULUS_COEFFS = field_properties[self.curve_name]["fq2_modulus_coeffs"]
         self.mc_tuples = [(i, c) for i, c in enumerate(FQ2_MODULUS_COEFFS) if c]
         super().__init__(coeffs, FQ2_MODULUS_COEFFS)
@@ -349,6 +353,10 @@ class FQ12(FQP):
         if self.curve_name is None:
             raise AttributeError("Curve Name hasn't been specified")
 
+        if isinstance(coeffs[0], int):
+            coeffs = tuple(coeff % field_modulus for coeff in coeffs)
+        else:
+            coeffs = tuple(coeffs)
         FQ12_MODULUS_COEFFS = field_properties[self.curve_name]["fq12_modulus_coeffs"]
         self.mc_tuples = [(i, c) for i, c in enumerate(FQ12_MODULUS_COEFFS) if c]
         super().__init__(coeffs, FQ12_MODULUS_COEFFS)
