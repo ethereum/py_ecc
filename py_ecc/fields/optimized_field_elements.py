@@ -6,10 +6,6 @@ from typing import (  # noqa: F401
     Union,
 )
 
-from py_ecc.fields.field_properties import (
-    field_properties,
-)
-
 from py_ecc.utils import (
     deg,
     prime_field_inv,
@@ -49,8 +45,8 @@ class FQ(object):
     def __init__(self, val: IntOrFQ) -> None:
         if self.curve_name is None:
             raise AttributeError("Curve Name hasn't been specified")
-
-        self.field_modulus = field_properties[self.curve_name]["field_modulus"]
+        if self.field_modulus is None:
+            raise AttributeError("Field Modulus hasn't been specified")
 
         if isinstance(val, FQ):
             self.n = val.n
@@ -161,14 +157,19 @@ class FQP(object):
                  modulus_coeffs: Sequence[IntOrFQ]=None) -> None:
         if self.curve_name is None:
             raise AttributeError("Curve Name hasn't been specified")
+        if self.field_modulus is None:
+            raise AttributeError("Field Modulus hasn't been specified")
 
         if len(coeffs) != len(modulus_coeffs):
             raise Exception(
                 "coeffs and modulus_coeffs aren't of the same length"
             )
+
         # Not converting coeffs to FQ or explicitly making them integers for performance reasons
-        self.coeffs = tuple(coeffs)
-        self.field_modulus = field_properties[self.curve_name]["field_modulus"]
+        if isinstance(coeffs[0], int):
+            self.coeffs = tuple(coeff % self.field_modulus for coeff in coeffs)
+        else:
+            self.coeffs = tuple(coeffs)
         # The coefficients of the modulus, without the leading [1]
         self.modulus_coeffs = tuple(modulus_coeffs)
         # The degree of the extension field
@@ -329,18 +330,16 @@ class FQ2(FQP):
     The quadratic extension field
     """
     degree = 2
+    FQ2_MODULUS_COEFFS = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.curve_name is None:
             raise AttributeError("Curve Name hasn't been specified")
+        if self.FQ2_MODULUS_COEFFS is None:
+            raise AttributeError("FQ2 Modulus Coeffs haven't been specified")
 
-        if isinstance(coeffs[0], int):
-            coeffs = tuple(coeff % field_modulus for coeff in coeffs)
-        else:
-            coeffs = tuple(coeffs)
-        FQ2_MODULUS_COEFFS = field_properties[self.curve_name]["fq2_modulus_coeffs"]
-        self.mc_tuples = [(i, c) for i, c in enumerate(FQ2_MODULUS_COEFFS) if c]
-        super().__init__(coeffs, FQ2_MODULUS_COEFFS)
+        self.mc_tuples = [(i, c) for i, c in enumerate(self.FQ2_MODULUS_COEFFS) if c]
+        super().__init__(coeffs, self.FQ2_MODULUS_COEFFS)
 
 
 class FQ12(FQP):
@@ -348,15 +347,13 @@ class FQ12(FQP):
     The 12th-degree extension field
     """
     degree = 12
+    FQ12_MODULUS_COEFFS = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.curve_name is None:
             raise AttributeError("Curve Name hasn't been specified")
+        if self.FQ12_MODULUS_COEFFS is None:
+            raise AttributeError("FQ12 Modulus Coeffs haven't been specified")
 
-        if isinstance(coeffs[0], int):
-            coeffs = tuple(coeff % field_modulus for coeff in coeffs)
-        else:
-            coeffs = tuple(coeffs)
-        FQ12_MODULUS_COEFFS = field_properties[self.curve_name]["fq12_modulus_coeffs"]
-        self.mc_tuples = [(i, c) for i, c in enumerate(FQ12_MODULUS_COEFFS) if c]
-        super().__init__(coeffs, FQ12_MODULUS_COEFFS)
+        self.mc_tuples = [(i, c) for i, c in enumerate(self.FQ12_MODULUS_COEFFS) if c]
+        super().__init__(coeffs, self.FQ12_MODULUS_COEFFS)
