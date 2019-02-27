@@ -86,6 +86,9 @@ logs
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
 
+# Mypy cache
+.mypy_cache
+
 # VIM temp files
 *.swp
 
