@@ -26,7 +26,17 @@ from .hash import (
 from .typing import (
     BLSPubkey,
     BLSSignature,
+    G1Compressed,
+    G1Uncompressed,
+    G2Compressed,
+    G2Uncompressed,
     Hash32,
+)
+from .constants import (
+    POW_2_381,
+    POW_2_382,
+    POW_2_383,
+    POW_2_384,
 )
 
 G2_cofactor = 305502333931268344200999753193121504214466019254188142667664032982267604182971884026507427359259977847832272839041616661285803823378372096355777062779109  # noqa: E501
@@ -40,15 +50,6 @@ eighth_roots_of_unity = [
 #
 # Helpers
 #
-def FQP_point_to_FQ2_point(pt: Tuple[FQP, FQP, FQP]) -> Tuple[FQ2, FQ2, FQ2]:
-    """
-    Transform FQP to FQ2 for type hinting.
-    """
-    return (
-        FQ2(pt[0].coeffs),
-        FQ2(pt[1].coeffs),
-        FQ2(pt[2].coeffs),
-    )
 
 
 def modular_squareroot(value: FQ2) -> FQP:
@@ -79,7 +80,7 @@ def _get_x_coordinate(message_hash: Hash32, domain: int) -> FQ2:
     return x_coordinate
 
 
-def hash_to_G2(message_hash: Hash32, domain: int) -> Tuple[FQ2, FQ2, FQ2]:
+def hash_to_G2(message_hash: Hash32, domain: int) -> G2Uncompressed:
     x_coordinate = _get_x_coordinate(message_hash, domain)
 
     # Test candidate y coordinates until a one is found
@@ -91,24 +92,24 @@ def hash_to_G2(message_hash: Hash32, domain: int) -> Tuple[FQ2, FQ2, FQ2]:
         x_coordinate += FQ2([1, 0])  # Add 1 and try again
 
     return multiply(
-        (x_coordinate, y_coordinate, FQ2([1, 0])),
-        G2_cofactor
+        G2Uncompressed((x_coordinate, y_coordinate, FQ2([1, 0]))),
+        G2_cofactor,
     )
 
 
 #
 # G1
 #
-def compress_G1(pt: Tuple[FQ, FQ, FQ]) -> int:
+def compress_G1(pt: G1Uncompressed) -> G1Compressed:
     x, y = normalize(pt)
-    return x.n + 2**383 * (y.n % 2)
+    return x.n + POW_2_383 * (y.n % 2)
 
 
-def decompress_G1(pt: int) -> Tuple[FQ, FQ, FQ]:
+def decompress_G1(pt: G1Compressed) -> G1Uncompressed:
     if pt == 0:
-        return (FQ(1), FQ(1), FQ(0))
-    x = pt % 2**383
-    y_mod_2 = pt // 2**383
+        return G1Uncompressed((FQ(1), FQ(1), FQ(0)))
+    x = pt % POW_2_383
+    y_mod_2 = pt // POW_2_383
     y = pow((x**3 + b.n) % q, (q + 1) // 4, q)
 
     if pow(y, 2, q) != (x**3 + b.n) % q:
@@ -117,14 +118,14 @@ def decompress_G1(pt: int) -> Tuple[FQ, FQ, FQ]:
         )
     if y % 2 != y_mod_2:
         y = q - y
-    return (FQ(x), FQ(y), FQ(1))
+    return G1Uncompressed((FQ(x), FQ(y), FQ(1)))
 
 
-def G1_to_pubkey(pt: int) -> BLSPubkey:
+def G1_to_pubkey(pt: G1Compressed) -> BLSPubkey:
     return BLSPubkey(pt.to_bytes(48, "big"))
 
 
-def pubkey_to_G1(pubkey: BLSPubkey) -> int:
+def pubkey_to_G1(pubkey: BLSPubkey) -> G1Compressed:
     return big_endian_to_int(pubkey)
 
 #
@@ -132,25 +133,25 @@ def pubkey_to_G1(pubkey: BLSPubkey) -> int:
 #
 
 
-def compress_G2(pt: Tuple[FQP, FQP, FQP]) -> Tuple[int, int]:
+def compress_G2(pt: G2Uncompressed) -> G2Compressed:
     if not is_on_curve(pt, b2):
         raise ValueError(
             "The given point is not on the twisted curve over FQ**2"
         )
     x, y = normalize(pt)
-    return (
-        int(x.coeffs[0] + 2**383 * (y.coeffs[0] % 2)),
+    return G2Compressed((
+        int(x.coeffs[0] + POW_2_383 * (y.coeffs[0] % 2)),
         int(x.coeffs[1])
-    )
+    ))
 
 
-def decompress_G2(p: Tuple[int, int]) -> Tuple[FQP, FQP, FQP]:
-    x1 = p[0] % 2**383
-    y1_mod_2 = p[0] // 2**383
+def decompress_G2(p: G2Compressed) -> G2Uncompressed:
+    x1 = p[0] % POW_2_383
+    y1_mod_2 = p[0] // POW_2_383
     x2 = p[1]
     x = FQ2([x1, x2])
     if x == FQ2([0, 0]):
-        return FQ2([1, 0]), FQ2([1, 0]), FQ2([0, 0])
+        return G2Uncompressed((FQ2([1, 0]), FQ2([1, 0]), FQ2([0, 0])))
     y = modular_squareroot(x**3 + b2)
     if y is None:
         raise ValueError("Failed to find a modular squareroot")
@@ -160,15 +161,17 @@ def decompress_G2(p: Tuple[int, int]) -> Tuple[FQP, FQP, FQP]:
         raise ValueError(
             "The given point is not on the twisted curve over FQ**2"
         )
-    return x, y, FQ2([1, 0])
+    return G2Uncompressed((x, y, FQ2([1, 0])))
 
 
-def G2_to_signature(pt: Tuple[int, int]) -> BLSSignature:
+def G2_to_signature(pt: G2Compressed) -> BLSSignature:
     return BLSSignature(
         pt[0].to_bytes(48, "big") +
         pt[1].to_bytes(48, "big")
     )
 
 
-def signature_to_G2(signature: BLSSignature) -> Tuple[int, int]:
-    return (big_endian_to_int(signature[:48]), big_endian_to_int(signature[48:]))
+def signature_to_G2(signature: BLSSignature) -> G2Compressed:
+    return G2Compressed(
+        (big_endian_to_int(signature[:48]), big_endian_to_int(signature[48:]))
+    )

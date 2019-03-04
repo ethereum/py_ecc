@@ -18,10 +18,11 @@ from py_ecc.optimized_bls12_381 import (
 from .typing import (
     BLSPubkey,
     BLSSignature,
+    G1Uncompressed,
+    G2Uncompressed,
     Hash32,
 )
 from .utils import (
-    FQP_point_to_FQ2_point,
     G1_to_pubkey,
     G2_to_signature,
     compress_G1,
@@ -47,19 +48,21 @@ def sign(message_hash: Hash32,
 
 
 def privtopub(k: int) -> BLSPubkey:
-    return G1_to_pubkey(compress_G1(multiply(G1, k)))
+    return G1_to_pubkey(compress_G1(
+        multiply(G1Uncompressed(G1), k)
+    ))
 
 
 def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, domain: int) -> bool:
     try:
         final_exponentiation = final_exponentiate(
             pairing(
-                FQP_point_to_FQ2_point(decompress_G2(signature_to_G2(signature))),
+                decompress_G2(signature_to_G2(signature)),
                 G1,
                 final_exponentiate=False,
             ) *
             pairing(
-                FQP_point_to_FQ2_point(hash_to_G2(message_hash, domain)),
+                hash_to_G2(message_hash, domain),
                 neg(decompress_G1(pubkey_to_G1(pubkey))),
                 final_exponentiate=False,
             )
@@ -70,14 +73,14 @@ def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, dom
 
 
 def aggregate_signatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
-    o = Z2
+    o = G2Uncompressed(Z2)
     for s in signatures:
-        o = FQP_point_to_FQ2_point(add(o, decompress_G2(signature_to_G2(s))))
+        o = add(o, decompress_G2(signature_to_G2(s)))
     return G2_to_signature(compress_G2(o))
 
 
 def aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
-    o = Z1
+    o = G1Uncompressed(Z1)
     for p in pubkeys:
         o = add(o, decompress_G1(pubkey_to_G1(p)))
     return G1_to_pubkey(compress_G1(o))
