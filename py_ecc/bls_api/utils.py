@@ -50,6 +50,9 @@ eighth_roots_of_unity = [
 # Helpers
 #
 
+def coerce_to_int(element: Union[int, FQ]) -> int:
+    return element if isinstance(element, int) else element.n
+
 
 def modular_squareroot(value: FQ2) -> FQ2:
     """
@@ -63,8 +66,10 @@ def modular_squareroot(value: FQ2) -> FQ2:
     check = candidate_squareroot ** 2 / value
     if check in eighth_roots_of_unity[::2]:
         x1 = candidate_squareroot / eighth_roots_of_unity[eighth_roots_of_unity.index(check) // 2]
-        x2 = FQ2([-x1.coeffs[0], -x1.coeffs[1]])  # x2 = -x1
-        return x1 if (x1.coeffs[1], x1.coeffs[0]) > (x2.coeffs[1], x2.coeffs[0]) else x2
+        x2 = -x1
+        x1_re, x1_im = coerce_to_int(x1.coeffs[0]), coerce_to_int(x1.coeffs[1])
+        x2_re, x2_im = coerce_to_int(x2.coeffs[0]), coerce_to_int(x2.coeffs[1])
+        return x1 if (x1_im > x2_im or (x1_im == x2_im and x1_re > x2_re)) else x2
     return None
 
 
