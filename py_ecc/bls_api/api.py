@@ -25,10 +25,6 @@ from .typing import (
 from .utils import (
     G1_to_pubkey,
     G2_to_signature,
-    compress_G1,
-    compress_G2,
-    decompress_G1,
-    decompress_G2,
     hash_to_G2,
     pubkey_to_G1,
     signature_to_G2,
@@ -39,31 +35,27 @@ def sign(message_hash: Hash32,
          privkey: int,
          domain: int) -> BLSSignature:
     return G2_to_signature(
-        compress_G2(
-            multiply(
-                hash_to_G2(message_hash, domain),
-                privkey
-            )
+        multiply(
+            hash_to_G2(message_hash, domain),
+            privkey,
         ))
 
 
 def privtopub(k: int) -> BLSPubkey:
-    return G1_to_pubkey(compress_G1(
-        multiply(G1Uncompressed(G1), k)
-    ))
+    return G1_to_pubkey(multiply(G1Uncompressed(G1), k))
 
 
 def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, domain: int) -> bool:
     try:
         final_exponentiation = final_exponentiate(
             pairing(
-                decompress_G2(signature_to_G2(signature)),
+                signature_to_G2(signature),
                 G1,
                 final_exponentiate=False,
             ) *
             pairing(
                 hash_to_G2(message_hash, domain),
-                neg(decompress_G1(pubkey_to_G1(pubkey))),
+                neg(pubkey_to_G1(pubkey)),
                 final_exponentiate=False,
             )
         )
@@ -75,15 +67,15 @@ def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, dom
 def aggregate_signatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
     o = G2Uncompressed(Z2)
     for s in signatures:
-        o = add(o, decompress_G2(signature_to_G2(s)))
-    return G2_to_signature(compress_G2(o))
+        o = add(o, signature_to_G2(s))
+    return G2_to_signature(o)
 
 
 def aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
     o = G1Uncompressed(Z1)
     for p in pubkeys:
-        o = add(o, decompress_G1(pubkey_to_G1(p)))
-    return G1_to_pubkey(compress_G1(o))
+        o = add(o, pubkey_to_G1(p))
+    return G1_to_pubkey(o)
 
 
 def verify_multiple(pubkeys: Sequence[BLSPubkey],
@@ -106,10 +98,10 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
             group_pub = Z1
             for i in range(len_msgs):
                 if message_hashes[i] == m_pubs:
-                    group_pub = add(group_pub, decompress_G1(pubkey_to_G1(pubkeys[i])))
+                    group_pub = add(group_pub, pubkey_to_G1(pubkeys[i]))
 
             o *= pairing(hash_to_G2(m_pubs, domain), group_pub, final_exponentiate=False)
-        o *= pairing(decompress_G2(signature_to_G2(signature)), neg(G1), final_exponentiate=False)
+        o *= pairing(signature_to_G2(signature), neg(G1), final_exponentiate=False)
 
         final_exponentiation = final_exponentiate(o)
         return final_exponentiation == FQ12.one()

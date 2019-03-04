@@ -11,7 +11,6 @@ from eth_utils import (
 from py_ecc.optimized_bls12_381 import (
     FQ,
     FQ2,
-    FQP,
     b,
     b2,
     field_modulus as q,
@@ -52,7 +51,7 @@ eighth_roots_of_unity = [
 #
 
 
-def modular_squareroot(value: FQ2) -> FQP:
+def modular_squareroot(value: FQ2) -> FQ2:
     """
     ``modular_squareroot(x)`` returns the value ``y`` such that ``y**2 % q == x``,
     and None if this is not possible. In cases where there are two solutions,
@@ -121,12 +120,14 @@ def decompress_G1(pt: G1Compressed) -> G1Uncompressed:
     return G1Uncompressed((FQ(x), FQ(y), FQ(1)))
 
 
-def G1_to_pubkey(pt: G1Compressed) -> BLSPubkey:
-    return BLSPubkey(pt.to_bytes(48, "big"))
+def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
+    pt_compressed = compress_G1(pt)
+    return BLSPubkey(pt_compressed.to_bytes(48, "big"))
 
 
-def pubkey_to_G1(pubkey: BLSPubkey) -> G1Compressed:
-    return big_endian_to_int(pubkey)
+def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
+    pt = big_endian_to_int(pubkey)
+    return decompress_G1(pt)
 
 #
 # G2
@@ -164,14 +165,16 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     return G2Uncompressed((x, y, FQ2([1, 0])))
 
 
-def G2_to_signature(pt: G2Compressed) -> BLSSignature:
+def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:
+    x1, x2 = compress_G2(pt)
     return BLSSignature(
-        pt[0].to_bytes(48, "big") +
-        pt[1].to_bytes(48, "big")
+        x1.to_bytes(48, "big") +
+        x2.to_bytes(48, "big")
     )
 
 
-def signature_to_G2(signature: BLSSignature) -> G2Compressed:
-    return G2Compressed(
+def signature_to_G2(signature: BLSSignature) -> G2Uncompressed:
+    p = G2Compressed(
         (big_endian_to_int(signature[:48]), big_endian_to_int(signature[48:]))
     )
+    return decompress_G2(p)
