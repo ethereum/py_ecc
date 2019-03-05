@@ -1,11 +1,20 @@
 from typing import (
     Sequence,
 )
+
+from eth_typing import (
+    BLSPubkey,
+    BLSSignature,
+    Hash32,
+)
 from eth_utils import (
     ValidationError,
 )
+
+from py_ecc.fields import (
+    optimized_bls12_381_FQ12 as FQ12,
+)
 from py_ecc.optimized_bls12_381 import (
-    FQ12,
     G1,
     Z1,
     Z2,
@@ -15,12 +24,10 @@ from py_ecc.optimized_bls12_381 import (
     neg,
     pairing,
 )
+
 from .typing import (
-    BLSPubkey,
-    BLSSignature,
     G1Uncompressed,
     G2Uncompressed,
-    Hash32,
 )
 from .utils import (
     G1_to_pubkey,

@@ -1,4 +1,4 @@
-from .typing import Hash32
+from eth_typing import Hash32
 from eth_hash.auto import keccak
 from typing import Union
 

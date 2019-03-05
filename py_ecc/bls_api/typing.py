@@ -1,21 +1,15 @@
-# This module will not be included in the PR.
-# These types should be replaced with those in eth-typing
-
 from typing import (
     NewType,
     Tuple,
 )
-from py_ecc.optimized_bls12_381.optimized_field_elements import (
-    FQ,
-    FQ2,
+
+from py_ecc.fields import (
+    optimized_bls12_381_FQ as FQ,
+    optimized_bls12_381_FQ2 as FQ2,
 )
 
 
-Hash32 = NewType("Hash32", bytes)
-BLSPubkey = NewType('BLSPubkey', bytes)  # bytes48
-BLSSignature = NewType('BLSSignature', bytes)  # bytes96
-
-
+# TODO: FQ and FQ2 here are invalid types, they need to be fixed in the future
 G1Uncompressed = NewType('G1Uncompressed', Tuple[FQ, FQ, FQ])
 G1Compressed = NewType('G1Compressed', int)
 

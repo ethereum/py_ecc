@@ -1,6 +1,8 @@
 from eth_utils import (
     big_endian_to_int,
 )
+import pytest
+
 from py_ecc.bls_api.api import (
     aggregate_pubkeys,
     aggregate_signatures,
@@ -21,8 +23,10 @@ from py_ecc.bls_api.utils import (
     hash_to_G2,
     signature_to_G2,
 )
+from py_ecc.fields import (
+    optimized_bls12_381_FQ2 as FQ2,
+)
 from py_ecc.optimized_bls12_381 import (
-    FQ2,
     G1,
     G2,
     b2,
@@ -30,7 +34,6 @@ from py_ecc.optimized_bls12_381 import (
     multiply,
     normalize,
 )
-import pytest
 
 
 @pytest.mark.parametrize(
@@ -62,7 +65,7 @@ def test_hash_to_G2():
 
 def test_decompress_G2_with_no_modular_square_root_found():
     with pytest.raises(ValueError, match="Failed to find a modular squareroot"):
-        decompress_G2(signature_to_G2(b'\x11' * 96))
+        signature_to_G2(b'\x11' * 96)
 
 
 @pytest.mark.parametrize(
