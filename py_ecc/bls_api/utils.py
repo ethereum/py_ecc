@@ -14,9 +14,12 @@ from py_ecc.optimized_bls12_381 import (
     b,
     b2,
     field_modulus as q,
+    is_inf,
     is_on_curve,
     multiply,
     normalize,
+    Z1,
+    Z2,
 )
 
 from .hash import (
@@ -35,7 +38,6 @@ from .constants import (
     POW_2_381,
     POW_2_382,
     POW_2_383,
-    POW_2_384,
 )
 
 G2_cofactor = 305502333931268344200999753193121504214466019254188142667664032982267604182971884026507427359259977847832272839041616661285803823378372096355777062779109  # noqa: E501
@@ -105,34 +107,53 @@ def hash_to_G2(message_hash: Hash32, domain: int) -> G2Uncompressed:
 # G1
 #
 def compress_G1(pt: G1Uncompressed) -> G1Compressed:
-    x, y = normalize(pt)
-    return x.n + POW_2_383 * (y.n % 2)
+    """
+    A compressed point in group G1 is 384-bit with the order (c_flag, b_flag, a_flag, x),
+    where c_flag is always 1,
+    b_flag indicates infinity,
+    a_flag depends on y, and
+    x is the x-coordinate of the point.
+    """
+    if is_inf(pt):
+        # set c_flag = 1 and b_flag = 1, leave a_flag = x = 0
+        return G1Compressed(POW_2_383 + POW_2_382)
+    else:
+        x, y = normalize(pt)
+        # Record y's leftmost bit to the a_flag
+        a_flag = (y.n * 2) // q
+        # set c_flag = 1 and b_flag = 0
+        return G1Compressed(x.n + a_flag * POW_2_381 + POW_2_383)
 
 
-def decompress_G1(pt: G1Compressed) -> G1Uncompressed:
-    if pt == 0:
-        return G1Uncompressed((FQ(1), FQ(1), FQ(0)))
-    x = pt % POW_2_383
-    y_mod_2 = pt // POW_2_383
+def decompress_G1(z: G1Compressed) -> G1Uncompressed:
+    # The case b_flag == 1, indicating the infinity point
+    if (z % POW_2_383) // POW_2_382 == 1:
+        return G1Uncompressed(Z1)
+    x = z % POW_2_381
+
+    # Try solving y coordinate from the equation Y^2 = X^3 + b
+    # using quadratic residue
     y = pow((x**3 + b.n) % q, (q + 1) // 4, q)
 
     if pow(y, 2, q) != (x**3 + b.n) % q:
         raise ValueError(
-            "he given point is not on G1: y**2 = x**3 + b"
+            "The given point is not on G1: y**2 = x**3 + b"
         )
-    if y % 2 != y_mod_2:
+    # Choose the y whose leftmost bit is equal to the a_flag
+    a_flag = (z % POW_2_382) // POW_2_381
+    if (y * 2) // q != a_flag:
         y = q - y
     return G1Uncompressed((FQ(x), FQ(y), FQ(1)))
 
 
 def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
-    pt_compressed = compress_G1(pt)
-    return BLSPubkey(pt_compressed.to_bytes(48, "big"))
+    z = compress_G1(pt)
+    return BLSPubkey(z.to_bytes(48, "big"))
 
 
 def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
-    pt = big_endian_to_int(pubkey)
-    return decompress_G1(pt)
+    z = big_endian_to_int(pubkey)
+    return decompress_G1(z)
 
 #
 # G2
@@ -144,25 +165,37 @@ def compress_G2(pt: G2Uncompressed) -> G2Compressed:
         raise ValueError(
             "The given point is not on the twisted curve over FQ**2"
         )
+    if is_inf(pt):
+        return G2Compressed((POW_2_383 + POW_2_382, 0))
     x, y = normalize(pt)
-    return G2Compressed((
-        int(x.coeffs[0] + POW_2_383 * (y.coeffs[0] % 2)),
-        int(x.coeffs[1])
-    ))
+    # c_flag1 = 1, b_flag1 = 0
+    x_re, x_im = x.coeffs
+    _, y_im = y.coeffs
+    # Record the leftmost bit of y_im to the a_flag1
+    a_flag1 = (y_im * 2) // q
+    z1 = x_re + a_flag1 * POW_2_381 + POW_2_383
+    # a_flag2 = b_flag2 = c_flag2 = 0
+    z2 = x_im
+    return G2Compressed((z1, z2))
 
 
 def decompress_G2(p: G2Compressed) -> G2Uncompressed:
-    x1 = p[0] % POW_2_383
-    y1_mod_2 = p[0] // POW_2_383
-    x2 = p[1]
+    z1, z2 = p
+    # check b_flag1 for infinity
+    if (z1 % POW_2_383) // POW_2_382 == 1:
+        return G2Uncompressed(Z2)
+    x1 = z1 % POW_2_381
+    x2 = z2
     x = FQ2([x1, x2])
-    if x == FQ2([0, 0]):
-        return G2Uncompressed((FQ2([1, 0]), FQ2([1, 0]), FQ2([0, 0])))
     y = modular_squareroot(x**3 + b2)
     if y is None:
         raise ValueError("Failed to find a modular squareroot")
-    if y.coeffs[0] % 2 != y1_mod_2:
+
+    # Choose the y whose leftmost bit of the imaginary part is equal to the a_flag1
+    a_flag1 = (z1 % POW_2_382) // POW_2_381
+    if (y.coeffs[1] * 2) // q != a_flag1:
         y = FQ2((y * -1).coeffs)
+
     if not is_on_curve((x, y, FQ2([1, 0])), b2):
         raise ValueError(
             "The given point is not on the twisted curve over FQ**2"
@@ -171,10 +204,10 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
 
 
 def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:
-    x1, x2 = compress_G2(pt)
+    z1, z2 = compress_G2(pt)
     return BLSSignature(
-        x1.to_bytes(48, "big") +
-        x2.to_bytes(48, "big")
+        z1.to_bytes(48, "big") +
+        z2.to_bytes(48, "big")
     )
 
 
