@@ -1,5 +1,10 @@
 from __future__ import absolute_import
 
+from py_ecc.fields import (
+    optimized_bls12_381_FQ as FQ,
+    optimized_bls12_381_FQ12 as FQ12,
+)
+
 from .optimized_curve import (
     double,
     add,
@@ -14,9 +19,7 @@ from .optimized_curve import (
     normalize,
 )
 from .optimized_field_elements import (
-    FQ12,
     field_modulus,
-    FQ,
 )
 
 

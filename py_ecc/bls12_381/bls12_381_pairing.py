@@ -1,5 +1,10 @@
 from __future__ import absolute_import
 
+from py_ecc.fields import (
+    bls12_381_FQ as FQ,
+    bls12_381_FQ12 as FQ12,
+)
+
 from .bls12_381_curve import (
     double,
     add,
@@ -13,8 +18,6 @@ from .bls12_381_curve import (
 )
 from .bls12_381_field_elements import (
     field_modulus,
-    FQ,
-    FQ12,
 )
 
 

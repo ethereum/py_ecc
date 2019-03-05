@@ -4,12 +4,15 @@ from typing import (
     cast,
 )
 
+from py_ecc.fields import (
+    optimized_bn128_FQ as FQ,
+    optimized_bn128_FQP as FQP,
+    optimized_bn128_FQ2 as FQ2,
+    optimized_bn128_FQ12 as FQ12,
+)
+
 from .optimized_field_elements import (
     field_modulus,
-    FQ,
-    FQ2,
-    FQ12,
-    FQP,
 )
 
 from py_ecc.typing import (

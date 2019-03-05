@@ -8,8 +8,9 @@ extras_require = {
         "pytest-xdist==1.26.0"
     ],
     'lint': [
-        "flake8==3.4.1",
+        "flake8==3.5.0",
         "mypy==0.641",
+        "mypy-extensions>=0.4.1",
     ],
     'dev': [
         "bumpversion>=0.5.3,<1",
@@ -44,6 +45,7 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     package_data={'py_ecc': ['py.typed']},
     install_requires=[
+        "mypy-extensions>=0.4.1",
     ],
     python_requires='>=3.5, <4',
     extras_require=extras_require,
