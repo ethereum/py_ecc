@@ -1,12 +1,5 @@
 from __future__ import absolute_import
 
-from .optimized_field_elements import (  # noqa: F401
-    field_modulus,
-    FQ,
-    FQP,
-    FQ2,
-    FQ12,
-)
 from .optimized_curve import (  # noqa: F401
     add,
     double,

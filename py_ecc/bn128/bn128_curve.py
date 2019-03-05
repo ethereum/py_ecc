@@ -10,6 +10,9 @@ from py_ecc.fields import (
     bn128_FQ12 as FQ12,
     bn128_FQP as FQP,
 )
+from py_ecc.fields.field_properties import (
+    field_properties,
+)
 
 from py_ecc.typing import (
     Field,
@@ -17,11 +20,8 @@ from py_ecc.typing import (
     Point2D,
 )
 
-from .bn128_field_elements import (
-    field_modulus,
-)
 
-
+field_modulus = field_properties["bn128"]["field_modulus"]
 curve_order = 21888242871839275222246405745257275088548364400416034343698204186575808495617
 
 # Curve order should be prime

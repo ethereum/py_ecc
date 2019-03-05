@@ -4,6 +4,9 @@ from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ12 as FQ12,
 )
+from py_ecc.fields.field_properties import (
+    field_properties,
+)
 
 from .optimized_curve import (
     double,
@@ -18,10 +21,9 @@ from .optimized_curve import (
     G1,
     normalize,
 )
-from .optimized_field_elements import (
-    field_modulus,
-)
 
+
+field_modulus = field_properties["bls12_381"]["field_modulus"]
 
 ate_loop_count = 15132376222941642752
 log_ate_loop_count = 62

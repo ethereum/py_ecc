@@ -9,6 +9,9 @@ from py_ecc.fields import (
     bn128_FQ12 as FQ12,
     bn128_FQP as FQP,
 )
+from py_ecc.fields.field_properties import (
+    field_properties,
+)
 
 from py_ecc.typing import (
     Field,
@@ -29,10 +32,9 @@ from .bn128_curve import (
     curve_order,
     G1,
 )
-from .bn128_field_elements import (
-    field_modulus,
-)
 
+
+field_modulus = field_properties["bn128"]["field_modulus"]
 
 ate_loop_count = 29793968203157093288
 log_ate_loop_count = 63
