@@ -3,7 +3,7 @@ from eth_utils import (
 )
 import pytest
 
-from py_ecc.bls_api.api import (
+from py_ecc.bls import (
     aggregate_pubkeys,
     aggregate_signatures,
     privtopub,
@@ -11,10 +11,10 @@ from py_ecc.bls_api.api import (
     verify,
     verify_multiple,
 )
-from py_ecc.bls_api.hash import (
+from py_ecc.bls.hash import (
     hash_eth2,
 )
-from py_ecc.bls_api.utils import (
+from py_ecc.bls.utils import (
     _get_x_coordinate,
     compress_G1,
     compress_G2,
