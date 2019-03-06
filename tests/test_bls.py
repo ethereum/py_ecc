@@ -23,16 +23,26 @@ from py_ecc.bls.utils import (
     hash_to_G2,
     signature_to_G2,
 )
+from py_ecc.bls.constants import (
+    POW_2_381,
+    POW_2_382,
+    POW_2_383,
+)
 from py_ecc.fields import (
+    optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
 )
 from py_ecc.optimized_bls12_381 import (
     G1,
     G2,
+    Z1,
+    Z2,
+    b,
     b2,
     is_on_curve,
     multiply,
     normalize,
+    field_modulus as q,
 )
 
 
@@ -66,6 +76,85 @@ def test_hash_to_G2():
 def test_decompress_G2_with_no_modular_square_root_found():
     with pytest.raises(ValueError, match="Failed to find a modular squareroot"):
         signature_to_G2(b'\x11' * 96)
+
+
+@pytest.mark.parametrize(
+    'pt,on_curve,is_infinity',
+    [
+        # On curve points
+        (G1, True, False),
+        (multiply(G1, 5), True, False),
+        # Infinity point but still on curve
+        (Z1, True, True),
+        # Not on curve
+        ((FQ(5566), FQ(5566), FQ.one()), False, None),
+    ]
+)
+def test_G1_compress_and_decompress_flags(pt, on_curve, is_infinity):
+    assert on_curve == is_on_curve(pt, b)
+    z = compress_G1(pt)
+    if on_curve:
+        x = z % POW_2_381
+        c_flag = (z % 2**384) // POW_2_383
+        b_flag = (z % POW_2_383) // POW_2_382
+        a_flag = (z % POW_2_382) // POW_2_381
+        assert x < q
+        assert c_flag == 1
+        if is_infinity:
+            assert b_flag == 1
+            assert a_flag == x == 0
+        else:
+            assert b_flag == 0
+            pt_x, pt_y = normalize(pt)
+            assert a_flag == (pt_y.n * 2) // q
+            assert x == pt_x.n
+        # Correct flags should decompress correct x, y
+        normalize(decompress_G1(z)) == normalize(pt)
+    else:
+        with pytest.raises(ValueError):
+            decompress_G1(z)
+
+
+@pytest.mark.parametrize(
+    'pt,on_curve,is_infinity',
+    [
+        # On curve points
+        (G2, True, False),
+        (multiply(G2, 5), True, False),
+        # Infinity point but still on curve
+        (Z2, True, True),
+        # Not on curve
+        ((FQ2([5566, 5566]), FQ2([5566, 5566]), FQ2.one()), False, None),
+    ]
+)
+def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
+    if on_curve:
+        z1, z2 = compress_G2(pt)
+        x1 = z1 % POW_2_381
+        c_flag1 = (z1 % 2**384) // POW_2_383
+        b_flag1 = (z1 % POW_2_383) // POW_2_382
+        a_flag1 = (z1 % POW_2_382) // POW_2_381
+        x2 = z2 % POW_2_381
+        c_flag2 = (z2 % 2**384) // POW_2_383
+        b_flag2 = (z2 % POW_2_383) // POW_2_382
+        a_flag2 = (z2 % POW_2_382) // POW_2_381
+        assert x1 < q
+        assert x2 < q
+        assert c_flag2 == b_flag2 == a_flag2 == 0
+        assert c_flag1 == 1
+        if is_infinity:
+            assert b_flag1 == 1
+            assert a_flag1 == x1 == x2 == 0
+        else:
+            assert b_flag1 == 0
+            _, y = normalize(pt)
+            _, y_im = y.coeffs
+            assert a_flag1 == (y_im * 2) // q
+        # Correct flags should decompress correct x, y
+        normalize(decompress_G2((z1, z2))) == normalize(pt)
+    else:
+        with pytest.raises(ValueError):
+            compress_G2(pt)
 
 
 @pytest.mark.parametrize(
