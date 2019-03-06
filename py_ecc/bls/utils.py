@@ -174,9 +174,10 @@ def compress_G2(pt: G2Uncompressed) -> G2Compressed:
     x, y = normalize(pt)
     # c_flag1 = 1, b_flag1 = 0
     x_re, x_im = x.coeffs
-    _, y_im = y.coeffs
+    y_re, y_im = y.coeffs
     # Record the leftmost bit of y_im to the a_flag1
-    a_flag1 = (y_im * 2) // q
+    # If y_im happens to be zero, then use the bit of y_re
+    a_flag1 = (y_im * 2) // q if y_im > 0 else (y_re * 2) // q
     z1 = x_re + a_flag1 * POW_2_381 + POW_2_383
     # a_flag2 = b_flag2 = c_flag2 = 0
     z2 = x_im
@@ -202,8 +203,10 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
         raise ValueError("Failed to find a modular squareroot")
 
     # Choose the y whose leftmost bit of the imaginary part is equal to the a_flag1
+    # If y_im happens to be zero, then use the bit of y_re
     a_flag1 = (z1 % POW_2_382) // POW_2_381
-    if (y.coeffs[1] * 2) // q != a_flag1:
+    y_re, y_im = y.coeffs
+    if (y_im > 0 and (y_im * 2) // q != a_flag1) or (y_im == 0 and (y_re * 2) // q != a_flag1):
         y = FQ2((y * -1).coeffs)
 
     if not is_on_curve((x, y, FQ2([1, 0])), b2):
