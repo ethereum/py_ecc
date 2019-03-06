@@ -149,6 +149,7 @@ def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
             assert b_flag1 == 0
             _, y = normalize(pt)
             _, y_im = y.coeffs
+            # TODO: need a case for y_im == 0
             assert a_flag1 == (y_im * 2) // q
         # Correct flags should decompress correct x, y
         normalize(decompress_G2((z1, z2))) == normalize(pt)

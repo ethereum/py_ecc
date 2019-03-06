@@ -172,15 +172,17 @@ def compress_G2(pt: G2Uncompressed) -> G2Compressed:
     if is_inf(pt):
         return G2Compressed((POW_2_383 + POW_2_382, 0))
     x, y = normalize(pt)
-    # c_flag1 = 1, b_flag1 = 0
     x_re, x_im = x.coeffs
     y_re, y_im = y.coeffs
     # Record the leftmost bit of y_im to the a_flag1
     # If y_im happens to be zero, then use the bit of y_re
     a_flag1 = (y_im * 2) // q if y_im > 0 else (y_re * 2) // q
-    z1 = x_re + a_flag1 * POW_2_381 + POW_2_383
+
+    # Imaginary part of x goes to z1, real part goes to z2
+    # c_flag1 = 1, b_flag1 = 0
+    z1 = x_im + a_flag1 * POW_2_381 + POW_2_383
     # a_flag2 = b_flag2 = c_flag2 = 0
-    z2 = x_im
+    z2 = x_re
     return G2Compressed((z1, z2))
 
 
@@ -197,7 +199,8 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
 
     x1 = z1 % POW_2_381
     x2 = z2
-    x = FQ2([x1, x2])
+    # x1 is the imaginary part, x2 is the real part
+    x = FQ2([x2, x1])
     y = modular_squareroot_in_FQ2(x**3 + b2)
     if y is None:
         raise ValueError("Failed to find a modular squareroot")
