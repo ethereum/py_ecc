@@ -46,9 +46,9 @@ from .typing import (
 #
 
 
-def modular_squareroot(value: FQ2) -> FQ2:
+def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     """
-    ``modular_squareroot(x)`` returns the value ``y`` such that ``y**2 % q == x``,
+    ``modular_squareroot_in_FQ2(x)`` returns the value ``y`` such that ``y**2 % q == x``,
     and None if this is not possible. In cases where there are two solutions,
     the value with higher imaginary component is favored;
     if both solutions have equal imaginary component the value with higher real
@@ -82,7 +82,7 @@ def hash_to_G2(message_hash: Hash32, domain: int) -> G2Uncompressed:
     # Test candidate y coordinates until a one is found
     while 1:
         y_coordinate_squared = x_coordinate ** 3 + FQ2([4, 4])  # The curve is y^2 = x^3 + 4(i + 1)
-        y_coordinate = modular_squareroot(y_coordinate_squared)
+        y_coordinate = modular_squareroot_in_FQ2(y_coordinate_squared)
         if y_coordinate is not None:  # Check if quadratic residue found
             break
         x_coordinate += FQ2([1, 0])  # Add 1 and try again
@@ -197,7 +197,7 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     x1 = z1 % POW_2_381
     x2 = z2
     x = FQ2([x1, x2])
-    y = modular_squareroot(x**3 + b2)
+    y = modular_squareroot_in_FQ2(x**3 + b2)
     if y is None:
         raise ValueError("Failed to find a modular squareroot")
 
