@@ -7,6 +7,7 @@ from py_ecc.fields import (  # noqa: F401
     bn128_FQ12 as FQ12,
 )
 from .bn128_curve import (  # noqa: F401
+    field_modulus,
     add,
     double,
     multiply,

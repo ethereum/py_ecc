@@ -7,6 +7,7 @@ from py_ecc.fields import (  # noqa: F401
     optimized_bn128_FQ12 as FQ12,
 )
 from .optimized_curve import (  # noqa: F401
+    field_modulus,
     add,
     double,
     multiply,
