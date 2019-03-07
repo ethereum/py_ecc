@@ -1,5 +1,11 @@
 from __future__ import absolute_import
 
+from py_ecc.fields import (  # noqa: F401
+    optimized_bn128_FQ as FQ,
+    optimized_bn128_FQP as FQP,
+    optimized_bn128_FQ2 as FQ2,
+    optimized_bn128_FQ12 as FQ12,
+)
 from .optimized_curve import (  # noqa: F401
     add,
     double,

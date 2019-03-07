@@ -1,5 +1,11 @@
 from __future__ import absolute_import
 
+from py_ecc.fields import (  # noqa: F401
+    bls12_381_FQ as FQ,
+    bls12_381_FQP as FQP,
+    bls12_381_FQ2 as FQ2,
+    bls12_381_FQ12 as FQ12,
+)
 from .bls12_381_curve import (  # noqa: F401
     add,
     double,
