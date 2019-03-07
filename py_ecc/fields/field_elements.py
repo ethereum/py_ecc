@@ -22,14 +22,8 @@ class FQ(object):
     """
     n = None  # type: int
     field_modulus = None
-    # curve_name can be either 'bn128' or 'bls12_381'
-    # This is needed to obtain field_modulus, FQ2_MODULUS_COEFFS
-    # and FQ12_MODULUS_COEFFS from the curve properties
-    curve_name = None
 
     def __init__(self, val: IntOrFQ) -> None:
-        if self.curve_name is None:
-            raise AttributeError("Curve Name hasn't been specified")
         if self.field_modulus is None:
             raise AttributeError("Field Modulus hasn't been specified")
 
@@ -187,14 +181,11 @@ class FQP(object):
     A class for elements in polynomial extension fields
     """
     degree = 0
-    curve_name = None
     field_modulus = None
 
     def __init__(self,
                  coeffs: Sequence[IntOrFQ],
                  modulus_coeffs: Sequence[IntOrFQ]=None) -> None:
-        if self.curve_name is None:
-            raise AttributeError("Curve Name hasn't been specified")
         if self.field_modulus is None:
             raise AttributeError("Field Modulus hasn't been specified")
 
@@ -202,11 +193,11 @@ class FQP(object):
             raise Exception(
                 "coeffs and modulus_coeffs aren't of the same length"
             )
-        # Encoding all coefficients in type FQ (in regards to the curve name too)
+        # Encoding all coefficients in the corresponding type FQ
         self.FQP_corresponding_FQ_class = type(
-            "FQP_corresponding_FQ_class_" + self.curve_name,
+            "FQP_corresponding_FQ_class",
             (FQ,),
-            {'curve_name': self.curve_name, 'field_modulus': self.field_modulus}
+            {'field_modulus': self.field_modulus}
         )
         self.coeffs = tuple(self.FQP_corresponding_FQ_class(c) for c in coeffs)
         # The coefficients of the modulus, without the leading [1]
@@ -353,8 +344,6 @@ class FQ2(FQP):
     FQ2_MODULUS_COEFFS = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
-        if self.curve_name is None:
-            raise AttributeError("Curve Name hasn't been specified")
         if self.FQ2_MODULUS_COEFFS is None:
             raise AttributeError("FQ2 Modulus Coeffs haven't been specified")
 
@@ -369,8 +358,6 @@ class FQ12(FQP):
     FQ12_MODULUS_COEFFS = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
-        if self.curve_name is None:
-            raise AttributeError("Curve Name hasn't been specified")
         if self.FQ12_MODULUS_COEFFS is None:
             raise AttributeError("FQ12 Modulus Coeffs haven't been specified")
 
