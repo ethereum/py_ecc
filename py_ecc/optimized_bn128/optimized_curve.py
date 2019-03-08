@@ -1,9 +1,5 @@
 from __future__ import absolute_import
 
-from typing import (
-    cast,
-)
-
 from py_ecc.fields import (
     optimized_bn128_FQ as FQ,
     optimized_bn128_FQP as FQP,
@@ -149,7 +145,7 @@ def neg(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_F
     return (x, -y, z)
 
 
-def twist(pt: Optimized_Point3D[FQP]) -> Optimized_Point3D[FQP]:
+def twist(pt: Optimized_Point3D[FQP]) -> Optimized_Point3D[FQ12]:
     _x, _y, _z = pt
     # Field isomorphism from Z[p] / x**2 to Z[p] / x**2 - 18*x + 82
     xcoeffs = [_x.coeffs[0] - _x.coeffs[1] * 9, _x.coeffs[1]]
@@ -162,5 +158,5 @@ def twist(pt: Optimized_Point3D[FQP]) -> Optimized_Point3D[FQP]:
 
 
 # Check that the twist creates a point that is on the curve
-G12 = twist(cast(Optimized_Point3D[FQ2], G2))
+G12 = twist(G2)
 assert is_on_curve(G12, b12)

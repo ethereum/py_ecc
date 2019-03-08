@@ -5,6 +5,24 @@ from typing import (
     Union,
 )
 
+from py_ecc.fields import (
+    bn128_FQ,
+    bn128_FQP,
+    bn128_FQ2,
+    bn128_FQ12,
+    bls12_381_FQ,
+    bls12_381_FQP,
+    bls12_381_FQ2,
+    bls12_381_FQ12,
+    optimized_bn128_FQ,
+    optimized_bn128_FQP,
+    optimized_bn128_FQ2,
+    optimized_bn128_FQ12,
+    optimized_bls12_381_FQ,
+    optimized_bls12_381_FQP,
+    optimized_bls12_381_FQ2,
+    optimized_bls12_381_FQ12,
+)
 from py_ecc.fields.field_elements import (
     FQ,
     FQP,
@@ -37,7 +55,24 @@ FQPPoint3D = Tuple[FQP, FQP, FQP]
 PlainPoint2D = Tuple[int, int]
 PlainPoint3D = Tuple[int, int, int]
 
-Field = TypeVar('Field', FQ, FQP)
+Field = TypeVar(
+    'Field',
+    # General
+    FQ,
+    FQP,
+    FQ2,
+    FQ12,
+    # bn128
+    bn128_FQ,
+    bn128_FQP,
+    bn128_FQ2,
+    bn128_FQ12,
+    # bls12_381
+    bls12_381_FQ,
+    bls12_381_FQP,
+    bls12_381_FQ2,
+    bls12_381_FQ12,
+)
 Point2D = Tuple[Field, Field]
 Point3D = Tuple[Field, Field, Field]
 GeneralPoint = Union[Point2D[Field], Point3D[Field]]
@@ -55,7 +90,27 @@ Optimized_FQ2Point3D = Tuple["Optimized_FQ2", "Optimized_FQ2", "Optimized_FQ2"]
 Optimized_FQ12Point3D = Tuple["Optimized_FQ12", "Optimized_FQ12", "Optimized_FQ12"]
 Optimized_FQPPoint3D = Tuple["Optimized_FQP", "Optimized_FQP", "Optimized_FQP"]
 
-Optimized_Field = TypeVar('Optimized_Field', "Optimized_FQ", "Optimized_FQP")
+Optimized_Field = TypeVar(
+    'Optimized_Field',
+    # General
+    "Optimized_FQ",
+    "Optimized_FQP",
+    "Optimized_FQ2",
+    "Optimized_FQ12",
+    # bn128
+    optimized_bn128_FQ,
+    optimized_bn128_FQP,
+    optimized_bn128_FQ2,
+    optimized_bn128_FQ12,
+    # bls12_381
+    optimized_bls12_381_FQ,
+    optimized_bls12_381_FQP,
+    optimized_bls12_381_FQ2,
+    optimized_bls12_381_FQ12,
+)
 Optimized_Point2D = Tuple[Optimized_Field, Optimized_Field]
 Optimized_Point3D = Tuple[Optimized_Field, Optimized_Field, Optimized_Field]
-Optimized_GeneralPoint = Union[Point2D[Optimized_Field], Point3D[Optimized_Field]]
+Optimized_GeneralPoint = Union[
+    Optimized_Point2D[Optimized_Field],
+    Optimized_Point3D[Optimized_Field],
+]
