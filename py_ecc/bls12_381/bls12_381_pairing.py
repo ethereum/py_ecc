@@ -2,10 +2,16 @@ from __future__ import absolute_import
 
 from py_ecc.fields import (
     bls12_381_FQ as FQ,
+    bls12_381_FQ2 as FQ2,
     bls12_381_FQ12 as FQ12,
 )
 from py_ecc.fields.field_properties import (
     field_properties,
+)
+
+from py_ecc.typing import (
+    Field,
+    Point2D,
 )
 
 from .bls12_381_curve import (
@@ -29,7 +35,9 @@ log_ate_loop_count = 62
 
 # Create a function representing the line between P1 and P2,
 # and evaluate it at T
-def linefunc(P1, P2, T):
+def linefunc(P1: Point2D[Field],
+             P2: Point2D[Field],
+             T: Point2D[Field]) -> Field:
     assert P1 and P2 and T  # No points-at-infinity allowed, sorry
     x1, y1 = P1
     x2, y2 = P2
@@ -44,7 +52,7 @@ def linefunc(P1, P2, T):
         return xt - x1
 
 
-def cast_point_to_fq12(pt):
+def cast_point_to_fq12(pt: Point2D[FQ]) -> Point2D[FQ12]:
     if pt is None:
         return None
     x, y = pt
@@ -73,10 +81,10 @@ assert linefunc(one, one, negtwo) == FQ(0)
 
 
 # Main miller loop
-def miller_loop(Q, P):
+def miller_loop(Q: Point2D[FQ12], P: Point2D[FQ12]) -> FQ12:
     if Q is None or P is None:
         return FQ12.one()
-    R = Q
+    R = Q  # type: Point2D[FQ12]
     f = FQ12.one()
     for i in range(log_ate_loop_count, -1, -1):
         f = f * f * linefunc(R, R, P)
@@ -97,11 +105,11 @@ def miller_loop(Q, P):
 
 
 # Pairing computation
-def pairing(Q, P):
+def pairing(Q: Point2D[FQ2], P: Point2D[FQ]) -> FQ12:
     assert is_on_curve(Q, b2)
     assert is_on_curve(P, b)
     return miller_loop(twist(Q), cast_point_to_fq12(P))
 
 
-def final_exponentiate(p):
+def final_exponentiate(p: Field) -> Field:
     return p ** ((field_modulus ** 12 - 1) // curve_order)

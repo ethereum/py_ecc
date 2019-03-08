@@ -4,9 +4,16 @@ from py_ecc.fields import (
     bls12_381_FQ as FQ,
     bls12_381_FQ2 as FQ2,
     bls12_381_FQ12 as FQ12,
+    bls12_381_FQP as FQP,
 )
 from py_ecc.fields.field_properties import (
     field_properties,
+)
+
+from py_ecc.typing import (
+    Field,
+    GeneralPoint,
+    Point2D,
 )
 
 
@@ -48,12 +55,12 @@ Z2 = None
 
 
 # Check if a point is the point at infinity
-def is_inf(pt):
+def is_inf(pt: GeneralPoint[Field]) -> bool:
     return pt is None
 
 
 # Check that a point is on the curve defined by y**2 == x**3 + b
-def is_on_curve(pt, b):
+def is_on_curve(pt: Point2D[Field], b: Field) -> bool:
     if is_inf(pt):
         return True
     x, y = pt
@@ -65,18 +72,18 @@ assert is_on_curve(G2, b2)
 
 
 # Elliptic curve doubling
-def double(pt):
+def double(pt: Point2D[Field]) -> Point2D[Field]:
     if is_inf(pt):
         return pt
     x, y = pt
     m = 3 * x**2 / (2 * y)
     newx = m**2 - 2 * x
     newy = -m * newx + m * x - y
-    return newx, newy
+    return (newx, newy)
 
 
 # Elliptic curve addition
-def add(p1, p2):
+def add(p1: Point2D[Field], p2: Point2D[Field]) -> Point2D[Field]:
     if p1 is None or p2 is None:
         return p1 if p2 is None else p2
     x1, y1 = p1
@@ -94,7 +101,7 @@ def add(p1, p2):
 
 
 # Elliptic curve point multiplication
-def multiply(pt, n):
+def multiply(pt: Point2D[Field], n: int) -> Point2D[Field]:
     if n == 0:
         return None
     elif n == 1:
@@ -105,7 +112,7 @@ def multiply(pt, n):
         return add(multiply(double(pt), int(n // 2)), pt)
 
 
-def eq(p1, p2):
+def eq(p1: GeneralPoint[Field], p2: GeneralPoint[Field]) -> bool:
     return p1 == p2
 
 
@@ -114,14 +121,14 @@ w = FQ12([0, 1] + [0] * 10)
 
 
 # Convert P => -P
-def neg(pt):
+def neg(pt: Point2D[Field]) -> Point2D[Field]:
     if pt is None:
         return None
     x, y = pt
     return (x, -y)
 
 
-def twist(pt):
+def twist(pt: Point2D[FQP]) -> Point2D[FQ12]:
     if pt is None:
         return None
     _x, _y = pt
