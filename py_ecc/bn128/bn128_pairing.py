@@ -1,13 +1,9 @@
 from __future__ import absolute_import
 
-from typing import (
-    cast,
-)
-
 from py_ecc.fields import (
     bn128_FQ as FQ,
+    bn128_FQ2 as FQ2,
     bn128_FQ12 as FQ12,
-    bn128_FQP as FQP,
 )
 from py_ecc.fields.field_properties import (
     field_properties,
@@ -15,9 +11,6 @@ from py_ecc.fields.field_properties import (
 
 from py_ecc.typing import (
     Field,
-    FQPoint2D,
-    FQ2Point2D,
-    FQ12Point2D,
     Point2D,
 )
 
@@ -59,12 +52,12 @@ def linefunc(P1: Point2D[Field],
         return xt - x1
 
 
-def cast_point_to_fq12(pt: FQPoint2D) -> FQ12Point2D:
+def cast_point_to_fq12(pt: Point2D[FQ]) -> Point2D[FQ12]:
     if pt is None:
         return None
     x, y = pt
     fq12_point = (FQ12([x.n] + [0] * 11), FQ12([y.n] + [0] * 11))
-    return cast(FQ12Point2D, fq12_point)
+    return fq12_point
 
 
 # Check consistency of the "line function"
@@ -89,11 +82,11 @@ assert linefunc(one, one, negtwo) == FQ(0)
 
 
 # Main miller loop
-def miller_loop(Q: Point2D[Field],
-                P: Point2D[Field]) -> FQP:
+def miller_loop(Q: Point2D[FQ12],
+                P: Point2D[FQ12]) -> FQ12:
     if Q is None or P is None:
         return FQ12.one()
-    R = Q   # type: Point2D[Field]
+    R = Q   # type: Point2D[FQ12]
     f = FQ12.one()
     for i in range(log_ate_loop_count, -1, -1):
         f = f * f * linefunc(R, R, P)
@@ -102,10 +95,9 @@ def miller_loop(Q: Point2D[Field],
             f = f * linefunc(R, Q, P)
             R = add(R, Q)
     # assert R == multiply(Q, ate_loop_count)
-    Q1 = cast(Point2D[Field], (Q[0] ** field_modulus, Q[1] ** field_modulus))
+    Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus)
     # assert is_on_curve(Q1, b12)
-    nQ2 = cast(Point2D[Field],
-               (Q1[0] ** field_modulus, -Q1[1] ** field_modulus))
+    nQ2 = (Q1[0] ** field_modulus, -Q1[1] ** field_modulus)
     # assert is_on_curve(nQ2, b12)
     f = f * linefunc(R, Q1, P)
     R = add(R, Q1)
@@ -115,7 +107,7 @@ def miller_loop(Q: Point2D[Field],
 
 
 # Pairing computation
-def pairing(Q: FQ2Point2D, P: FQPoint2D) -> FQP:
+def pairing(Q: Point2D[FQ2], P: Point2D[FQ]) -> FQ12:
     assert is_on_curve(Q, b2)
     assert is_on_curve(P, b)
     return miller_loop(twist(Q), cast_point_to_fq12(P))
