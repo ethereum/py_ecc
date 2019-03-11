@@ -10,9 +10,8 @@ from py_ecc.fields import (
     optimized_bn128_FQ2 as FQ2,
     optimized_bn128_FQ12 as FQ12,
 )
-
-from .optimized_field_elements import (
-    field_modulus,
+from py_ecc.fields.field_properties import (
+    field_properties,
 )
 
 from py_ecc.typing import (
@@ -22,6 +21,7 @@ from py_ecc.typing import (
 )
 
 
+field_modulus = field_properties["bn128"]["field_modulus"]
 curve_order = 21888242871839275222246405745257275088548364400416034343698204186575808495617
 
 # Curve order should be prime

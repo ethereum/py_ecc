@@ -4,6 +4,9 @@ from py_ecc.fields import (
     bls12_381_FQ as FQ,
     bls12_381_FQ12 as FQ12,
 )
+from py_ecc.fields.field_properties import (
+    field_properties,
+)
 
 from .bls12_381_curve import (
     double,
@@ -16,10 +19,9 @@ from .bls12_381_curve import (
     curve_order,
     G1,
 )
-from .bls12_381_field_elements import (
-    field_modulus,
-)
 
+
+field_modulus = field_properties["bls12_381"]["field_modulus"]
 
 ate_loop_count = 15132376222941642752
 log_ate_loop_count = 62

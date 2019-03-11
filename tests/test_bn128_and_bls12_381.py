@@ -23,6 +23,9 @@ from py_ecc.fields import (
     optimized_bn128_FQ2,
     optimized_bn128_FQ12,
 )
+from py_ecc.fields.field_properties import (
+    field_properties,
+)
 
 
 @pytest.fixture(params=[bn128, optimized_bn128, bls12_381, optimized_bls12_381])
@@ -74,7 +77,12 @@ def FQ12(lib):
 
 @pytest.fixture
 def field_modulus(lib):
-    return lib.field_modulus
+    if lib == bn128 or lib == optimized_bn128:
+        return field_properties["bn128"]["field_modulus"]
+    elif lib == bls12_381 or lib == optimized_bls12_381:
+        return field_properties["bls12_381"]["field_modulus"]
+    else:
+        raise Exception("Library Not Found")
 
 
 @pytest.fixture

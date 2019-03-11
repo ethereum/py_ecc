@@ -5,6 +5,9 @@ from py_ecc.fields import (
     optimized_bn128_FQP as FQP,
     optimized_bn128_FQ12 as FQ12,
 )
+from py_ecc.fields.field_properties import (
+    field_properties,
+)
 
 from py_ecc.typing import (
     Optimized_Field,
@@ -27,10 +30,9 @@ from .optimized_curve import (
     G1,
     normalize,
 )
-from .optimized_field_elements import (
-    field_modulus,
-)
 
+
+field_modulus = field_properties["bn128"]["field_modulus"]
 
 ate_loop_count = 29793968203157093288
 log_ate_loop_count = 63

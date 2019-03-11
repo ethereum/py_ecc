@@ -5,12 +5,12 @@ from py_ecc.fields import (
     bls12_381_FQ2 as FQ2,
     bls12_381_FQ12 as FQ12,
 )
-
-from .bls12_381_field_elements import (
-    field_modulus,
+from py_ecc.fields.field_properties import (
+    field_properties,
 )
 
 
+field_modulus = field_properties["bls12_381"]["field_modulus"]
 curve_order = 52435875175126190479447740508185965837690552500527637822603658699938581184513
 
 # Curve order should be prime
