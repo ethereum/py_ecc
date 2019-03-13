@@ -2,7 +2,7 @@ py_ecc
 ==========================
 Elliptic curve crypto in python including secp256k1 and alt_bn128
 
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ethereum/py_ecc) ![Travis (.org) branch](https://img.shields.io/travis/ethereum/py_ecc/master.svg)[![PyPI version](https://badge.fury.io/py/py_ecc.svg)](https://badge.fury.io/py/py_ecc)
+[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ethereum/py_ecc) [![Build Status](https://circleci.com/gh/ethereum/py_ecc.svg?style=shield)](https://circleci.com/gh/ethereum/py_ecc) [![PyPI version](https://badge.fury.io/py/py_ecc.svg)](https://badge.fury.io/py/py_ecc)
 
 
 ## Quickstart
