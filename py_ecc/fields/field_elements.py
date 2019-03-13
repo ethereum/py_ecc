@@ -6,6 +6,7 @@ from typing import (  # noqa: F401
     Type,
     TypeVar,
     Union,
+    TYPE_CHECKING,
 )
 
 from py_ecc.utils import (
@@ -13,6 +14,12 @@ from py_ecc.utils import (
     poly_rounded_div,
     prime_field_inv,
 )
+
+if TYPE_CHECKING:
+    from py_ecc.typing import (  # noqa: F401
+        FQ2_modulus_coeffs_type,
+        FQ12_modulus_coeffs_type,
+    )
 
 
 # These new TypeVars are needed because these classes are kind of base classes and
@@ -352,7 +359,7 @@ class FQ2(FQP):
     The quadratic extension field
     """
     degree = 2
-    FQ2_MODULUS_COEFFS = None  # type: Tuple[int, ...]
+    FQ2_MODULUS_COEFFS = None  # type: FQ2_modulus_coeffs_type
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.FQ2_MODULUS_COEFFS is None:
@@ -366,7 +373,7 @@ class FQ12(FQP):
     The 12th-degree extension field
     """
     degree = 12
-    FQ12_MODULUS_COEFFS = None  # type: Tuple[int, ...]
+    FQ12_MODULUS_COEFFS = None  # type: FQ12_modulus_coeffs_type
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.FQ12_MODULUS_COEFFS is None:

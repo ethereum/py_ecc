@@ -1,16 +1,22 @@
 from typing import (
     Dict,
-    Tuple,
+    TYPE_CHECKING,
 )
 
 from mypy_extensions import TypedDict
+
+if TYPE_CHECKING:
+    from py_ecc.typing import (  # noqa: F401
+        FQ2_modulus_coeffs_type,
+        FQ12_modulus_coeffs_type,
+    )
 
 
 Curve_Field_Properties = TypedDict('Curve_Field_Properties',
                                    {
                                        'field_modulus': int,
-                                       'fq2_modulus_coeffs': Tuple[int, ...],
-                                       'fq12_modulus_coeffs': Tuple[int, ...],
+                                       'fq2_modulus_coeffs': "FQ2_modulus_coeffs_type",
+                                       'fq12_modulus_coeffs': "FQ12_modulus_coeffs_type",
                                    })
 Field_Properties = Dict[str, Curve_Field_Properties]
 

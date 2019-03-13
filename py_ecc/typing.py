@@ -96,3 +96,9 @@ Optimized_GeneralPoint = Union[
     Optimized_Point2D[Optimized_Field],
     Optimized_Point3D[Optimized_Field],
 ]
+
+#
+# Miscellaneous types
+#
+FQ2_modulus_coeffs_type = Tuple[int, int]
+FQ12_modulus_coeffs_type = Tuple[int, int, int, int, int, int, int, int, int, int, int, int]
