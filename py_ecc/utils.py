@@ -7,10 +7,10 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from py_ecc.field_elements import (  # noqa: F401
+    from py_ecc.fields.field_elements import (  # noqa: F401
         FQ,
     )
-    from py_ecc.optimized_field_elements import (  # noqa: F401
+    from py_ecc.fields.optimized_field_elements import (  # noqa: F401
         FQ as optimized_FQ,
     )
 
@@ -42,7 +42,7 @@ def deg(p: Sequence[Union[int, "FQ", "optimized_FQ"]]) -> int:
 
 
 def poly_rounded_div(a: Sequence[IntOrFQ],
-                     b: Sequence[IntOrFQ]) -> Tuple[IntOrFQ]:
+                     b: Sequence[IntOrFQ]) -> Tuple[IntOrFQ, ...]:
     dega = deg(a)
     degb = deg(b)
     temp = [x for x in a]
@@ -51,4 +51,4 @@ def poly_rounded_div(a: Sequence[IntOrFQ],
         o[i] += int(temp[degb + i] / b[degb])
         for c in range(degb + 1):
             temp[c + i] -= o[c]
-    return cast(Tuple[IntOrFQ], tuple(o[:deg(o) + 1]))
+    return cast(Tuple[IntOrFQ, ...], tuple(o[:deg(o) + 1]))

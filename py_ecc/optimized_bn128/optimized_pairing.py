@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 from py_ecc.fields import (
     optimized_bn128_FQ as FQ,
-    optimized_bn128_FQP as FQP,
+    optimized_bn128_FQ2 as FQ2,
     optimized_bn128_FQ12 as FQ12,
 )
 from py_ecc.fields.field_properties import (
@@ -11,8 +11,6 @@ from py_ecc.fields.field_properties import (
 
 from py_ecc.typing import (
     Optimized_Field,
-    Optimized_FQPoint3D,
-    Optimized_FQ2Point3D,
     Optimized_Point2D,
     Optimized_Point3D,
 )
@@ -50,7 +48,7 @@ assert sum([e * 2**i for i, e in enumerate(pseudo_binary_encoding)]) == ate_loop
 def normalize1(p: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
     x, y = normalize(p)
 
-    return x, y, type(x).one()
+    return x, y, x.one()
 
 
 # Create a function representing the line between P1 and P2,
@@ -59,7 +57,7 @@ def normalize1(p: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optim
 def linefunc(P1: Optimized_Point3D[Optimized_Field],
              P2: Optimized_Point3D[Optimized_Field],
              T: Optimized_Point3D[Optimized_Field]) -> Optimized_Point2D[Optimized_Field]:
-    zero = type(P1[0]).zero()
+    zero = P1[0].zero()
     x1, y1, z1 = P1
     x2, y2, z2 = P2
     xt, yt, zt = T
@@ -111,12 +109,12 @@ assert linefunc(one, one, negtwo)[0] == FQ(0)
 
 
 # Main miller loop
-def miller_loop(Q: Optimized_Point3D[FQP],
-                P: Optimized_Point3D[FQP],
-                final_exponentiate: bool=True) -> FQP:
+def miller_loop(Q: Optimized_Point3D[FQ12],
+                P: Optimized_Point3D[FQ12],
+                final_exponentiate: bool=True) -> FQ12:
     if Q is None or P is None:
         return FQ12.one()
-    R = Q  # type: Optimized_Point3D[FQP]
+    R = Q  # type: Optimized_Point3D[FQ12]
     f_num, f_den = FQ12.one(), FQ12.one()
     # for i in range(log_ate_loop_count, -1, -1):
     for v in pseudo_binary_encoding[63::-1]:
@@ -153,10 +151,12 @@ def miller_loop(Q: Optimized_Point3D[FQP],
 
 
 # Pairing computation
-def pairing(Q: Optimized_FQ2Point3D, P: Optimized_FQPoint3D, final_exponentiate: bool=True) -> FQP:
+def pairing(Q: Optimized_Point3D[FQ2],
+            P: Optimized_Point3D[FQ],
+            final_exponentiate: bool=True) -> FQ12:
     assert is_on_curve(Q, b2)
     assert is_on_curve(P, b)
-    if P[-1] == (type(P[-1]).zero()) or Q[-1] == (type(Q[-1]).zero()):
+    if P[-1] == (P[-1].zero()) or Q[-1] == (Q[-1].zero()):
         return FQ12.one()
     return miller_loop(twist(Q), cast_point_to_fq12(P), final_exponentiate=final_exponentiate)
 

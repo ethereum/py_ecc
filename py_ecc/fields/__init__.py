@@ -28,12 +28,12 @@ class bn128_FQP(FQP):
     field_modulus = field_properties["bn128"]["field_modulus"]
 
 
-class bn128_FQ2(FQ2):
+class bn128_FQ2(FQ2, bn128_FQP):
     field_modulus = field_properties["bn128"]["field_modulus"]
     FQ2_MODULUS_COEFFS = field_properties["bn128"]["fq2_modulus_coeffs"]
 
 
-class bn128_FQ12(FQ12):
+class bn128_FQ12(FQ12, bn128_FQP):
     field_modulus = field_properties["bn128"]["field_modulus"]
     FQ12_MODULUS_COEFFS = field_properties["bn128"]["fq12_modulus_coeffs"]
 
@@ -49,12 +49,12 @@ class bls12_381_FQP(FQP):
     field_modulus = field_properties["bls12_381"]["field_modulus"]
 
 
-class bls12_381_FQ2(FQ2):
+class bls12_381_FQ2(FQ2, bls12_381_FQP):
     field_modulus = field_properties["bls12_381"]["field_modulus"]
     FQ2_MODULUS_COEFFS = field_properties["bls12_381"]["fq2_modulus_coeffs"]
 
 
-class bls12_381_FQ12(FQ12):
+class bls12_381_FQ12(FQ12, bls12_381_FQP):
     field_modulus = field_properties["bls12_381"]["field_modulus"]
     FQ12_MODULUS_COEFFS = field_properties["bls12_381"]["fq12_modulus_coeffs"]
 
@@ -71,12 +71,12 @@ class optimized_bn128_FQP(optimized_FQP):
     field_modulus = field_properties["bn128"]["field_modulus"]
 
 
-class optimized_bn128_FQ2(optimized_FQ2):
+class optimized_bn128_FQ2(optimized_FQ2, optimized_bn128_FQP):
     field_modulus = field_properties["bn128"]["field_modulus"]
     FQ2_MODULUS_COEFFS = field_properties["bn128"]["fq2_modulus_coeffs"]
 
 
-class optimized_bn128_FQ12(optimized_FQ12):
+class optimized_bn128_FQ12(optimized_FQ12, optimized_bn128_FQP):
     field_modulus = field_properties["bn128"]["field_modulus"]
     FQ12_MODULUS_COEFFS = field_properties["bn128"]["fq12_modulus_coeffs"]
 
@@ -92,11 +92,11 @@ class optimized_bls12_381_FQP(optimized_FQP):
     field_modulus = field_properties["bls12_381"]["field_modulus"]
 
 
-class optimized_bls12_381_FQ2(optimized_FQ2):
+class optimized_bls12_381_FQ2(optimized_FQ2, optimized_bls12_381_FQP):
     field_modulus = field_properties["bls12_381"]["field_modulus"]
     FQ2_MODULUS_COEFFS = field_properties["bls12_381"]["fq2_modulus_coeffs"]
 
 
-class optimized_bls12_381_FQ12(optimized_FQ12):
+class optimized_bls12_381_FQ12(optimized_FQ12, optimized_bls12_381_FQP):
     field_modulus = field_properties["bls12_381"]["field_modulus"]
     FQ12_MODULUS_COEFFS = field_properties["bls12_381"]["fq12_modulus_coeffs"]

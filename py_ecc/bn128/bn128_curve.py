@@ -1,9 +1,5 @@
 from __future__ import absolute_import
 
-from typing import (
-    cast,
-)
-
 from py_ecc.fields import (
     bn128_FQ as FQ,
     bn128_FQ2 as FQ2,
@@ -37,7 +33,7 @@ b2 = FQ2([3, 0]) / FQ2([9, 1])
 b12 = FQ12([3] + [0] * 11)
 
 # Generator for curve over FQ
-G1 = cast(Point2D[FQ], (FQ(1), FQ(2)))
+G1 = (FQ(1), FQ(2))
 # Generator for twisted curve over FQ2
 G2 = (
     FQ2([
@@ -69,7 +65,7 @@ def is_on_curve(pt: Point2D[Field], b: Field) -> bool:
 
 
 assert is_on_curve(G1, b)
-assert is_on_curve(cast(Point2D[FQ2], G2), b2)
+assert is_on_curve(G2, b2)
 
 
 # Elliptic curve doubling
@@ -130,7 +126,7 @@ def neg(pt: Point2D[Field]) -> Point2D[Field]:
     return (x, -y)
 
 
-def twist(pt: Point2D[FQP]) -> Point2D[FQP]:
+def twist(pt: Point2D[FQP]) -> Point2D[FQ12]:
     if pt is None:
         return None
     _x, _y = pt
@@ -145,6 +141,6 @@ def twist(pt: Point2D[FQP]) -> Point2D[FQP]:
     return (nx * w ** 2, ny * w**3)
 
 
-G12 = twist(cast(Point2D[FQP], G2))
+G12 = twist(G2)
 # Check that the twist creates a point that is on the curve
 assert is_on_curve(G12, b12)
