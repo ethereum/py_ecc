@@ -48,7 +48,7 @@ assert sum([e * 2**i for i, e in enumerate(pseudo_binary_encoding)]) == ate_loop
 def normalize1(p: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
     x, y = normalize(p)
 
-    return x, y, type(x).one()
+    return x, y, x.one()
 
 
 # Create a function representing the line between P1 and P2,
@@ -57,7 +57,7 @@ def normalize1(p: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optim
 def linefunc(P1: Optimized_Point3D[Optimized_Field],
              P2: Optimized_Point3D[Optimized_Field],
              T: Optimized_Point3D[Optimized_Field]) -> Optimized_Point2D[Optimized_Field]:
-    zero = type(P1[0]).zero()
+    zero = P1[0].zero()
     x1, y1, z1 = P1
     x2, y2, z2 = P2
     xt, yt, zt = T
@@ -156,7 +156,7 @@ def pairing(Q: Optimized_Point3D[FQ2],
             final_exponentiate: bool=True) -> FQ12:
     assert is_on_curve(Q, b2)
     assert is_on_curve(P, b)
-    if P[-1] == (type(P[-1]).zero()) or Q[-1] == (type(Q[-1]).zero()):
+    if P[-1] == (P[-1].zero()) or Q[-1] == (Q[-1].zero()):
         return FQ12.one()
     return miller_loop(twist(Q), cast_point_to_fq12(P), final_exponentiate=final_exponentiate)
 

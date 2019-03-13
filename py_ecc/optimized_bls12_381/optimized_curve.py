@@ -89,7 +89,7 @@ def double(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimize
 # Elliptic curve addition
 def add(p1: Optimized_Point3D[Optimized_Field],
         p2: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
-    one, zero = type(p1[0]).one(), type(p1[0]).zero()
+    one, zero = p1[0].one(), p1[0].zero()
     if p1[2] == zero or p2[2] == zero:
         return p1 if p2[2] == zero else p2
     x1, y1, z1 = p1
@@ -118,7 +118,7 @@ def add(p1: Optimized_Point3D[Optimized_Field],
 # Elliptic curve point multiplication
 def multiply(pt: Optimized_Point3D[Optimized_Field], n: int) -> Optimized_Point3D[Optimized_Field]:
     if n == 0:
-        return (type(pt[0]).one(), type(pt[0]).one(), type(pt[0]).zero())
+        return (pt[0].one(), pt[0].one(), pt[0].zero())
     elif n == 1:
         return pt
     elif not n % 2:
