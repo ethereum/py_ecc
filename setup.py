@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 extras_require = {
     'test': [
         "pytest==3.10.1",
-        "pytest-xdist==1.26.0"
+        "pytest-xdist==1.26.0",
     ],
     'lint': [
         "flake8==3.5.0",
