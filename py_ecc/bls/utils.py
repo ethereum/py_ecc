@@ -88,7 +88,7 @@ def hash_to_G2(message_hash: Hash32, domain: int) -> G2Uncompressed:
         x_coordinate += FQ2([1, 0])  # Add 1 and try again
 
     return multiply(
-        G2Uncompressed((x_coordinate, y_coordinate, FQ2([1, 0]))),
+        (x_coordinate, y_coordinate, FQ2([1, 0])),
         G2_cofactor,
     )
 
@@ -122,7 +122,7 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     # b_flag == 1 indicates the infinity point
     b_flag = (z % POW_2_383) // POW_2_382
     if b_flag == 1:
-        return G1Uncompressed(Z1)
+        return Z1
     x = z % POW_2_381
 
     # Try solving y coordinate from the equation Y^2 = X^3 + b
@@ -137,7 +137,7 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     a_flag = (z % POW_2_382) // POW_2_381
     if (y * 2) // q != a_flag:
         y = q - y
-    return G1Uncompressed((FQ(x), FQ(y), FQ(1)))
+    return (FQ(x), FQ(y), FQ(1))
 
 
 def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
@@ -195,7 +195,7 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     # b_flag == 1 indicates the infinity point
     b_flag1 = (z1 % POW_2_383) // POW_2_382
     if b_flag1 == 1:
-        return G2Uncompressed(Z2)
+        return Z2
 
     x1 = z1 % POW_2_381
     x2 = z2
@@ -216,7 +216,7 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
         raise ValueError(
             "The given point is not on the twisted curve over FQ**2"
         )
-    return G2Uncompressed((x, y, FQ2([1, 0])))
+    return (x, y, FQ2([1, 0]))
 
 
 def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:

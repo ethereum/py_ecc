@@ -24,11 +24,6 @@ from py_ecc.optimized_bls12_381 import (
     neg,
     pairing,
 )
-
-from .typing import (
-    G1Uncompressed,
-    G2Uncompressed,
-)
 from .utils import (
     G1_to_pubkey,
     G2_to_signature,
@@ -49,7 +44,7 @@ def sign(message_hash: Hash32,
 
 
 def privtopub(k: int) -> BLSPubkey:
-    return G1_to_pubkey(multiply(G1Uncompressed(G1), k))
+    return G1_to_pubkey(multiply(G1, k))
 
 
 def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, domain: int) -> bool:
@@ -72,14 +67,14 @@ def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, dom
 
 
 def aggregate_signatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
-    o = G2Uncompressed(Z2)
+    o = Z2
     for s in signatures:
         o = add(o, signature_to_G2(s))
     return G2_to_signature(o)
 
 
 def aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
-    o = G1Uncompressed(Z1)
+    o = Z1
     for p in pubkeys:
         o = add(o, pubkey_to_G1(p))
     return G1_to_pubkey(o)
