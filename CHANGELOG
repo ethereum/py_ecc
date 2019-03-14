@@ -1,3 +1,16 @@
+1.6.0
+-----
+
+2019-03-14
+
+
+* Add BLS Signature APIs https://github.com/ethereum/py_ecc/pull/52
+* Maintenance: several refactors to reduce duplicated code
+  * https://github.com/ethereum/py_ecc/pull/41
+  * https://github.com/ethereum/py_ecc/pull/61
+  * https://github.com/ethereum/py_ecc/pull/56
+  * https://github.com/ethereum/py_ecc/pull/63
+
 1.4.8
 -----
 
