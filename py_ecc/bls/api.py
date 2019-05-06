@@ -126,7 +126,7 @@ def verify_multiple_multiple(
             )
         )
     try:
-        random_ints = tuple(2**randbelow(64) for _ in range(len(signatures)))
+        random_ints = (1,) + tuple(2**randbelow(64) for _ in range(len(signatures) - 1))
         o = FQ12.one()
         for index, pm in enumerate(pubkeys_and_messages):
             pubkeys, message_hashes = pm  # type: ignore
