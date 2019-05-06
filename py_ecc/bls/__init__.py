@@ -5,4 +5,5 @@ from .api import (  # noqa: F401
     sign,
     verify,
     verify_multiple,
+    verify_multiple_multiple,
 )
