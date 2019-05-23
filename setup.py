@@ -45,7 +45,6 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     package_data={'py_ecc': ['py.typed']},
     install_requires=[
-        "eth-hash[pycryptodome]",
         "eth-typing>=2.1.0,<3.0.0",
         "eth-utils>=1.3.0,<2",
         "mypy-extensions>=0.4.1",
