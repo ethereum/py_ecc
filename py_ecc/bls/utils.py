@@ -147,7 +147,7 @@ def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
 
 def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
     z = big_endian_to_int(pubkey)
-    return decompress_G1(z)
+    return decompress_G1(G1Compressed(z))
 
 #
 # G2
