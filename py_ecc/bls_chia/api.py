@@ -1,6 +1,7 @@
 from typing import (
     Dict,
     Sequence,
+    cast,
 )
 
 import blspy as bls_chia
@@ -25,6 +26,7 @@ def _domain_to_bytes(domain: int) -> bytes:
 
 
 def _privkey_int_to_bytes(privkey: int) -> bytes:
+    # FIXME: workaround due to the privkey in Chia-Network BLS starts from 1
     return (privkey + 1).to_bytes(bls_chia.PrivateKey.PRIVATE_KEY_SIZE, "big")
 
 
@@ -44,12 +46,12 @@ def sign(message_hash: Hash32,
     #   aggregating signatures
     global _sig_map
     _sig_map[sig_chia_bytes] = sig_chia
-    return sig_chia_bytes
+    return cast(BLSSignature, sig_chia_bytes)
 
 
 def privtopub(k: int) -> BLSPubkey:
     privkey_chia = bls_chia.PrivateKey.from_bytes(_privkey_int_to_bytes(k))
-    return privkey_chia.get_public_key().serialize()
+    return cast(BLSPubkey, privkey_chia.get_public_key().serialize())
 
 
 def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, domain: int) -> bool:
@@ -59,29 +61,27 @@ def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, dom
     signature_chia.set_aggregation_info(
         bls_chia.AggregationInfo.from_msg(pubkey_chia, hash_to_be_signed)
     )
-    return signature_chia.verify()
+    return cast(bool, signature_chia.verify())
 
 
 def aggregate_signatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
     # FIXME: Temporarily introduced to workaround the de/serialization issue when
     #   aggregating signatures
     global _sig_map
-    signatures_chia = list(
-        map(
-            lambda x: _sig_map[x] if x in _sig_map else bls_chia.Signature.from_bytes(x),
-            signatures,
-        )
-    )
+    signatures_chia = [
+        signature if signature in _sig_map else bls_chia.Signature.from_bytes(signature)
+        for signature in signatures
+    ]
     aggregated_signature = bls_chia.Signature.aggregate(signatures_chia)
     aggregated_signature_bytes = aggregated_signature.serialize()
     _sig_map[aggregated_signature_bytes] = aggregated_signature
-    return aggregated_signature_bytes
+    return cast(BLSSignature, aggregated_signature_bytes)
 
 
 def aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
     pubkeys_chia = list(map(bls_chia.PublicKey.from_bytes, pubkeys))
     aggregated_pubkey_chia = bls_chia.PublicKey.aggregate(pubkeys_chia)
-    return aggregated_pubkey_chia.serialize()
+    return cast(BLSPubkey, aggregated_pubkey_chia.serialize())
 
 
 def verify_multiple(pubkeys: Sequence[BLSPubkey],
@@ -111,4 +111,4 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
 
     signature_chia = bls_chia.Signature.from_bytes(signature)
     signature_chia.set_aggregation_info(merged_info)
-    return signature_chia.verify()
+    return cast(bool, signature_chia.verify())

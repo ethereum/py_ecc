@@ -30,7 +30,7 @@ from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
 )
 
-from py_ecc.bls_bindings.api import (
+from py_ecc.bls_chia.api import (
     _domain_to_bytes,
     _privkey_int_to_bytes,
     privtopub,
