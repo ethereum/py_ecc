@@ -1,38 +1,15 @@
 import blspy as bls_chia
 
-from eth_utils import (
-    big_endian_to_int,
-)
 import pytest
 
-from py_ecc.bls.hash import (
-    hash_eth2,
-)
-from py_ecc.bls.constants import (
-    POW_2_381,
-    POW_2_382,
-    POW_2_383,
-)
-from py_ecc.fields import (
-    optimized_bls12_381_FQ as FQ,
-    optimized_bls12_381_FQ2 as FQ2,
-)
 from py_ecc.optimized_bls12_381 import (
     G1,
     G2,
-    Z1,
-    Z2,
     b,
-    b2,
-    is_on_curve,
     multiply,
-    normalize,
-    field_modulus as q,
 )
 
 from py_ecc.bls_chia.api import (
-    _domain_to_bytes,
-    _privkey_int_to_bytes,
     privtopub,
     sign,
     verify,
@@ -40,10 +17,6 @@ from py_ecc.bls_chia.api import (
     aggregate_pubkeys,
     aggregate_signatures,
 )
-
-
-def assert_privkey(obj):
-    assert isinstance(obj, int) and obj < 2 ** (8 * 32)
 
 
 def assert_pubkey(obj):
