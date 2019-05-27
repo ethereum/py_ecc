@@ -69,7 +69,7 @@ def aggregate_signatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
     #   aggregating signatures
     global _sig_map
     signatures_chia = [
-        signature if signature in _sig_map else bls_chia.Signature.from_bytes(signature)
+        _sig_map[signature] if signature in _sig_map else bls_chia.Signature.from_bytes(signature)
         for signature in signatures
     ]
     aggregated_signature = bls_chia.Signature.aggregate(signatures_chia)
