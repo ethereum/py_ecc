@@ -48,6 +48,7 @@ setup(
         "eth-typing>=2.1.0,<3.0.0",
         "eth-utils>=1.3.0,<2",
         "mypy-extensions>=0.4.1",
+        "blspy>=0.1.8,<1",  # for `bls_chia`
     ],
     python_requires='>=3.5, <4',
     extras_require=extras_require,
