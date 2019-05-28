@@ -1,4 +1,6 @@
-
+from operator import (
+    itemgetter,
+)
 from secrets import (
     randbelow,
 )
@@ -6,6 +8,10 @@ from typing import (
     Iterator,
     Sequence,
     Tuple,
+)
+
+from cytoolz.itertoolz import (
+    groupby,
 )
 from eth_typing import (
     BLSPubkey,
@@ -30,6 +36,9 @@ from py_ecc.optimized_bls12_381 import (
     pairing,
 )
 
+from .typing import (
+    G1Uncompressed,
+)
 from .utils import (
     G1_to_pubkey,
     G2_to_signature,
@@ -86,15 +95,20 @@ def aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
     return G1_to_pubkey(o)
 
 
-def _zip(pubkeys: Sequence[BLSPubkey],
-         message_hashes: Sequence[Hash32])-> Iterator[Tuple[BLSPubkey, Hash32]]:
+def _group_key_by_msg(pubkeys: Sequence[BLSPubkey],
+                      message_hashes: Sequence[Hash32])-> Iterator[Tuple[G1Uncompressed, Hash32]]:
     if len(pubkeys) != len(message_hashes):
         raise ValidationError(
             "len(pubkeys) (%s) should be equal to len(message_hashes) (%s)" % (
                 len(pubkeys), len(message_hashes)
             )
         )
-    return zip(pubkeys, message_hashes)
+    groups_dict = groupby(itemgetter(1), enumerate(message_hashes))
+    for message_hash, group in groups_dict.items():
+        agg_key = Z1
+        for i, _ in group:
+            agg_key = add(agg_key, pubkey_to_G1(pubkeys[i]))
+        yield agg_key, message_hash
 
 
 def verify_multiple(pubkeys: Sequence[BLSPubkey],
@@ -103,10 +117,10 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
                     domain: int) -> bool:
 
     o = FQ12.one()
-    for pubkey, message_hash in _zip(pubkeys, message_hashes):
+    for pubkey, message_hash in _group_key_by_msg(pubkeys, message_hashes):
         o *= pairing(
             hash_to_G2(message_hash, domain),
-            pubkey_to_G1(pubkey),
+            pubkey,
             final_exponentiate=False,
         )
     o *= pairing(signature_to_G2(signature), neg(G1), final_exponentiate=False)
@@ -131,10 +145,10 @@ def verify_multiple_multiple(
     random_ints = (1,) + tuple(2**randbelow(64) for _ in signatures[:-1])
     o = FQ12.one()
     for r_i, (pubkeys, message_hashes) in zip(random_ints, pubkeys_and_messages):
-        for pubkey, message_hash in _zip(pubkeys, message_hashes):
+        for pubkey, message_hash in _group_key_by_msg(pubkeys, message_hashes):
             o *= pairing(
                 multiply(hash_to_G2(message_hash, domain), r_i),
-                pubkey_to_G1(pubkey),
+                pubkey,
                 final_exponentiate=False,
             )
     agg_sig = Z2
