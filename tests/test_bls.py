@@ -10,6 +10,7 @@ from py_ecc.bls import (
     sign,
     verify,
     verify_multiple,
+    verify_multiple_multiple,
 )
 from py_ecc.bls.hash import (
     hash_eth2,
@@ -44,6 +45,7 @@ from py_ecc.optimized_bls12_381 import (
     normalize,
     field_modulus as q,
 )
+from random import sample
 
 
 @pytest.mark.parametrize(
@@ -236,5 +238,34 @@ def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
         pubkeys=pubs,
         message_hashes=message_hashes,
         signature=aggsig,
+        domain=domain,
+    )
+
+
+def test_multi_multi():
+    domain = 0
+    validator_indices = tuple(range(10))
+    privkeys = tuple(2**i for i in validator_indices)
+    pubkeys = [privtopub(k) for k in privkeys]
+
+    class Attestation:
+        def __init__(self):
+            msg_1_validators = (1, 2, 3, 4)
+            msg_2_validators = (4, 5, 6, 7)
+            self.agg_pubkeys = [
+                aggregate_pubkeys([pubkeys[i] for i in msg_1_validators]),
+                aggregate_pubkeys([pubkeys[i] for i in msg_2_validators]),
+            ]
+            self.msgs = (b'\x12' * 32, b'\x34' * 32)
+            msg_1_sigs = [sign(self.msgs[0], privkeys[i], domain) for i in msg_1_validators]
+            msg_2_sigs = [sign(self.msgs[1], privkeys[i], domain) for i in msg_2_validators]
+            self.sig = aggregate_signatures([
+                aggregate_signatures(msg_1_sigs),
+                aggregate_signatures(msg_2_sigs),
+            ])
+    atts = (Attestation(),) * 3
+    assert verify_multiple_multiple(
+        signatures=[att.sig for att in atts],
+        pubkeys_and_messages=[[att.agg_pubkeys, att.msgs] for att in atts],
         domain=domain,
     )
