@@ -42,7 +42,6 @@ def test_sanity():
     privkey_1 = 5567
     sig_1 = sign(msg_0, privkey_1, domain)
     pubkey_1 = privtopub(privkey_1)
-    sig_1_chia_from_bytes = bls_chia.Signature.from_bytes(sig_1)
     assert verify(msg_0, pubkey_1, sig_1, domain)
 
     # Test: Verify signatures are correctly aggregated
