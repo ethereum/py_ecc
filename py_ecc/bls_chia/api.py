@@ -21,7 +21,7 @@ def _domain_to_bytes(domain: int) -> bytes:
 
 def _privkey_int_to_bytes(privkey: int) -> bytes:
     # FIXME: workaround due to the privkey in Chia-Network BLS starts from 1
-    return (privkey + 1).to_bytes(bls_chia.PrivateKey.PRIVATE_KEY_SIZE, "big")
+    return privkey.to_bytes(bls_chia.PrivateKey.PRIVATE_KEY_SIZE, "big")
 
 
 def _hash_to_be_signed(message_hash: Hash32, domain: int) -> bytes:

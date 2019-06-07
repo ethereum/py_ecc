@@ -6,6 +6,7 @@ from py_ecc.optimized_bls12_381 import (
     G1,
     G2,
     b,
+    curve_order,
     multiply,
 )
 
@@ -80,7 +81,7 @@ def test_sanity():
         (735),
         (127409812145),
         (90768492698215092512159),
-        (0),
+        (curve_order - 1),
     ]
 )
 def test_bls_core(privkey):
@@ -96,7 +97,7 @@ def test_bls_core(privkey):
 @pytest.mark.parametrize(
     'msg, privkeys',
     [
-        (b'\x12' * 32, [1, 5, 124, 735, 127409812145, 90768492698215092512159, 0]),
+        (b'\x12' * 32, [1, 5, 124, 735, 127409812145, 90768492698215092512159, curve_order - 1]),
         (b'\x34' * 32, [42, 666, 1274099945, 4389392949595]),
     ]
 )
@@ -118,9 +119,9 @@ def test_signature_aggregation(msg, privkeys):
 @pytest.mark.parametrize(
     'privkeys_1, privkeys_2',
     [
-        (tuple(range(10)), tuple(range(10))),
-        ((0, 1, 2, 3), (4, 5, 6, 7)),
-        ((0, 1, 2, 3), (2, 3, 4, 5)),
+        (tuple(range(1, 11)), tuple(range(1, 11))),
+        ((1, 2, 3), (4, 5, 6, 7)),
+        ((1, 2, 3), (2, 3, 4, 5)),
     ]
 )
 def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
