@@ -89,6 +89,10 @@ def test_verify_empty_pubkey_and_signature():
     """
     assert verify(b'\x11' * 32, EMPTY_PUBKEY, EMPTY_SIGNATURE, 1000)
 
+def test_empty_aggregation():
+    assert aggregate_pubkeys([]) == EMPTY_PUBKEY
+    assert aggregate_signatures([]) == EMPTY_SIGNATURE
+
 
 @pytest.mark.parametrize(
     'pt,on_curve,is_infinity',
