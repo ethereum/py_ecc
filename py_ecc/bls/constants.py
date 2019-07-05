@@ -4,6 +4,10 @@ from py_ecc.fields import (
 from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
 )
+from eth_typing import (
+    BLSPubkey,
+    BLSSignature,
+)
 
 G2_cofactor = 305502333931268344200999753193121504214466019254188142667664032982267604182971884026507427359259977847832272839041616661285803823378372096355777062779109  # noqa: E501
 FQ2_order = q ** 2 - 1
@@ -15,3 +19,6 @@ eighth_roots_of_unity = tuple(
 POW_2_381 = 2**381
 POW_2_382 = 2**382
 POW_2_383 = 2**383
+
+EMPTY_SIGNATURE = BLSSignature(b'\xc0' + b'\x00' * 95)
+EMPTY_PUBKEY = BLSPubkey(b'\xc0' + b'\x00' * 47)

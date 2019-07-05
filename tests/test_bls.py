@@ -44,6 +44,10 @@ from py_ecc.optimized_bls12_381 import (
     normalize,
     field_modulus as q,
 )
+from py_ecc.bls.constants import (
+    EMPTY_PUBKEY,
+    EMPTY_SIGNATURE,
+)
 
 
 @pytest.mark.parametrize(
@@ -76,6 +80,14 @@ def test_hash_to_G2():
 def test_decompress_G2_with_no_modular_square_root_found():
     with pytest.raises(ValueError, match="Failed to find a modular squareroot"):
         signature_to_G2(b'\x11' * 96)
+
+
+def test_verify_empty_pubkey_and_signature():
+    """
+    `verify` returns True for an empty public key and an empty signature.
+    The behavior is accepted for now and should be revisited in the future.
+    """
+    assert verify(b'\x11' * 32, EMPTY_PUBKEY, EMPTY_SIGNATURE, 1000)
 
 
 @pytest.mark.parametrize(
