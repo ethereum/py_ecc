@@ -89,6 +89,12 @@ def test_verify_empty_pubkey_and_signature():
     """
     assert verify(b'\x11' * 32, EMPTY_PUBKEY, EMPTY_SIGNATURE, 1000)
     assert verify_multiple(
+        pubkeys=[],
+        message_hashes=[],
+        signature=EMPTY_SIGNATURE,
+        domain=1000,
+    )
+    assert verify_multiple(
         pubkeys=[EMPTY_PUBKEY, EMPTY_PUBKEY],
         message_hashes=[b'\x11' * 32, b'\x12' * 32],
         signature=EMPTY_SIGNATURE,
