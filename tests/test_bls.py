@@ -88,6 +88,13 @@ def test_verify_empty_pubkey_and_signature():
     The behavior is accepted for now and should be revisited in the future.
     """
     assert verify(b'\x11' * 32, EMPTY_PUBKEY, EMPTY_SIGNATURE, 1000)
+    assert verify_multiple(
+        pubkeys=[EMPTY_PUBKEY, EMPTY_PUBKEY],
+        message_hashes=[b'\x11' * 32, b'\x12' * 32],
+        signature=EMPTY_SIGNATURE,
+        domain=1000,
+    )
+
 
 def test_empty_aggregation():
     assert aggregate_pubkeys([]) == EMPTY_PUBKEY
@@ -229,6 +236,8 @@ def test_signature_aggregation(msg, privkeys):
         (tuple(range(10)), tuple(range(10))),
         ((0, 1, 2, 3), (4, 5, 6, 7)),
         ((0, 1, 2, 3), (2, 3, 4, 5)),
+        (tuple(), (2, 3, 4, 5)),
+        ((0, 1, 2, 3), tuple()),
     ]
 )
 def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
