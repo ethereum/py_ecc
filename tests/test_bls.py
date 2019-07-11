@@ -55,8 +55,8 @@ from py_ecc.optimized_bls12_381 import (
     ]
 )
 def test_get_x_coordinate(message_hash, domain):
-    x_coordinate = _get_x_coordinate(message_hash, domain)
     domain_in_bytes = domain.to_bytes(8, 'big')
+    x_coordinate = _get_x_coordinate(message_hash, domain_in_bytes)
     assert x_coordinate == FQ2(
         [
             big_endian_to_int(hash_eth2(message_hash + domain_in_bytes + b'\x01')),
@@ -69,7 +69,8 @@ def test_hash_to_G2():
     message_hash = b'\x12' * 32
 
     domain_1 = 1
-    result_1 = hash_to_G2(message_hash, domain_1)
+    domain_in_bytes = domain_1.to_bytes(8, 'big')
+    result_1 = hash_to_G2(message_hash, domain_in_bytes)
     assert is_on_curve(result_1, b2)
 
 
@@ -171,7 +172,7 @@ def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
     ]
 )
 def test_bls_core(privkey):
-    domain = 0
+    domain = (0).to_bytes(8, "little")
     p1 = multiply(G1, privkey)
     p2 = multiply(G2, privkey)
     msg = str(privkey).encode('utf-8')
@@ -193,7 +194,7 @@ def test_bls_core(privkey):
     ]
 )
 def test_signature_aggregation(msg, privkeys):
-    domain = 0
+    domain = (0).to_bytes(8, "little")
     sigs = [sign(msg, k, domain=domain) for k in privkeys]
     pubs = [privtopub(k) for k in privkeys]
     aggsig = aggregate_signatures(sigs)
@@ -216,7 +217,7 @@ def test_signature_aggregation(msg, privkeys):
     ]
 )
 def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
-    domain = 0
+    domain = (0).to_bytes(8, "little")
 
     sigs_1 = [sign(msg_1, k, domain=domain) for k in privkeys_1]
     pubs_1 = [privtopub(k) for k in privkeys_1]
