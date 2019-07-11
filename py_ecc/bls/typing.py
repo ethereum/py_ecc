@@ -17,3 +17,5 @@ G1Compressed = NewType('G1Compressed', int)
 
 G2Uncompressed = Optimized_Point3D[optimized_bls12_381_FQ2]
 G2Compressed = NewType('G2Compressed', Tuple[int, int])
+
+Domain = NewType('Domain', bytes)  # bytes of length 8

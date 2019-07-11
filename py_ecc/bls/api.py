@@ -24,6 +24,9 @@ from py_ecc.optimized_bls12_381 import (
     neg,
     pairing,
 )
+from .typing import (
+    Domain,
+)
 from .utils import (
     G1_to_pubkey,
     G2_to_signature,
@@ -35,7 +38,7 @@ from .utils import (
 
 def sign(message_hash: Hash32,
          privkey: int,
-         domain: int) -> BLSSignature:
+         domain: Domain) -> BLSSignature:
     return G2_to_signature(
         multiply(
             hash_to_G2(message_hash, domain),
@@ -47,7 +50,10 @@ def privtopub(k: int) -> BLSPubkey:
     return G1_to_pubkey(multiply(G1, k))
 
 
-def verify(message_hash: Hash32, pubkey: BLSPubkey, signature: BLSSignature, domain: int) -> bool:
+def verify(message_hash: Hash32,
+           pubkey: BLSPubkey,
+           signature: BLSSignature,
+           domain: Domain) -> bool:
     try:
         final_exponentiation = final_exponentiate(
             pairing(
@@ -83,7 +89,7 @@ def aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
 def verify_multiple(pubkeys: Sequence[BLSPubkey],
                     message_hashes: Sequence[Hash32],
                     signature: BLSSignature,
-                    domain: int) -> bool:
+                    domain: Domain) -> bool:
     len_msgs = len(message_hashes)
 
     if len(pubkeys) != len_msgs:
