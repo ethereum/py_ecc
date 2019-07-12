@@ -35,6 +35,7 @@ from .hash import (
     hash_eth2,
 )
 from .typing import (
+    Domain,
     G1Compressed,
     G1Uncompressed,
     G2Compressed,
@@ -65,18 +66,16 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     return None
 
 
-def _get_x_coordinate(message_hash: Hash32, domain: int) -> FQ2:
-    domain_in_bytes = domain.to_bytes(8, 'big')
-
+def _get_x_coordinate(message_hash: Hash32, domain: Domain) -> FQ2:
     # Initial candidate x coordinate
-    x_re = big_endian_to_int(hash_eth2(message_hash + domain_in_bytes + b'\x01'))
-    x_im = big_endian_to_int(hash_eth2(message_hash + domain_in_bytes + b'\x02'))
+    x_re = big_endian_to_int(hash_eth2(message_hash + domain + b'\x01'))
+    x_im = big_endian_to_int(hash_eth2(message_hash + domain + b'\x02'))
     x_coordinate = FQ2([x_re, x_im])  # x_re + x_im * i
 
     return x_coordinate
 
 
-def hash_to_G2(message_hash: Hash32, domain: int) -> G2Uncompressed:
+def hash_to_G2(message_hash: Hash32, domain: Domain) -> G2Uncompressed:
     x_coordinate = _get_x_coordinate(message_hash, domain)
 
     # Test candidate y coordinates until a one is found
