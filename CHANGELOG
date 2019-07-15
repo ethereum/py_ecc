@@ -1,3 +1,10 @@
+1.7.1
+-----
+
+2019-07-12
+
+* Introduce the `Domain` type as an alias for `bytes` of size 8 in BLS package.
+
 1.7.0
 -----
 
