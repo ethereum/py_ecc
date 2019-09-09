@@ -30,9 +30,15 @@ from .constants import (
     FQ2_order,
     G2_cofactor,
     eighth_roots_of_unity,
+    HASH_TO_G2_L,
+    ISO_3_A,
+    ISO_3_B,
+    ISO_3_Z,
 )
 from .hash import (
     hash_eth2,
+    hkdf_expand,
+    hkdf_extract,
 )
 from .typing import (
     Domain,
@@ -90,6 +96,56 @@ def hash_to_G2(message_hash: Hash32, domain: Domain) -> G2Uncompressed:
         (x_coordinate, y_coordinate, FQ2([1, 0])),
         G2_cofactor,
     )
+
+def hash_to_curve_G2(message_hash: Hash32): #-> G2Uncompressed:
+    u0 = hash_to_base(message_hash, 0)
+    u1 = hash_to_base(message_hash, 1)
+    # TODO: Implement the following functions
+    #q0 = map_to_curve_G2(u0)
+    #q1 = map_to_curve_G2(u1)
+    #r = q0 + q1
+    #p = clear_cofactor(r)
+    #return p
+
+
+def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
+    """
+    Hash To Base for FQ2
+
+    Converts a message to a point in the finite field as defined here:
+    TODO UPDATE LINK: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#section-5
+    """
+    m_prime = hkdf_extract(DST, message_hash)
+    e = []
+
+    for i in range(1, 3):
+        # Concatenate ("H2C" || I2OSP(ctr, 1) || I2OSP(i, 1))
+        info = b'H2C' + bytes([ctr])[:1] + bytes([i])[:1]
+        t = hkdf_expand(m_prime, info, HASH_TO_G2_L)
+        e.append(big_endian_to_int(t))
+
+    return FQ2(e)
+
+
+def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
+    # TODO: Consider moving this to bls12-381-curve and optimized-curve.
+    """
+    Map To Curve for G2
+
+    First, convert FQ2 point to a point on the 3-Isogeny curve.
+    SWU Map: TODO UPDATE LINK https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#section-6.5.2
+
+    Second, map 3-Isogeny curve to BLS381-G2 curve.
+    3-Isogeny Map: TODO UPDATE LINK https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#appendix-C.2
+    """
+    # Simplified SWU Map
+    temp1 = ISO_3_Z * u
+    t1 = temp1
+    temp1 =  temp1**2
+
+
+    # 3-Isogeny Map
+
 
 
 #
