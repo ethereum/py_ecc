@@ -182,6 +182,15 @@ class FQ(object):
     def __int__(self: T_FQ) -> int:
         return self.n
 
+    def sgn0(self: Type[T_FQ]) -> int:
+        if self.n == 0:
+            return 0
+            neg = -self
+            if neg.n > self.n:
+                return 1
+            else:
+                return -1
+
     @classmethod
     def one(cls: Type[T_FQ]) -> T_FQ:
         return cls(1)
@@ -362,6 +371,24 @@ class FQP(object):
 
     def __neg__(self: T_FQP) -> T_FQP:
         return type(self)([-c for c in self.coeffs])
+
+    def sgn0(self: Type[T_FQP]) -> int:
+        sign = 0
+        # TODO: Confirm coeffs is type FQ or FQP
+        for x_i in reversed(self.coeffs):
+            sign_i = 0
+            if isinstance(x_i, int):
+                if x_i == 0:
+                    sign_i = 0
+                elif (-x_i % self.field_modulus) > (x_i % self.field_modulus):
+                    sign_i = 1
+                else:
+                    sign_i = -1
+            else:
+                sign_i = x_i.sgn0()
+            if sign == 0:
+                sign = sign_i
+        return sign
 
     @classmethod
     def one(cls: Type[T_FQP]) -> T_FQP:

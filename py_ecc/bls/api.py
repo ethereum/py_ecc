@@ -24,9 +24,6 @@ from py_ecc.optimized_bls12_381 import (
     neg,
     pairing,
 )
-from .typing import (
-    Domain,
-)
 from .utils import (
     G1_to_pubkey,
     G2_to_signature,
@@ -37,11 +34,10 @@ from .utils import (
 
 
 def sign(message_hash: Hash32,
-         privkey: int,
-         domain: Domain) -> BLSSignature:
+         privkey: int) -> BLSSignature:
     return G2_to_signature(
         multiply(
-            hash_to_G2(message_hash, domain),
+            hash_to_G2(message_hash),
             privkey,
         ))
 
@@ -52,8 +48,7 @@ def privtopub(k: int) -> BLSPubkey:
 
 def verify(message_hash: Hash32,
            pubkey: BLSPubkey,
-           signature: BLSSignature,
-           domain: Domain) -> bool:
+           signature: BLSSignature) -> bool:
     try:
         final_exponentiation = final_exponentiate(
             pairing(
@@ -62,7 +57,7 @@ def verify(message_hash: Hash32,
                 final_exponentiate=False,
             ) *
             pairing(
-                hash_to_G2(message_hash, domain),
+                hash_to_G2(message_hash),
                 neg(pubkey_to_G1(pubkey)),
                 final_exponentiate=False,
             )
@@ -88,8 +83,7 @@ def aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
 
 def verify_multiple(pubkeys: Sequence[BLSPubkey],
                     message_hashes: Sequence[Hash32],
-                    signature: BLSSignature,
-                    domain: Domain) -> bool:
+                    signature: BLSSignature) -> bool:
     len_msgs = len(message_hashes)
 
     if len(pubkeys) != len_msgs:
@@ -108,7 +102,7 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
                 if message_hashes[i] == m_pubs:
                     group_pub = add(group_pub, pubkey_to_G1(pubkeys[i]))
 
-            o *= pairing(hash_to_G2(m_pubs, domain), group_pub, final_exponentiate=False)
+            o *= pairing(hash_to_G2(m_pubs), group_pub, final_exponentiate=False)
         o *= pairing(signature_to_G2(signature), neg(G1), final_exponentiate=False)
 
         final_exponentiation = final_exponentiate(o)

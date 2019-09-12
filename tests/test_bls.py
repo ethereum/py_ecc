@@ -15,7 +15,6 @@ from py_ecc.bls.hash import (
     hash_eth2,
 )
 from py_ecc.bls.utils import (
-    _get_x_coordinate,
     compress_G1,
     compress_G2,
     decompress_G1,
@@ -46,31 +45,10 @@ from py_ecc.optimized_bls12_381 import (
 )
 
 
-@pytest.mark.parametrize(
-    'message_hash,domain',
-    [
-        (b'\x12' * 32, 0),
-        (b'\x12' * 32, 1),
-        (b'\x34' * 32, 0),
-    ]
-)
-def test_get_x_coordinate(message_hash, domain):
-    domain_in_bytes = domain.to_bytes(8, 'big')
-    x_coordinate = _get_x_coordinate(message_hash, domain_in_bytes)
-    assert x_coordinate == FQ2(
-        [
-            big_endian_to_int(hash_eth2(message_hash + domain_in_bytes + b'\x01')),
-            big_endian_to_int(hash_eth2(message_hash + domain_in_bytes + b'\x02')),
-        ]
-    )
-
-
 def test_hash_to_G2():
     message_hash = b'\x12' * 32
 
-    domain_1 = 1
-    domain_in_bytes = domain_1.to_bytes(8, 'big')
-    result_1 = hash_to_G2(message_hash, domain_in_bytes)
+    result_1 = hash_to_G2(message_hash)
     assert is_on_curve(result_1, b2)
 
 
@@ -172,18 +150,17 @@ def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
     ]
 )
 def test_bls_core(privkey):
-    domain = (0).to_bytes(8, "little")
     p1 = multiply(G1, privkey)
     p2 = multiply(G2, privkey)
     msg = str(privkey).encode('utf-8')
-    msghash = hash_to_G2(msg, domain=domain)
+    msghash = hash_to_G2(msg)
 
     assert normalize(decompress_G1(compress_G1(p1))) == normalize(p1)
     assert normalize(decompress_G2(compress_G2(p2))) == normalize(p2)
     assert normalize(decompress_G2(compress_G2(msghash))) == normalize(msghash)
-    sig = sign(msg, privkey, domain=domain)
+    sig = sign(msg, privkey)
     pub = privtopub(privkey)
-    assert verify(msg, pub, sig, domain=domain)
+    assert verify(msg, pub, sig)
 
 
 @pytest.mark.parametrize(
@@ -194,12 +171,11 @@ def test_bls_core(privkey):
     ]
 )
 def test_signature_aggregation(msg, privkeys):
-    domain = (0).to_bytes(8, "little")
-    sigs = [sign(msg, k, domain=domain) for k in privkeys]
+    sigs = [sign(msg, k) for k in privkeys]
     pubs = [privtopub(k) for k in privkeys]
     aggsig = aggregate_signatures(sigs)
     aggpub = aggregate_pubkeys(pubs)
-    assert verify(msg, aggpub, aggsig, domain=domain)
+    assert verify(msg, aggpub, aggsig)
 
 
 @pytest.mark.parametrize(
@@ -217,14 +193,12 @@ def test_signature_aggregation(msg, privkeys):
     ]
 )
 def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
-    domain = (0).to_bytes(8, "little")
-
-    sigs_1 = [sign(msg_1, k, domain=domain) for k in privkeys_1]
+    sigs_1 = [sign(msg_1, k) for k in privkeys_1]
     pubs_1 = [privtopub(k) for k in privkeys_1]
     aggsig_1 = aggregate_signatures(sigs_1)
     aggpub_1 = aggregate_pubkeys(pubs_1)
 
-    sigs_2 = [sign(msg_2, k, domain=domain) for k in privkeys_2]
+    sigs_2 = [sign(msg_2, k) for k in privkeys_2]
     pubs_2 = [privtopub(k) for k in privkeys_2]
     aggsig_2 = aggregate_signatures(sigs_2)
     aggpub_2 = aggregate_pubkeys(pubs_2)
@@ -237,5 +211,4 @@ def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
         pubkeys=pubs,
         message_hashes=message_hashes,
         signature=aggsig,
-        domain=domain,
     )

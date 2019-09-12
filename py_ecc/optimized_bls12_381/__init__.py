@@ -31,3 +31,7 @@ from .optimized_pairing import (  # noqa: F401
     pairing,
     final_exponentiate,
 )
+from .optimized_swu import (   # noqa: F401
+    optimized_swu_G2,
+    iso_map_G2,
+)

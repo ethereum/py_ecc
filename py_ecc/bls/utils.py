@@ -21,7 +21,11 @@ from py_ecc.optimized_bls12_381 import (
     is_on_curve,
     multiply,
     normalize,
+    optimized_swu_G2,
+    iso_map_G2,
 )
+#from py_ecc.optimized_swu import (
+#)
 
 from .constants import (
     POW_2_381,
@@ -31,9 +35,7 @@ from .constants import (
     G2_cofactor,
     eighth_roots_of_unity,
     HASH_TO_G2_L,
-    ISO_3_A,
-    ISO_3_B,
-    ISO_3_Z,
+    DST,
 )
 from .hash import (
     hash_eth2,
@@ -41,7 +43,6 @@ from .hash import (
     hkdf_extract,
 )
 from .typing import (
-    Domain,
     G1Compressed,
     G1Uncompressed,
     G2Compressed,
@@ -72,40 +73,19 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     return None
 
 
-def _get_x_coordinate(message_hash: Hash32, domain: Domain) -> FQ2:
-    # Initial candidate x coordinate
-    x_re = big_endian_to_int(hash_eth2(message_hash + domain + b'\x01'))
-    x_im = big_endian_to_int(hash_eth2(message_hash + domain + b'\x02'))
-    x_coordinate = FQ2([x_re, x_im])  # x_re + x_im * i
-
-    return x_coordinate
+def hash_to_G2(message_hash: Hash32) -> G2Uncompressed:
+    return hash_to_curve_G2(message_hash)
 
 
-def hash_to_G2(message_hash: Hash32, domain: Domain) -> G2Uncompressed:
-    x_coordinate = _get_x_coordinate(message_hash, domain)
-
-    # Test candidate y coordinates until a one is found
-    while 1:
-        y_coordinate_squared = x_coordinate ** 3 + FQ2([4, 4])  # The curve is y^2 = x^3 + 4(i + 1)
-        y_coordinate = modular_squareroot_in_FQ2(y_coordinate_squared)
-        if y_coordinate is not None:  # Check if quadratic residue found
-            break
-        x_coordinate += FQ2([1, 0])  # Add 1 and try again
-
-    return multiply(
-        (x_coordinate, y_coordinate, FQ2([1, 0])),
-        G2_cofactor,
-    )
-
-def hash_to_curve_G2(message_hash: Hash32): #-> G2Uncompressed:
-    u0 = hash_to_base(message_hash, 0)
-    u1 = hash_to_base(message_hash, 1)
+def hash_to_curve_G2(message_hash: Hash32) -> G2Uncompressed:
+    u0 = hash_to_base_FQ2(message_hash, 0)
+    u1 = hash_to_base_FQ2(message_hash, 1)
+    q0 = map_to_curve_G2(u0)
+    q1 = map_to_curve_G2(u1)
+    r = q0 + q1
     # TODO: Implement the following functions
-    #q0 = map_to_curve_G2(u0)
-    #q1 = map_to_curve_G2(u1)
-    #r = q0 + q1
-    #p = clear_cofactor(r)
-    #return p
+    # p = clear_cofactor_G2(r)
+    return r
 
 
 def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
@@ -113,7 +93,7 @@ def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
     Hash To Base for FQ2
 
     Converts a message to a point in the finite field as defined here:
-    TODO UPDATE LINK: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#section-5
+    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#section-5
     """
     m_prime = hkdf_extract(DST, message_hash)
     e = []
@@ -128,25 +108,27 @@ def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
 
 
 def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
-    # TODO: Consider moving this to bls12-381-curve and optimized-curve.
     """
     Map To Curve for G2
 
     First, convert FQ2 point to a point on the 3-Isogeny curve.
-    SWU Map: TODO UPDATE LINK https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#section-6.5.2
+    SWU Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#section-6.5.2
 
     Second, map 3-Isogeny curve to BLS381-G2 curve.
-    3-Isogeny Map: TODO UPDATE LINK https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#appendix-C.2
+    3-Isogeny Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-04#appendix-C.2
     """
-    # Simplified SWU Map
-    temp1 = ISO_3_Z * u
-    t1 = temp1
-    temp1 =  temp1**2
+    (x, y, z) = optimized_swu_G2(u)
+    return iso_map_G2(x, y, z)
 
+def clear_cofactor_G2(p: G2Uncompressed) -> G2Uncompressed:
+    """
+    Clear Cofactor via Psi Method
 
-    # 3-Isogeny Map
-
-
+    Ensure a point falls in the correct sub group of the curve.
+    See Section 4.1 of https://eprint.iacr.org/2017/419
+    """
+    # TODO: implement this function
+    return p
 
 #
 # G1
@@ -277,8 +259,7 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
 def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:
     z1, z2 = compress_G2(pt)
     return BLSSignature(
-        z1.to_bytes(48, "big") +
-        z2.to_bytes(48, "big")
+        z1.to_bytes(48, "big") + z2.to_bytes(48, "big")
     )
 
 

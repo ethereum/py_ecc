@@ -4,22 +4,16 @@ from py_ecc.fields import (
 from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
 )
+from py_ecc.optimized_bls12_381.constants import eighth_roots_of_unity
 
 G2_cofactor = 305502333931268344200999753193121504214466019254188142667664032982267604182971884026507427359259977847832272839041616661285803823378372096355777062779109  # noqa: E501
 FQ2_order = q ** 2 - 1
-eighth_roots_of_unity = tuple(
-    FQ2([1, 1]) ** ((FQ2_order * k) // 8)
-    for k in range(8)
-)
 
 POW_2_381 = 2**381
 POW_2_382 = 2**382
 POW_2_383 = 2**383
 
 # Ciphersuite BLS12381G2-SHA256-SSWU-RO paramters
-DST = 'BLS12381G2-SHA256-SSWU-RO' # UTF-8 0x424c53313233383147322d5348413235362d535357552d524f
+DST = b'BLS12381G2-SHA256-SSWU-RO'  # UTF-8 0x424c53313233383147322d5348413235362d535357552d524f
 HASH_LENGTH_BYTES = 32
 HASH_TO_G2_L = 64
-ISO_3_A = FQ2([0, 240])
-ISO_3_B = FQ2([1012, 1012])
-ISO_3_Z = FQ2([1, 1])
