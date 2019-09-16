@@ -15,6 +15,7 @@ from .constants import (
     EV1,
     EV2,
     ISO_3_MAP_COEFFICIENTS,
+    POSITIVE_EIGTH_ROOTS_OF_UNITY,
 )
 
 
@@ -84,7 +85,7 @@ def sqrt_division_FQ2(u: FQ2, v: FQ2):
     # Verify sqrt_candidate is a valid root
     valid_root = False
     result = sqrt_candidate
-    roots = positive_eigth_roots_of_unity_FQ2()
+    roots = POSITIVE_EIGTH_ROOTS_OF_UNITY
     for root in roots:
         # Valid if (root * sqrt_candidate)^2 * v - u == 0
         temp1 = (root * sqrt_candidate)
@@ -96,18 +97,8 @@ def sqrt_division_FQ2(u: FQ2, v: FQ2):
     return (valid_root, result)
 
 
-# Return the 4 positive 8th roots of unity in FQ2
-def positive_eigth_roots_of_unity_FQ2() -> Sequence[FQ2]:
-    roots = []
-    roots.append(FQ2([1, 0]))
-    roots.append(FQ2([0, 1]))
-    roots.append(FQ2([SQRT_I, SQRT_I]))
-    roots.append(FQ2([SQRT_I, -SQRT_I]))
-    return roots
-
-
 # Setup the four positive roots of eta = sqrt(Z^3 * (-1)^(1 / 4))
-def positive_eta_roots() -> Sequence[FQ2]:
+def positive_eta_roots() -> Tuple[FQ2]:
     roots = []
     roots.append(FQ2([EV1, 0]))
     roots.append(FQ2([0, EV1]))

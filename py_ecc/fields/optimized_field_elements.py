@@ -185,11 +185,11 @@ class FQ(object):
     def sgn0(self: Type[T_FQ]) -> int:
         if self.n == 0:
             return 0
-            neg = -self
-            if neg.n > self.n:
-                return 1
-            else:
-                return -1
+        neg = -self
+        if neg.n > self.n:
+            return 1
+        else:
+            return -1
 
     @classmethod
     def one(cls: Type[T_FQ]) -> T_FQ:

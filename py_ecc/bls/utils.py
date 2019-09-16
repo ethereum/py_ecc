@@ -33,7 +33,7 @@ from .constants import (
     POW_2_383,
     FQ2_order,
     G2_cofactor,
-    eighth_roots_of_unity,
+    EIGTH_ROOTS_OF_UNITY,
     HASH_TO_G2_L,
     DST,
 )
@@ -64,8 +64,9 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     """
     candidate_squareroot = value ** ((FQ2_order + 8) // 16)
     check = candidate_squareroot ** 2 / value
-    if check in eighth_roots_of_unity[::2]:
-        x1 = candidate_squareroot / eighth_roots_of_unity[eighth_roots_of_unity.index(check) // 2]
+    # TODO: Confirm constant eigth roots can be applied here.
+    if check in EIGTH_ROOTS_OF_UNITY[::2]:
+        x1 = candidate_squareroot / EIGTH_ROOTS_OF_UNITY[EIGTH_ROOTS_OF_UNITY.index(check) // 2]
         x2 = -x1
         x1_re, x1_im = x1.coeffs
         x2_re, x2_im = x2.coeffs
@@ -100,7 +101,7 @@ def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
 
     for i in range(1, 3):
         # Concatenate ("H2C" || I2OSP(ctr, 1) || I2OSP(i, 1))
-        info = b'H2C' + bytes([ctr])[:1] + bytes([i])[:1]
+        info = b'H2C' + bytes([ctr])[:1] + bytes([i])
         t = hkdf_expand(m_prime, info, HASH_TO_G2_L)
         e.append(big_endian_to_int(t))
 
