@@ -31,8 +31,7 @@ from .constants import (
     POW_2_381,
     POW_2_382,
     POW_2_383,
-    FQ2_order,
-    G2_cofactor,
+    FQ2_ORDER,
     EIGTH_ROOTS_OF_UNITY,
     HASH_TO_G2_L,
     DST,
@@ -62,7 +61,7 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     if both solutions have equal imaginary component the value with higher real
     component is favored.
     """
-    candidate_squareroot = value ** ((FQ2_order + 8) // 16)
+    candidate_squareroot = value ** ((FQ2_ORDER + 8) // 16)
     check = candidate_squareroot ** 2 / value
     # TODO: Confirm constant eigth roots can be applied here.
     if check in EIGTH_ROOTS_OF_UNITY[::2]:
@@ -101,7 +100,7 @@ def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
 
     for i in range(1, 3):
         # Concatenate ("H2C" || I2OSP(ctr, 1) || I2OSP(i, 1))
-        info = b'H2C' + bytes([ctr])[:1] + bytes([i])
+        info = b'H2C' + bytes([ctr]) + bytes([i])
         t = hkdf_expand(m_prime, info, HASH_TO_G2_L)
         e.append(big_endian_to_int(t))
 

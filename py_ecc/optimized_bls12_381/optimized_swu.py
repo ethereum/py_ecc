@@ -1,5 +1,4 @@
-from typing import Sequence
-
+from typing import Sequence, Tuple
 
 from py_ecc.fields import (
     optimized_bls12_381_FQ2 as FQ2,

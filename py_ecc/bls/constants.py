@@ -4,7 +4,7 @@ from py_ecc.fields import (
 from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
 )
-from py_ecc.optimized_bls12_381.constants import eighth_roots_of_unity
+from py_ecc.optimized_bls12_381.constants import EIGTH_ROOTS_OF_UNITY
 
 G2_COFACTOR = 305502333931268344200999753193121504214466019254188142667664032982267604182971884026507427359259977847832272839041616661285803823378372096355777062779109  # noqa: E501
 FQ2_ORDER = q ** 2 - 1
