@@ -1,13 +1,13 @@
 import hashlib
 import hmac
-from typing import Union
+from typing import ByteString
 
 from eth_typing import Hash32
 
 from .constants import HASH_LENGTH_BYTES
 
 
-def hash_eth2(data: Union[bytes, bytearray]) -> Hash32:
+def hash_eth2(data: ByteString) -> Hash32:
     """
     Return SHA-256 hashed result.
 
@@ -20,7 +20,7 @@ def hash_eth2(data: Union[bytes, bytearray]) -> Hash32:
     return Hash32(hashlib.sha256(data).digest())
 
 
-def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) -> bytes:
+def hkdf_extract(salt: ByteString, ikm: ByteString) -> bytes:
     """
     HKDF-Expand
 
@@ -29,7 +29,7 @@ def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) ->
     return hmac.new(salt, ikm, hashlib.sha256).digest()
 
 
-def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], length: int) -> bytes:
+def hkdf_expand(prk: ByteString, info: ByteString, length: int) -> bytes:
     """
     HKDF-Expand
 
@@ -41,8 +41,8 @@ def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], len
         n += 1
 
     # okm = T(1) || T(2) || T(3) || ... || T(n)
-    okm = bytes(0)
-    previous = bytes(0)
+    okm = bytearray(0)
+    previous = bytearray(0)
 
     for i in range(0, n):
         # Concatenate (T(i) || info || i)
@@ -50,7 +50,7 @@ def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], len
 
         # T(i + 1) = HMAC(T(i) || info || i)
         previous = hmac.new(prk, text, hashlib.sha256).digest()
-        okm = okm + previous
+        okm.extend(previous)
 
     # Return first `length` bytes.
     return okm[:length]
