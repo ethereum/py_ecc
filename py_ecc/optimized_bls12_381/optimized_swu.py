@@ -1,10 +1,11 @@
-from typing import Tuple
-
+from typing import (
+    List,
+    Tuple,
+)
 from py_ecc.fields import (
     optimized_bls12_381_FQ2 as FQ2,
 )
 from py_ecc.typing import (
-    Optimized_Field,
     Optimized_Point3D,
 )
 
@@ -22,7 +23,7 @@ from .constants import (
 
 # Optimized SWU Map - FQ2 to G2': y^2 = x^3 + 240i * x + 1012 + 1012i
 # Found in Section 4 of https://eprint.iacr.org/2019/403
-def optimized_swu_G2(t: FQ2) -> (FQ2, FQ2, FQ2):
+def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
     t2 = t ** 2
     temp = ISO_3_Z * t2
     temp = temp + temp ** 2
@@ -69,13 +70,13 @@ def optimized_swu_G2(t: FQ2) -> (FQ2, FQ2, FQ2):
 
     y = y * denominator
 
-    return [numerator, y, denominator]
+    return (numerator, y, denominator)
 
 
 # Square Root Division
 # Return: uv^7 * (uv^15)^((p - 9) / 16) * root of unity
 # If valid square root is found return true, else false
-def sqrt_division_FQ2(u: FQ2, v: FQ2):
+def sqrt_division_FQ2(u: FQ2, v: FQ2) -> Tuple[bool, FQ2]:
     temp1 = u * v ** 7
     temp2 = temp1 * v ** 8
 
@@ -99,7 +100,7 @@ def sqrt_division_FQ2(u: FQ2, v: FQ2):
 
 
 # Setup the four positive roots of eta = sqrt(Z^3 * (-1)^(1 / 4))
-def positive_eta_roots() -> Tuple[FQ2]:
+def positive_eta_roots() -> List[FQ2]:
     roots = []
     roots.append(FQ2([EV1, 0]))
     roots.append(FQ2([0, EV1]))
@@ -109,7 +110,7 @@ def positive_eta_roots() -> Tuple[FQ2]:
 
 
 # Optimal Map from 3-Isogenous Curve to G2
-def iso_map_G2(x: FQ2, y: FQ2, z: FQ2) -> Optimized_Point3D[Optimized_Field]:
+def iso_map_G2(x: FQ2, y: FQ2, z: FQ2) -> Optimized_Point3D[FQ2]:
     # x-numerator, x-denominator, y-numerator, y-denominator
     mapped_values = [FQ2.zero(), FQ2.zero(), FQ2.zero(), FQ2.zero()]
     z_powers = [z, z ** 2, z ** 3]

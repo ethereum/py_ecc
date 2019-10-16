@@ -182,10 +182,10 @@ class FQ(object):
     def __int__(self: T_FQ) -> int:
         return self.n
 
-    def sgn0(self: Type[T_FQ]) -> int:
+    def sgn0(self: T_FQ) -> int:
         if self.n == 0:
             return 0
-        neg = -self
+        neg = type(self)(-self)
         if neg.n > self.n:
             return 1
         else:
@@ -372,7 +372,7 @@ class FQP(object):
     def __neg__(self: T_FQP) -> T_FQP:
         return type(self)([-c for c in self.coeffs])
 
-    def sgn0(self: Type[T_FQP]) -> int:
+    def sgn0(self: T_FQP) -> int:
         sign = 0
         # TODO: Confirm coeffs is type FQ or FQP
         for x_i in reversed(self.coeffs):
