@@ -1,4 +1,4 @@
-from typing import Sequence, Tuple
+from typing import Tuple
 
 from py_ecc.fields import (
     optimized_bls12_381_FQ2 as FQ2,
@@ -13,7 +13,6 @@ from .constants import (
     ISO_3_B,
     ISO_3_Z,
     P_MINUS_9_DIV_16,
-    SQRT_I,
     EV1,
     EV2,
     ISO_3_MAP_COEFFICIENTS,

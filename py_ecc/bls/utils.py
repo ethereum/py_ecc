@@ -20,14 +20,11 @@ from py_ecc.optimized_bls12_381 import (
     is_inf,
     is_on_curve,
     add,
-    multiply,
     normalize,
     optimized_swu_G2,
     multiply_clear_cofactor_G2,
     iso_map_G2,
 )
-#from py_ecc.optimized_swu import (
-#)
 
 from .constants import (
     POW_2_381,
@@ -39,7 +36,6 @@ from .constants import (
     DST,
 )
 from .hash import (
-    hash_eth2,
     hkdf_expand,
     hkdf_extract,
 )

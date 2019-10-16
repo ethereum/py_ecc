@@ -64,7 +64,6 @@ def is_inf(pt: Optimized_Point3D[Optimized_Field]) -> bool:
 def is_on_curve(pt: Optimized_Point3D[Optimized_Field], b: Optimized_Field) -> bool:
     if is_inf(pt):
         return True
-    let = len(pt)
     x, y, z = pt
     return y**2 * z - x**3 == b * z**3
 

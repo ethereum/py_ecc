@@ -111,7 +111,7 @@ assert linefunc(one, one, negtwo)[0] == FQ(0)
 # Main miller loop
 def miller_loop(Q: Optimized_Point3D[FQ12],
                 P: Optimized_Point3D[FQ12],
-                final_exponentiate: bool=True) -> FQ12:
+                final_exponentiate: bool = True) -> FQ12:
     if Q is None or P is None:
         return FQ12.one()
     R = Q  # type: Optimized_Point3D[FQ12]
@@ -153,7 +153,7 @@ def miller_loop(Q: Optimized_Point3D[FQ12],
 # Pairing computation
 def pairing(Q: Optimized_Point3D[FQ2],
             P: Optimized_Point3D[FQ],
-            final_exponentiate: bool=True) -> FQ12:
+            final_exponentiate: bool = True) -> FQ12:
     assert is_on_curve(Q, b2)
     assert is_on_curve(P, b)
     if P[-1] == (P[-1].zero()) or Q[-1] == (Q[-1].zero()):

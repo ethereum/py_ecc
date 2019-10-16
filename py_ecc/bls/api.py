@@ -55,8 +55,7 @@ def verify(message_hash: Hash32,
                 signature_to_G2(signature),
                 G1,
                 final_exponentiate=False,
-            ) *
-            pairing(
+            ) * pairing(
                 hash_to_G2(message_hash),
                 neg(pubkey_to_G1(pubkey)),
                 final_exponentiate=False,
