@@ -19,9 +19,11 @@ from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
     is_inf,
     is_on_curve,
+    add,
     multiply,
     normalize,
     optimized_swu_G2,
+    multiply_clear_cofactor_G2,
     iso_map_G2,
 )
 #from py_ecc.optimized_swu import (
@@ -63,7 +65,6 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     """
     candidate_squareroot = value ** ((FQ2_ORDER + 8) // 16)
     check = candidate_squareroot ** 2 / value
-    # TODO: Confirm constant eigth roots can be applied here.
     if check in EIGTH_ROOTS_OF_UNITY[::2]:
         x1 = candidate_squareroot / EIGTH_ROOTS_OF_UNITY[EIGTH_ROOTS_OF_UNITY.index(check) // 2]
         x2 = -x1
@@ -82,10 +83,9 @@ def hash_to_curve_G2(message_hash: Hash32) -> G2Uncompressed:
     u1 = hash_to_base_FQ2(message_hash, 1)
     q0 = map_to_curve_G2(u0)
     q1 = map_to_curve_G2(u1)
-    r = q0 + q1
-    # TODO: Implement the following functions
-    # p = clear_cofactor_G2(r)
-    return r
+    r = add(q0, q1)
+    p = clear_cofactor_G2(r)
+    return p
 
 
 def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
@@ -120,15 +120,18 @@ def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
     (x, y, z) = optimized_swu_G2(u)
     return iso_map_G2(x, y, z)
 
+
 def clear_cofactor_G2(p: G2Uncompressed) -> G2Uncompressed:
     """
-    Clear Cofactor via Psi Method
+    Clear Cofactor via Multiplication
 
     Ensure a point falls in the correct sub group of the curve.
-    See Section 4.1 of https://eprint.iacr.org/2017/419
+    Optimization by applying Section 4.1 of https://eprint.iacr.org/2017/419
+    However `US patent 7110538` covers the optimization and so it may not
+    be able to be applied.
     """
-    # TODO: implement this function
-    return p
+    return multiply_clear_cofactor_G2(p)
+
 
 #
 # G1

@@ -3,7 +3,10 @@ from typing import Sequence, Tuple
 from py_ecc.fields import (
     optimized_bls12_381_FQ2 as FQ2,
 )
-from py_ecc.typing import Optimized_Point3D
+from py_ecc.typing import (
+    Optimized_Field,
+    Optimized_Point3D,
+)
 
 from .constants import (
     ISO_3_A,
@@ -19,7 +22,7 @@ from .constants import (
 
 
 # Optimized SWU Map - FQ2 to G2': y^2 = x^3 + 240i * x + 1012 + 1012i
-# Found in Section 4 of https://eprint.iacr.org/2019/403.pdf
+# Found in Section 4 of https://eprint.iacr.org/2019/403
 def optimized_swu_G2(t: FQ2) -> (FQ2, FQ2, FQ2):
     t2 = t ** 2
     temp = ISO_3_Z * t2
@@ -107,7 +110,7 @@ def positive_eta_roots() -> Tuple[FQ2]:
 
 
 # Optimal Map from 3-Isogenous Curve to G2
-def iso_map_G2(x: FQ2, y: FQ2, z: FQ2) -> Optimized_Point3D:
+def iso_map_G2(x: FQ2, y: FQ2, z: FQ2) -> Optimized_Point3D[Optimized_Field]:
     # x-numerator, x-denominator, y-numerator, y-denominator
     mapped_values = [FQ2.zero(), FQ2.zero(), FQ2.zero(), FQ2.zero()]
     z_powers = [z, z ** 2, z ** 3]
