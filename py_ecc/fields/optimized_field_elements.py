@@ -188,8 +188,7 @@ class FQ(object):
         neg = type(self)(-self)
         if neg.n > self.n:
             return 1
-        else:
-            return -1
+        return -1
 
     @classmethod
     def one(cls: Type[T_FQ]) -> T_FQ:
@@ -374,7 +373,6 @@ class FQP(object):
 
     def sgn0(self: T_FQP) -> int:
         sign = 0
-        # TODO: Confirm coeffs is type FQ or FQP
         for x_i in reversed(self.coeffs):
             sign_i = 0
             if isinstance(x_i, int):
@@ -384,8 +382,11 @@ class FQP(object):
                     sign_i = 1
                 else:
                     sign_i = -1
-            else:
+            elif isinstance(x_i, FQ):
                 sign_i = x_i.sgn0()
+            else:
+                raise TypeError("Only int and T_FQ types are accepted: got {type(x_i)}")
+
             if sign == 0:
                 sign = sign_i
         return sign

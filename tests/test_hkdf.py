@@ -33,7 +33,4 @@ def test_hkdf_extract(salt, ikm, prk):
 )
 def test_hkdf_expand(prk, info, l, okm):
     result = hkdf_expand(bytes.fromhex(prk), bytes.fromhex(info), l)
-    print("Result length: %d" % len(result))
-    print("Result: %s" % result.hex())
-    print("OKM: %s" % bytes.fromhex(okm).hex())
     assert bytes.fromhex(okm) == result

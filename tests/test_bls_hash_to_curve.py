@@ -89,12 +89,39 @@ def test_swu_optimized(u, x, y, z):
 def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
     (result_x, result_y, result_z) = iso_map_G2(iso_x, iso_y, iso_z)
 
-    print("X: (%X, %X)" % (result_x.coeffs[0], result_x.coeffs[1]))
-    print("Y: (%X, %X)" % (result_y.coeffs[0], result_y.coeffs[1]))
-    print("Z: (%X, %X)" % (result_z.coeffs[0], result_z.coeffs[1]))
-
     result_x = result_x / result_z
     result_y = result_y / result_z
 
     assert g2_x == result_x
     assert g2_y == result_y
+
+
+@pytest.mark.parametrize(
+    'msg,x,y',
+    [
+        (b'msg',
+        FQ2([int('968732dfe1587c397a44f57b2bf2c90fcf5607b43d92ddf37b641172197ece3a352815fdcc1bf476922b189d6e3ad0d', 16), int('1d4c61fc40232d15968dab008069c695322d9480ed1fff499f4ce08c490dde1927b9ed986daa7193698f5b711408945', 16)]),
+        FQ2([int('145fef0e15a2efd3cd12e1145b10a43d1580e1a9af9e921f82fd3d3e8e3e8f20bc5e4e91a9d06ab23dc1ecb9b67a13fc', 16), int('63e6e9bbf9a157c04d5d28b0b1bed28937aec51d3d753f97e721f4d87310820f7d65310da64927518335d44e95d7210', 16)])),
+        (b'01234567890123456789012345678901',
+        FQ2([int('23efe22f443e2b7ccc18b57cce7278cb3249a440e6135570c7ba296bccac7ffaf4e447058f011def6fb495769e43ea3', 16), int('c63453f9af8978be8230fa18c67a79a5b3756ec517e006948dee5d5f8da9f53ee09d14c698c4c43c85cbb2aef03db44', 16)]),
+        FQ2([int('958a94dfad16f2d9aaf0b67954e050e35dd49cf37cc2e5d556da111bc60fc63a12106429a8a872071316ee549c19243', 16), int('8e63072bd048254e6c588a5e26732aa3f8076200e288794c306a5a51914e4cd27609679d2485579514bf6dd595c2a3c', 16)])),
+        (b'',
+        FQ2([int('11bc78bdaf053b41a9074ecbd0503e568d13b9fc08fe1742744fad9f4d09a120c3b2ce89b56761b3795aced73bc92bf7', 16), int('c29141d97bfa8bcac20bcf756d4b178c70f2c1bdfcf9b2b53f1d5cff18e8a5a6dd42485bfcf94677ffc5c6b5212aadc', 16)]),
+        FQ2([int('950b6d805a040df0a4731c0ec947c21220e86814b7ca48b35aac3cdcae0eabcff3ac6f6073522f2389306ffabf42b8f', 16), int('bc362f72d7519cba6699e2940decb146b8ba191076a1745e87f02a293a4059701203e0a501a290bdc19032ba4131694', 16)])),
+        (b'abcdefghijklmnopqrstuvwxyz',
+        FQ2([int('3442c314b1cbac7605c05054b8c2a6de1a20b384978a43b9211e4d8a64dd540775f6fbfe947bfbc626a68c2ea01a207', 16), int('e3f033f9dc7da6fa51ff16d88afbd6cccf406f3c1b3d6a2cf2e7e15bcf6f6e1086dfcd98bbde3a58d930d4df5df9f4e', 16)]),
+        FQ2([int('8cceb30aeb9c2086a2bdfbeddb6eb0ff19565ad64c459c4c46a9b1f36d27856adc5067f1640ee884b0ca4516db0bb62', 16), int('9231b2e7288b9bb7825ad7738e88821062f6c128a706a29e609e134d2a1d52f0375cc5f6e3c4b750d68fe0338cdd32e', 16)])),
+        (b'\xff' * 100,
+        FQ2([int('c42c95e289801c1f9af16074c6881bec4c36c8d273877ef9f9e4edb53e5aeb2b2ae13b85a93f35cef5901f331649fa0', 16), int('bd6fd061d164cdbc416e05f3b6b8fbb446b83220bfafc5d7e073556acced1d4a8c27db2aac622866ca0b96638de5a58', 16)]),
+        FQ2([int('6665371d98163f1f0b5c20be4ef8ea44d89f579aa3282e089f9570360a8c03d3ef4f148cd89ca81e68f713fb2da63f0', 16), int('1591b09924c95368d89292fa6e64f9975faa8a062e4642bb3f37657749bc52f3688fd97f690e37b949301f11b2a89493', 16)])),
+    ]
+)
+def test_hash_to_G2(msg, x, y):
+    point = hash_to_G2(msg)
+
+    # Affine
+    result_x = point[0] / point[2] # X / Z
+    result_y = point[1] / point[2] # Y / Z
+
+    assert x == result_x
+    assert y == result_y
