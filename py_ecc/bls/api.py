@@ -23,6 +23,7 @@ from py_ecc.optimized_bls12_381 import (
     multiply,
     neg,
     pairing,
+    is_inf,
 )
 from .utils import (
     G1_to_pubkey,
@@ -31,7 +32,7 @@ from .utils import (
     pubkey_to_G1,
     signature_to_G2,
 )
-
+from .constants import G2_COFACTOR
 
 def sign(message_hash: Hash32,
          privkey: int) -> BLSSignature:
@@ -49,10 +50,13 @@ def privtopub(k: int) -> BLSPubkey:
 def verify(message_hash: Hash32,
            pubkey: BLSPubkey,
            signature: BLSSignature) -> bool:
+    signature_point = signature_to_G2(signature)
+    if not is_inf(multiply(signature_point, G2_COFACTOR)):
+        return False
     try:
         final_exponentiation = final_exponentiate(
             pairing(
-                signature_to_G2(signature),
+                signature_point,
                 G1,
                 final_exponentiate=False,
             ) * pairing(
@@ -92,6 +96,10 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
             )
         )
 
+    signature_point = signature_to_G2(signature)
+    if not is_inf(multiply(signature_point, G2_COFACTOR)):
+        return False
+
     try:
         o = FQ12([1] + [0] * 11)
         for m_pubs in set(message_hashes):
@@ -102,7 +110,7 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
                     group_pub = add(group_pub, pubkey_to_G1(pubkeys[i]))
 
             o *= pairing(hash_to_G2(m_pubs), group_pub, final_exponentiate=False)
-        o *= pairing(signature_to_G2(signature), neg(G1), final_exponentiate=False)
+        o *= pairing(signature_point, neg(G1), final_exponentiate=False)
 
         final_exponentiation = final_exponentiate(o)
         return final_exponentiation == FQ12.one()
