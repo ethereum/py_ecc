@@ -24,6 +24,7 @@ from py_ecc.optimized_bls12_381 import (
     neg,
     pairing,
     is_inf,
+    curve_order,
 )
 from .utils import (
     G1_to_pubkey,
@@ -32,7 +33,7 @@ from .utils import (
     pubkey_to_G1,
     signature_to_G2,
 )
-from .constants import G2_COFACTOR
+
 
 def sign(message_hash: Hash32,
          privkey: int) -> BLSSignature:
@@ -51,7 +52,7 @@ def verify(message_hash: Hash32,
            pubkey: BLSPubkey,
            signature: BLSSignature) -> bool:
     signature_point = signature_to_G2(signature)
-    if not is_inf(multiply(signature_point, G2_COFACTOR)):
+    if not is_inf(multiply(signature_point, curve_order)):
         return False
     try:
         final_exponentiation = final_exponentiate(
@@ -97,7 +98,7 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
         )
 
     signature_point = signature_to_G2(signature)
-    if not is_inf(multiply(signature_point, G2_COFACTOR)):
+    if not is_inf(multiply(signature_point, curve_order)):
         return False
 
     try:

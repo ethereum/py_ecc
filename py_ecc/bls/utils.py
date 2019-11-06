@@ -71,10 +71,6 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
 
 
 def hash_to_G2(message_hash: Hash32) -> G2Uncompressed:
-    return hash_to_curve_G2(message_hash)
-
-
-def hash_to_curve_G2(message_hash: Hash32) -> G2Uncompressed:
     u0 = hash_to_base_FQ2(message_hash, 0)
     u1 = hash_to_base_FQ2(message_hash, 1)
     q0 = map_to_curve_G2(u0)
