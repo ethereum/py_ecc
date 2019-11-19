@@ -22,7 +22,7 @@ def hash_eth2(data: Union[bytes, bytearray]) -> Hash32:
 
 def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) -> bytes:
     """
-    HKDF-Expand
+    HKDF-Extract
 
     https://tools.ietf.org/html/rfc5869
     """
