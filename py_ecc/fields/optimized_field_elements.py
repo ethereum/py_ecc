@@ -182,9 +182,16 @@ class FQ(object):
     def __int__(self: T_FQ) -> int:
         return self.n
 
-    def sgn0(self: T_FQ) -> int:
+    def sgn0_be(self: T_FQ) -> int:
+        """
+        Calculates the sign of a value.
+        sgn0_be(x) = -1 when x > -x
+
+        Defined here:
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-4.1.1
+        """
         if self.n == 0:
-            return 0
+            return 1
         neg = type(self)(-self)
         if neg.n > self.n:
             return 1
@@ -371,7 +378,14 @@ class FQP(object):
     def __neg__(self: T_FQP) -> T_FQP:
         return type(self)([-c for c in self.coeffs])
 
-    def sgn0(self: T_FQP) -> int:
+    def sgn0_be(self: T_FQP) -> int:
+        """
+        Calculates the sign of a value.
+        sgn0_be(x) = -1 when x > -x
+
+        Defined here:
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-4.1.1
+        """
         sign = 0
         for x_i in reversed(self.coeffs):
             sign_i = 0
@@ -383,7 +397,7 @@ class FQP(object):
                 else:
                     sign_i = -1
             elif isinstance(x_i, FQ):
-                sign_i = x_i.sgn0()
+                sign_i = x_i.sgn0_be()
             else:
                 raise TypeError("Only int and T_FQ types are accepted: got {type(x_i)}")
 

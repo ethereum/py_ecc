@@ -64,7 +64,7 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
     if not success:
         numerator = numerator * t2 * ISO_3_Z
 
-    if t.sgn0() != y.sgn0():
+    if t.sgn0_be() != y.sgn0_be():
         y = -y
 
     y = y * denominator
@@ -84,18 +84,18 @@ def sqrt_division_FQ2(u: FQ2, v: FQ2) -> Tuple[bool, FQ2]:
     sqrt_candidate = sqrt_candidate * temp1
 
     # Verify sqrt_candidate is a valid root
-    valid_root = False
+    is_valid_root = False
     result = sqrt_candidate
     roots = POSITIVE_EIGTH_ROOTS_OF_UNITY
     for root in roots:
         # Valid if (root * sqrt_candidate)^2 * v - u == 0
         temp1 = (root * sqrt_candidate)
         temp2 = temp1 ** 2 * v - u
-        if temp2 == FQ2.zero() and not valid_root:
-            valid_root = True
+        if temp2 == FQ2.zero() and not is_valid_root:
+            is_valid_root = True
             result = temp1
 
-    return (valid_root, result)
+    return (is_valid_root, result)
 
 
 # Optimal Map from 3-Isogenous Curve to G2

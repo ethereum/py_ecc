@@ -1,7 +1,6 @@
 import pytest
 
 from py_ecc.bls.hash import (
-    hash_eth2,
     hkdf_expand,
     hkdf_extract,
 )

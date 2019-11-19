@@ -11,9 +11,6 @@ from py_ecc.bls import (
     verify,
     verify_multiple,
 )
-from py_ecc.bls.hash import (
-    hash_eth2,
-)
 from py_ecc.bls.utils import (
     compress_G1,
     compress_G2,

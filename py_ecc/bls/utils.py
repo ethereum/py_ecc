@@ -91,13 +91,14 @@ def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
     """
     Hash To Base for FQ2
 
-    Converts a message to a point in the finite field as defined here:
+    Convert a message to a point in the finite field as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-5
     """
     m_prime = hkdf_extract(DST, message_hash + b'\x00')
     info_pfx = b'H2C' + bytes([ctr])
     e = []
 
+    #  for i in (1, ..., m), where m is the extension degree of FQ2
     for i in range(1, 3):
         info = info_pfx + bytes([i])
         t = hkdf_expand(m_prime, info, HASH_TO_G2_L)
@@ -113,7 +114,7 @@ def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
     First, convert FQ2 point to a point on the 3-Isogeny curve.
     SWU Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-6.6.2
 
-    Second, map 3-Isogeny curve to BLS381-G2 curve.
+    Second, map 3-Isogeny curve to BLS12-381-G2 curve.
     3-Isogeny Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#appendix-C.3
     """
     (x, y, z) = optimized_swu_G2(u)
