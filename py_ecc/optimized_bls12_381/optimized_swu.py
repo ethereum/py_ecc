@@ -1,5 +1,4 @@
 from typing import (
-    List,
     Tuple,
 )
 from py_ecc.fields import (
@@ -14,8 +13,7 @@ from .constants import (
     ISO_3_B,
     ISO_3_Z,
     P_MINUS_9_DIV_16,
-    EV1,
-    EV2,
+    ETAS,
     ISO_3_MAP_COEFFICIENTS,
     POSITIVE_EIGTH_ROOTS_OF_UNITY,
 )
@@ -47,10 +45,11 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
     # Handle case where (u / v) is not square
     # sqrt_candidate(x1) = sqrt_candidate(x0) * t^3
     sqrt_candidate = sqrt_candidate * t ** 3
+
     # u(x1) = Z^3 * t^6 * u(x0)
     u = (ISO_3_Z * t2) ** 3 * u
     success_2 = False
-    etas = positive_eta_roots()
+    etas = ETAS
     for (i, eta) in enumerate(etas):
         # Valid solution if (eta * sqrt_candidate(x1)) ** 2 * v - u == 0
         temp1 = eta * sqrt_candidate
@@ -97,16 +96,6 @@ def sqrt_division_FQ2(u: FQ2, v: FQ2) -> Tuple[bool, FQ2]:
             result = temp1
 
     return (valid_root, result)
-
-
-# Setup the four positive roots of eta = sqrt(Z^3 * (-1)^(1 / 4))
-def positive_eta_roots() -> List[FQ2]:
-    roots = []
-    roots.append(FQ2([EV1, 0]))
-    roots.append(FQ2([0, EV1]))
-    roots.append(FQ2([EV2, EV2]))
-    roots.append(FQ2([EV2, -EV2]))
-    return roots
 
 
 # Optimal Map from 3-Isogenous Curve to G2
