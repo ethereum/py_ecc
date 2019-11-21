@@ -27,7 +27,7 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
     temp = temp + temp ** 2
     denominator = -(ISO_3_A * temp)  # -a(Z * t^2 + Z^2 * t^4)
     temp = temp + FQ2.one()
-    numerator = ISO_3_B * temp  # b(Z * t^2 + Z^2 * t^4 + + 1)
+    numerator = ISO_3_B * temp  # b(Z * t^2 + Z^2 * t^4 + 1)
 
     # Exceptional case
     if denominator == FQ2.zero():
@@ -73,27 +73,27 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
 
 
 # Square Root Division
-# Return: uv^7 * (uv^15)^((p - 9) / 16) * root of unity
+# Return: uv^7 * (uv^15)^((p^2 - 9) / 16) * root of unity
 # If valid square root is found return true, else false
 def sqrt_division_FQ2(u: FQ2, v: FQ2) -> Tuple[bool, FQ2]:
     temp1 = u * v ** 7
     temp2 = temp1 * v ** 8
 
-    # sqrt_candidate =  uv^7 * (uv^15)^((p - 9) / 16)
-    sqrt_candidate = temp2 ** P_MINUS_9_DIV_16
-    sqrt_candidate = sqrt_candidate * temp1
+    # gamma =  uv^7 * (uv^15)^((p^2 - 9) / 16)
+    gamma = temp2 ** P_MINUS_9_DIV_16
+    gamma = gamma * temp1
 
-    # Verify sqrt_candidate is a valid root
+    # Verify there is a valid root
     is_valid_root = False
-    result = sqrt_candidate
+    result = gamma
     roots = POSITIVE_EIGTH_ROOTS_OF_UNITY
     for root in roots:
-        # Valid if (root * sqrt_candidate)^2 * v - u == 0
-        temp1 = (root * sqrt_candidate)
+        # Valid if (root * gamma)^2 * v - u == 0
+        sqrt_candidate = (root * gamma)
         temp2 = temp1 ** 2 * v - u
         if temp2 == FQ2.zero() and not is_valid_root:
             is_valid_root = True
-            result = temp1
+            result = sqrt_candidate
 
     return (is_valid_root, result)
 

@@ -1,3 +1,4 @@
+import math
 import hashlib
 import hmac
 from typing import Union
@@ -20,10 +21,7 @@ def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], len
 
     https://tools.ietf.org/html/rfc5869
     """
-    # n = cieling(length / HASH_LENGTH_BYTES)
-    n = length // HASH_LENGTH_BYTES
-    if n * HASH_LENGTH_BYTES < length:
-        n += 1
+    n = math.ceil(length / HASH_LENGTH_BYTES)
 
     # okm = T(1) || T(2) || T(3) || ... || T(n)
     okm = bytearray(0)
