@@ -101,6 +101,8 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
 def test_hash_to_G2(msg, x, y):
     point = hash_to_G2(msg)
 
+    assert is_on_curve(point, b2)
+
     # Affine
     result_x = point[0] / point[2] # X / Z
     result_y = point[1] / point[2] # Y / Z
