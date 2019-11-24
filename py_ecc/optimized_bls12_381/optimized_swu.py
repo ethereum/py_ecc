@@ -57,7 +57,8 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
         if temp1 == FQ2.zero() and not success and not success_2:
             y = sqrt_candidate * eta
             success_2 = True
-        elif i == 3 and not success and not success_2:
+    else:
+        if not success and not success_2:
             # Unreachable
             raise Exception("Hash to Curve - Optimized SWU failure")
 
@@ -90,7 +91,7 @@ def sqrt_division_FQ2(u: FQ2, v: FQ2) -> Tuple[bool, FQ2]:
     for root in roots:
         # Valid if (root * gamma)^2 * v - u == 0
         sqrt_candidate = (root * gamma)
-        temp2 = temp1 ** 2 * v - u
+        temp2 = sqrt_candidate ** 2 * v - u
         if temp2 == FQ2.zero() and not is_valid_root:
             is_valid_root = True
             result = sqrt_candidate
