@@ -23,8 +23,8 @@ from .constants import (
 # Found in Section 4 of https://eprint.iacr.org/2019/403
 def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
     t2 = t ** 2
-    temp = ISO_3_Z * t2
-    temp = temp + temp ** 2
+    iso_3_z_t2 = ISO_3_Z * t2
+    temp = iso_3_z_t2 + iso_3_z_t2 ** 2
     denominator = -(ISO_3_A * temp)  # -a(Z * t^2 + Z^2 * t^4)
     temp = temp + FQ2.one()
     numerator = ISO_3_B * temp  # b(Z * t^2 + Z^2 * t^4 + 1)
@@ -47,15 +47,15 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
     sqrt_candidate = sqrt_candidate * t ** 3
 
     # u(x1) = Z^3 * t^6 * u(x0)
-    u = (ISO_3_Z * t2) ** 3 * u
+    u = (iso_3_z_t2) ** 3 * u
     success_2 = False
     etas = ETAS
-    for (i, eta) in enumerate(etas):
+    for eta in etas:
         # Valid solution if (eta * sqrt_candidate(x1)) ** 2 * v - u == 0
-        temp1 = eta * sqrt_candidate
-        temp1 = temp1 ** 2 * v - u
+        eta_sqrt_candidate = eta * sqrt_candidate
+        temp1 = eta_sqrt_candidate ** 2 * v - u
         if temp1 == FQ2.zero() and not success and not success_2:
-            y = sqrt_candidate * eta
+            y = eta_sqrt_candidate
             success_2 = True
     else:
         if not success and not success_2:
@@ -63,7 +63,7 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
             raise Exception("Hash to Curve - Optimized SWU failure")
 
     if not success:
-        numerator = numerator * t2 * ISO_3_Z
+        numerator = numerator * iso_3_z_t2
 
     if t.sgn0_be() != y.sgn0_be():
         y = -y
