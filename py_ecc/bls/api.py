@@ -5,7 +5,6 @@ from typing import (
 from eth_typing import (
     BLSPubkey,
     BLSSignature,
-    Hash32,
 )
 from eth_utils import (
     ValidationError,
@@ -35,12 +34,11 @@ from .utils import (
 )
 
 
-def sign(message_hash: Hash32,
-         privkey: int) -> BLSSignature:
+def sign(sk: int, message: bytes) -> BLSSignature:
     return G2_to_signature(
         multiply(
-            hash_to_G2(message_hash),
-            privkey,
+            hash_to_G2(message),
+            sk,
         ))
 
 
@@ -48,8 +46,8 @@ def privtopub(k: int) -> BLSPubkey:
     return G1_to_pubkey(multiply(G1, k))
 
 
-def verify(message_hash: Hash32,
-           pubkey: BLSPubkey,
+def verify(pk: BLSPubkey,
+           message: bytes,
            signature: BLSSignature) -> bool:
     signature_point = signature_to_G2(signature)
     if not is_inf(multiply(signature_point, curve_order)):
@@ -61,8 +59,8 @@ def verify(message_hash: Hash32,
                 G1,
                 final_exponentiate=False,
             ) * pairing(
-                hash_to_G2(message_hash),
-                neg(pubkey_to_G1(pubkey)),
+                hash_to_G2(message),
+                neg(pubkey_to_G1(pk)),
                 final_exponentiate=False,
             )
         )
@@ -78,22 +76,22 @@ def aggregate_signatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
     return G2_to_signature(o)
 
 
-def aggregate_pubkeys(pubkeys: Sequence[BLSPubkey]) -> BLSPubkey:
+def aggregate_pubkeys(pks: Sequence[BLSPubkey]) -> BLSPubkey:
     o = Z1
-    for p in pubkeys:
+    for p in pks:
         o = add(o, pubkey_to_G1(p))
     return G1_to_pubkey(o)
 
 
-def verify_multiple(pubkeys: Sequence[BLSPubkey],
-                    message_hashes: Sequence[Hash32],
-                    signature: BLSSignature) -> bool:
-    len_msgs = len(message_hashes)
+def aggregate_verify(pks: Sequence[BLSPubkey],
+                     messages: Sequence[bytes],
+                     signature: BLSSignature) -> bool:
+    len_msgs = len(messages)
 
-    if len(pubkeys) != len_msgs:
+    if len(pks) != len_msgs:
         raise ValidationError(
-            "len(pubkeys) (%s) should be equal to len(message_hashes) (%s)" % (
-                len(pubkeys), len_msgs
+            "len(pks) (%s) should be equal to len(message) (%s)" % (
+                len(pks), len_msgs
             )
         )
 
@@ -103,12 +101,12 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
 
     try:
         o = FQ12([1] + [0] * 11)
-        for m_pubs in set(message_hashes):
+        for m_pubs in set(messages):
             # aggregate the pubs
             group_pub = Z1
             for i in range(len_msgs):
-                if message_hashes[i] == m_pubs:
-                    group_pub = add(group_pub, pubkey_to_G1(pubkeys[i]))
+                if messages[i] == m_pubs:
+                    group_pub = add(group_pub, pubkey_to_G1(pks[i]))
 
             o *= pairing(hash_to_G2(m_pubs), group_pub, final_exponentiate=False)
         o *= pairing(signature_point, neg(G1), final_exponentiate=False)
@@ -117,3 +115,10 @@ def verify_multiple(pubkeys: Sequence[BLSPubkey],
         return final_exponentiation == FQ12.one()
     except (ValidationError, ValueError, AssertionError):
         return False
+
+
+def fast_aggregate_verify(pks: Sequence[BLSPubkey],
+                          message: bytes,
+                          signature: BLSSignature) -> bool:
+    aggregate_pubkey = aggregate_pubkeys(pks)
+    return verify(aggregate_pubkey, message, signature)

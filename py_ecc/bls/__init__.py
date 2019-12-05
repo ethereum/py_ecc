@@ -4,5 +4,5 @@ from .api import (  # noqa: F401
     privtopub,
     sign,
     verify,
-    verify_multiple,
+    aggregate_verify,
 )

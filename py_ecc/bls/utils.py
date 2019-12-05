@@ -1,7 +1,6 @@
 from eth_typing import (
     BLSPubkey,
     BLSSignature,
-    Hash32,
 )
 from eth_utils import (
     big_endian_to_int,
@@ -70,7 +69,7 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     return None
 
 
-def hash_to_G2(message_hash: Hash32) -> G2Uncompressed:
+def hash_to_G2(message: bytes) -> G2Uncompressed:
     """
     Convert a message to a point on G2 as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-3
@@ -78,8 +77,8 @@ def hash_to_G2(message_hash: Hash32) -> G2Uncompressed:
     Contants and inputs follow the ciphersuite ``BLS12381G2-SHA256-SSWU-RO-`` defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-8.9.2
     """
-    u0 = hash_to_base_FQ2(message_hash, 0)
-    u1 = hash_to_base_FQ2(message_hash, 1)
+    u0 = hash_to_base_FQ2(message, 0)
+    u1 = hash_to_base_FQ2(message, 1)
     q0 = map_to_curve_G2(u0)
     q1 = map_to_curve_G2(u1)
     r = add(q0, q1)
@@ -87,14 +86,14 @@ def hash_to_G2(message_hash: Hash32) -> G2Uncompressed:
     return p
 
 
-def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
+def hash_to_base_FQ2(message: bytes, ctr: int) -> FQ2:
     """
     Hash To Base for FQ2
 
     Convert a message to a point in the finite field as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-5
     """
-    m_prime = hkdf_extract(DST, message_hash + b'\x00')
+    m_prime = hkdf_extract(DST, message + b'\x00')
     info_pfx = b'H2C' + bytes([ctr])
     e = []
 
