@@ -9,7 +9,7 @@ from py_ecc.bls import (
     privtopub,
     sign,
     verify,
-    verify_multiple,
+    aggregate_verify,
 )
 from py_ecc.bls.utils import (
     compress_G1,
@@ -155,9 +155,9 @@ def test_bls_core(privkey):
     assert normalize(decompress_G1(compress_G1(p1))) == normalize(p1)
     assert normalize(decompress_G2(compress_G2(p2))) == normalize(p2)
     assert normalize(decompress_G2(compress_G2(msghash))) == normalize(msghash)
-    sig = sign(msg, privkey)
+    sig = sign(privkey, msg)
     pub = privtopub(privkey)
-    assert verify(msg, pub, sig)
+    assert verify(pub, msg, sig)
 
 
 @pytest.mark.parametrize(
@@ -168,11 +168,11 @@ def test_bls_core(privkey):
     ]
 )
 def test_signature_aggregation(msg, privkeys):
-    sigs = [sign(msg, k) for k in privkeys]
+    sigs = [sign(k, msg) for k in privkeys]
     pubs = [privtopub(k) for k in privkeys]
     aggsig = aggregate_signatures(sigs)
     aggpub = aggregate_pubkeys(pubs)
-    assert verify(msg, aggpub, aggsig)
+    assert verify(aggpub, msg, aggsig)
 
 
 @pytest.mark.parametrize(
@@ -190,22 +190,22 @@ def test_signature_aggregation(msg, privkeys):
     ]
 )
 def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
-    sigs_1 = [sign(msg_1, k) for k in privkeys_1]
+    sigs_1 = [sign(k, msg_1) for k in privkeys_1]
     pubs_1 = [privtopub(k) for k in privkeys_1]
     aggsig_1 = aggregate_signatures(sigs_1)
     aggpub_1 = aggregate_pubkeys(pubs_1)
 
-    sigs_2 = [sign(msg_2, k) for k in privkeys_2]
+    sigs_2 = [sign(k, msg_2) for k in privkeys_2]
     pubs_2 = [privtopub(k) for k in privkeys_2]
     aggsig_2 = aggregate_signatures(sigs_2)
     aggpub_2 = aggregate_pubkeys(pubs_2)
 
-    message_hashes = [msg_1, msg_2]
+    messages = [msg_1, msg_2]
     pubs = [aggpub_1, aggpub_2]
     aggsig = aggregate_signatures([aggsig_1, aggsig_2])
 
-    assert verify_multiple(
-        pubkeys=pubs,
-        message_hashes=message_hashes,
+    assert aggregate_verify(
+        pks=pubs,
+        messages=messages,
         signature=aggsig,
     )

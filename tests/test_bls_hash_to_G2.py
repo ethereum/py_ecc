@@ -13,7 +13,7 @@ from py_ecc.bls import (
     privtopub,
     sign,
     verify,
-    verify_multiple,
+    aggregate_verify,
 )
 from py_ecc.bls.utils import (
     compress_G1,
