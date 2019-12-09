@@ -19,23 +19,27 @@ from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
     is_inf,
     is_on_curve,
-    multiply,
+    add,
     normalize,
+    optimized_swu_G2,
+    multiply_clear_cofactor_G2,
+    iso_map_G2,
 )
 
 from .constants import (
     POW_2_381,
     POW_2_382,
     POW_2_383,
-    FQ2_order,
-    G2_cofactor,
-    eighth_roots_of_unity,
+    FQ2_ORDER,
+    EIGTH_ROOTS_OF_UNITY,
+    HASH_TO_G2_L,
+    DST,
 )
 from .hash import (
-    hash_eth2,
+    hkdf_expand,
+    hkdf_extract,
 )
 from .typing import (
-    Domain,
     G1Compressed,
     G1Uncompressed,
     G2Compressed,
@@ -55,10 +59,10 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     if both solutions have equal imaginary component the value with higher real
     component is favored.
     """
-    candidate_squareroot = value ** ((FQ2_order + 8) // 16)
+    candidate_squareroot = value ** ((FQ2_ORDER + 8) // 16)
     check = candidate_squareroot ** 2 / value
-    if check in eighth_roots_of_unity[::2]:
-        x1 = candidate_squareroot / eighth_roots_of_unity[eighth_roots_of_unity.index(check) // 2]
+    if check in EIGTH_ROOTS_OF_UNITY[::2]:
+        x1 = candidate_squareroot / EIGTH_ROOTS_OF_UNITY[EIGTH_ROOTS_OF_UNITY.index(check) // 2]
         x2 = -x1
         x1_re, x1_im = x1.coeffs
         x2_re, x2_im = x2.coeffs
@@ -66,30 +70,64 @@ def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
     return None
 
 
-def _get_x_coordinate(message_hash: Hash32, domain: Domain) -> FQ2:
-    # Initial candidate x coordinate
-    x_re = big_endian_to_int(hash_eth2(message_hash + domain + b'\x01'))
-    x_im = big_endian_to_int(hash_eth2(message_hash + domain + b'\x02'))
-    x_coordinate = FQ2([x_re, x_im])  # x_re + x_im * i
+def hash_to_G2(message_hash: Hash32) -> G2Uncompressed:
+    """
+    Convert a message to a point on G2 as defined here:
+    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-3
 
-    return x_coordinate
+    Contants and inputs follow the ciphersuite ``BLS12381G2-SHA256-SSWU-RO-`` defined here:
+    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-8.9.2
+    """
+    u0 = hash_to_base_FQ2(message_hash, 0)
+    u1 = hash_to_base_FQ2(message_hash, 1)
+    q0 = map_to_curve_G2(u0)
+    q1 = map_to_curve_G2(u1)
+    r = add(q0, q1)
+    p = clear_cofactor_G2(r)
+    return p
 
 
-def hash_to_G2(message_hash: Hash32, domain: Domain) -> G2Uncompressed:
-    x_coordinate = _get_x_coordinate(message_hash, domain)
+def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
+    """
+    Hash To Base for FQ2
 
-    # Test candidate y coordinates until a one is found
-    while 1:
-        y_coordinate_squared = x_coordinate ** 3 + FQ2([4, 4])  # The curve is y^2 = x^3 + 4(i + 1)
-        y_coordinate = modular_squareroot_in_FQ2(y_coordinate_squared)
-        if y_coordinate is not None:  # Check if quadratic residue found
-            break
-        x_coordinate += FQ2([1, 0])  # Add 1 and try again
+    Convert a message to a point in the finite field as defined here:
+    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-5
+    """
+    m_prime = hkdf_extract(DST, message_hash + b'\x00')
+    info_pfx = b'H2C' + bytes([ctr])
+    e = []
 
-    return multiply(
-        (x_coordinate, y_coordinate, FQ2([1, 0])),
-        G2_cofactor,
-    )
+    #  for i in (1, ..., m), where m is the extension degree of FQ2
+    for i in range(1, 3):
+        info = info_pfx + bytes([i])
+        t = hkdf_expand(m_prime, info, HASH_TO_G2_L)
+        e.append(big_endian_to_int(t))
+
+    return FQ2(e)
+
+
+def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
+    """
+    Map To Curve for G2
+
+    First, convert FQ2 point to a point on the 3-Isogeny curve.
+    SWU Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-6.6.2
+
+    Second, map 3-Isogeny curve to BLS12-381-G2 curve.
+    3-Isogeny Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#appendix-C.3
+    """
+    (x, y, z) = optimized_swu_G2(u)
+    return iso_map_G2(x, y, z)
+
+
+def clear_cofactor_G2(p: G2Uncompressed) -> G2Uncompressed:
+    """
+    Clear Cofactor via Multiplication
+
+    Ensure a point falls in the correct sub group of the curve.
+    """
+    return multiply_clear_cofactor_G2(p)
 
 
 #
@@ -221,8 +259,7 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
 def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:
     z1, z2 = compress_G2(pt)
     return BLSSignature(
-        z1.to_bytes(48, "big") +
-        z2.to_bytes(48, "big")
+        z1.to_bytes(48, "big") + z2.to_bytes(48, "big")
     )
 
 

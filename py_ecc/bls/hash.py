@@ -1,17 +1,39 @@
+import math
 import hashlib
+import hmac
 from typing import Union
 
-from eth_typing import Hash32
+from .constants import HASH_LENGTH_BYTES
 
 
-def hash_eth2(data: Union[bytes, bytearray]) -> Hash32:
+def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) -> bytes:
     """
-    Return SHA-256 hashed result.
+    HKDF-Extract
 
-    Note: this API is currently under active research/development so is subject to change
-    without a major version bump.
-
-    Note: it's a placeholder and we aim to migrate to a S[T/N]ARK-friendly hash function in
-    a future Ethereum 2.0 deployment phase.
+    https://tools.ietf.org/html/rfc5869
     """
-    return Hash32(hashlib.sha256(data).digest())
+    return hmac.new(salt, ikm, hashlib.sha256).digest()
+
+
+def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], length: int) -> bytes:
+    """
+    HKDF-Expand
+
+    https://tools.ietf.org/html/rfc5869
+    """
+    n = math.ceil(length / HASH_LENGTH_BYTES)
+
+    # okm = T(1) || T(2) || T(3) || ... || T(n)
+    okm = bytearray(0)
+    previous = bytearray(0)
+
+    for i in range(0, n):
+        # Concatenate (T(i) || info || i)
+        text = previous + info + bytes([i + 1])
+
+        # T(i + 1) = HMAC(T(i) || info || i)
+        previous = bytearray(hmac.new(prk, text, hashlib.sha256).digest())
+        okm.extend(previous)
+
+    # Return first `length` bytes.
+    return okm[:length]
