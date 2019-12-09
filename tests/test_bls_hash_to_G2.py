@@ -2,47 +2,16 @@
 These are temporary tests to check the functionality of helper functions in `hash_to_G2`
 They should be removed and replaced with a final version when hash to curve is complete.
 """
-from eth_utils import (
-    big_endian_to_int,
-)
 import pytest
 
-from py_ecc.bls import (
-    aggregate_pubkeys,
-    aggregate_signatures,
-    privtopub,
-    sign,
-    verify,
-    aggregate_verify,
-)
-from py_ecc.bls.utils import (
-    compress_G1,
-    compress_G2,
-    decompress_G1,
-    decompress_G2,
-    hash_to_G2,
-    signature_to_G2,
-)
-from py_ecc.bls.constants import (
-    POW_2_381,
-    POW_2_382,
-    POW_2_383,
-)
+from py_ecc.bls.utils import hash_to_G2
+
 from py_ecc.fields import (
-    optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
 )
 from py_ecc.optimized_bls12_381 import (
-    G1,
-    G2,
-    Z1,
-    Z2,
-    b,
     b2,
     is_on_curve,
-    multiply,
-    normalize,
-    field_modulus as q,
     iso_map_G2,
 )
 
