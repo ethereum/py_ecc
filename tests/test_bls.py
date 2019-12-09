@@ -7,6 +7,7 @@ from py_ecc.bls import (
     AggregatePubkeys,
     AggregateSignatures,
     PrivToPub,
+    KeyGen,
     Sign,
     Verify,
     AggregateVerify,
@@ -228,3 +229,16 @@ def test_fast_aggregate_verify(msg, privkeys):
         message=msg,
         signature=aggsig,
     )
+
+
+@pytest.mark.parametrize(
+    # Tests taken from https://eips.ethereum.org/EIPS/eip-2333
+    'ikm, privkey',
+    [
+        (bytes.fromhex('c55257c360c07c72029aebc1b53c05ed0362ada38ead3e3e9efa3708e53495531f09a6987599d18264c1e1c92f2cf141630c7a3c4ab7c81b2f001698e7463b04') , 12513733877922233913083619867448865075222526338446857121953625441395088009793),
+        (bytes.fromhex('0099FF991111002299DD7744EE3355BBDD8844115566CC55663355668888CC00'), 45379166311535261329029945990467475187325618028073620882733843918126031931161),
+    ]
+)
+def test_key_gen(ikm, privkey):
+    _, calc_privkey = KeyGen(ikm)
+    assert calc_privkey == privkey

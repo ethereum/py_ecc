@@ -1,5 +1,10 @@
 from typing import (
     Sequence,
+    Tuple,
+)
+from math import (
+    ceil,
+    log2,
 )
 
 from eth_typing import (
@@ -7,6 +12,7 @@ from eth_typing import (
     BLSSignature,
 )
 from eth_utils import (
+    big_endian_to_int,
     ValidationError,
 )
 
@@ -32,6 +38,10 @@ from .utils import (
     pubkey_to_G1,
     signature_to_G2,
 )
+from.hash import (
+    hkdf_expand,
+    hkdf_extract,
+)
 
 
 def Sign(sk: int, message: bytes) -> BLSSignature:
@@ -44,6 +54,15 @@ def Sign(sk: int, message: bytes) -> BLSSignature:
 
 def PrivToPub(k: int) -> BLSPubkey:
     return G1_to_pubkey(multiply(G1, k))
+
+
+def KeyGen(IKM: bytes) -> Tuple[BLSPubkey, int]:
+    prk = hkdf_extract(b'BLS-SIG-KEYGEN-SALT-', IKM)
+    l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa E741
+    okm = hkdf_expand(prk, b'', l)
+    sk = big_endian_to_int(okm) % curve_order
+    pk = PrivToPub(sk)
+    return (pk, sk)
 
 
 def Verify(pk: BLSPubkey,
