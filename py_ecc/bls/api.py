@@ -1,6 +1,7 @@
 from typing import (
     Sequence,
     Tuple,
+    Union,
 )
 from math import (
     ceil,
@@ -88,32 +89,24 @@ def Verify(pk: BLSPubkey,
         return False
 
 
-def AggregateSignatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
+def Aggregate(*signatures: BLSSignature) -> BLSSignature:
     o = Z2
     for s in signatures:
         o = add(o, signature_to_G2(s))
     return G2_to_signature(o)
 
 
-def AggregatePubkeys(pks: Sequence[BLSPubkey]) -> BLSPubkey:
+def AggregatePubkeys(*pks: BLSPubkey) -> BLSPubkey:
     o = Z1
     for p in pks:
         o = add(o, pubkey_to_G1(p))
     return G1_to_pubkey(o)
 
 
-def AggregateVerify(pks: Sequence[BLSPubkey],
-                    messages: Sequence[bytes],
-                    signature: BLSSignature) -> bool:
-    len_msgs = len(messages)
-
-    if len(pks) != len_msgs:
-        raise ValidationError(
-            "len(pks) (%s) should be equal to len(message) (%s)" % (
-                len(pks), len_msgs
-            )
-        )
-
+def AggregateVerify(*args: Union[Sequence[Tuple[BLSPubkey, bytes]], BLSSignature]) -> bool:
+    signature = args[-1]
+    assert isinstance(signature, bytes)
+    pks, messages = list(zip(*args[:-1][0]))  # Unzip PKs and messages
     signature_point = signature_to_G2(signature)
     if not is_inf(multiply(signature_point, curve_order)):
         return False
@@ -123,7 +116,7 @@ def AggregateVerify(pks: Sequence[BLSPubkey],
         for m_pubs in set(messages):
             # aggregate the pubs
             group_pub = Z1
-            for i in range(len_msgs):
+            for i in range(len(messages)):
                 if messages[i] == m_pubs:
                     group_pub = add(group_pub, pubkey_to_G1(pks[i]))
 
@@ -136,8 +129,12 @@ def AggregateVerify(pks: Sequence[BLSPubkey],
         return False
 
 
-def FastAggregateVerify(pks: Sequence[BLSPubkey],
-                        message: bytes,
-                        signature: BLSSignature) -> bool:
-    aggregate_pubkey = AggregatePubkeys(pks)
+def FastAggregateVerify(*args: Union[BLSPubkey, bytes, BLSSignature]) -> bool:
+    pks = args[:-2]
+    message, signature = args[-2:]
+    assert(isinstance(pks, (list, tuple)))
+    assert(all(isinstance(pk, bytes) for pk in pks))
+    assert(isinstance(message, bytes))
+    assert(isinstance(signature, bytes))
+    aggregate_pubkey = AggregatePubkeys(*pks)
     return Verify(aggregate_pubkey, message, signature)

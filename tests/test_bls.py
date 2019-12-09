@@ -5,7 +5,7 @@ import pytest
 
 from py_ecc.bls import (
     AggregatePubkeys,
-    AggregateSignatures,
+    Aggregate,
     PrivToPub,
     KeyGen,
     Sign,
@@ -172,8 +172,8 @@ def test_bls_core(privkey):
 def test_signature_aggregation(msg, privkeys):
     sigs = [Sign(k, msg) for k in privkeys]
     pubs = [PrivToPub(k) for k in privkeys]
-    aggsig = AggregateSignatures(sigs)
-    aggpub = AggregatePubkeys(pubs)
+    aggsig = Aggregate(*sigs)
+    aggpub = AggregatePubkeys(*pubs)
     assert Verify(aggpub, msg, aggsig)
 
 
@@ -194,23 +194,19 @@ def test_signature_aggregation(msg, privkeys):
 def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
     sigs_1 = [Sign(k, msg_1) for k in privkeys_1]
     pubs_1 = [PrivToPub(k) for k in privkeys_1]
-    aggsig_1 = AggregateSignatures(sigs_1)
-    aggpub_1 = AggregatePubkeys(pubs_1)
+    aggsig_1 = Aggregate(*sigs_1)
+    aggpub_1 = AggregatePubkeys(*pubs_1)
 
     sigs_2 = [Sign(k, msg_2) for k in privkeys_2]
     pubs_2 = [PrivToPub(k) for k in privkeys_2]
-    aggsig_2 = AggregateSignatures(sigs_2)
-    aggpub_2 = AggregatePubkeys(pubs_2)
+    aggsig_2 = Aggregate(*sigs_2)
+    aggpub_2 = AggregatePubkeys(*pubs_2)
 
     messages = [msg_1, msg_2]
     pubs = [aggpub_1, aggpub_2]
-    aggsig = AggregateSignatures([aggsig_1, aggsig_2])
+    aggsig = Aggregate(*[aggsig_1, aggsig_2])
 
-    assert AggregateVerify(
-        pks=pubs,
-        messages=messages,
-        signature=aggsig,
-    )
+    assert AggregateVerify(list(zip(pubs, messages)), aggsig)
 
 
 @pytest.mark.parametrize(
@@ -223,12 +219,8 @@ def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
 def test_fast_aggregate_verify(msg, privkeys):
     sigs = [Sign(sk, msg) for sk in privkeys]
     pubs = [PrivToPub(sk) for sk in privkeys]
-    aggsig = AggregateSignatures(sigs)
-    assert FastAggregateVerify(
-        pks=pubs,
-        message=msg,
-        signature=aggsig,
-    )
+    aggsig = Aggregate(*sigs)
+    assert FastAggregateVerify(*pubs, msg, aggsig)
 
 
 @pytest.mark.parametrize(

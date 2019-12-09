@@ -1,6 +1,6 @@
 from .api import (  # noqa: F401
     AggregatePubkeys,
-    AggregateSignatures,
+    Aggregate,
     PrivToPub,
     KeyGen,
     Sign,

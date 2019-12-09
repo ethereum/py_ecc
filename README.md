@@ -36,8 +36,8 @@ public_keys = [bls.PrivToPub(key) for key in private_keys]
 signatures = [bls.Sign(message_hash, key) for key in private_keys]
 
 # Aggregating
-agg_sig = bls.AggregateSignatures(signatures)
-agg_pub = bls.AggregatePubkeys(public_keys)
+agg_sig = bls.Aggregate(signatures)
+agg_pub = bls.AggregatePubkeys(*public_keys)
 
 # Verifying
 assert bls.Verify(message_hash, agg_pub, agg_sig)
@@ -50,7 +50,7 @@ message_hash_1, message_hash_2 = b'\xaa' * 32, b'\xbb' * 32
 
 msg_hashes = [message_hash_1, message_hash_2]
 agg_pubs = [agg_pub_1, agg_pub_2]
-agg_agg_sig = bls.AggregateSignatures([agg_sig_1, agg_sig_2])
+agg_agg_sig = bls.Aggregate([agg_sig_1, agg_sig_2])
 
 assert bls.VerifyMultiple(agg_pubs, msg_hashes, agg_agg_sig)
 ```
