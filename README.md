@@ -15,36 +15,32 @@ pip install py_ecc
 ```python
 from py_ecc import bls
 
-domain = 43
-
 private_key = 5566
-public_key = bls.privtopub(private_key)
+public_key = bls.PrivToPub(private_key)
 
 # Hash your message to 32 bytes
 message_hash = b'\xab' * 32
 
 # Signing
-signature = bls.sign(message_hash, private_key, domain)
+signature = bls.Sign(message_hash, private_key)
 
 # Verifying
-assert bls.verify(message_hash, public_key, signature, domain)
+assert bls.Verify(message_hash, public_key, signature)
 ```
-
-Think of a `domain` as a version. Signing and verifying would not work on different domains. Setting a new domain in an upgraded system prevents it from being affected by the old messages and signatures.
 
 ### Aggregating Signatures and Public Keys
 
 ```python
 private_keys = [3, 14, 159]
-public_keys = [bls.privtopub(key) for key in private_keys]
-signatures = [bls.sign(message_hash, key, domain) for key in private_keys]
+public_keys = [bls.PrivToPub(key) for key in private_keys]
+signatures = [bls.Sign(message_hash, key) for key in private_keys]
 
 # Aggregating
-agg_sig = bls.aggregate_signatures(signatures)
-agg_pub = bls.aggregate_pubkeys(public_keys)
+agg_sig = bls.AggregateSignatures(signatures)
+agg_pub = bls.AggregatePubkeys(public_keys)
 
 # Verifying
-assert bls.verify(message_hash, agg_pub, agg_sig, domain)
+assert bls.Verify(message_hash, agg_pub, agg_sig)
 ```
 
 ### Multiple Aggregation
@@ -54,9 +50,9 @@ message_hash_1, message_hash_2 = b'\xaa' * 32, b'\xbb' * 32
 
 msg_hashes = [message_hash_1, message_hash_2]
 agg_pubs = [agg_pub_1, agg_pub_2]
-agg_agg_sig = bls.aggregate_signatures([agg_sig_1, agg_sig_2])
+agg_agg_sig = bls.AggregateSignatures([agg_sig_1, agg_sig_2])
 
-assert bls.verify_multiple(agg_pubs, msg_hashes, agg_agg_sig, domain)
+assert bls.VerifyMultiple(agg_pubs, msg_hashes, agg_agg_sig)
 ```
 
 ## Developer Setup

@@ -1,8 +1,9 @@
 from .api import (  # noqa: F401
-    aggregate_pubkeys,
-    aggregate_signatures,
-    privtopub,
-    sign,
-    verify,
-    aggregate_verify,
+    AggregatePubkeys,
+    AggregateSignatures,
+    PrivToPub,
+    Sign,
+    Verify,
+    AggregateVerify,
+    FastAggregateVerify,
 )

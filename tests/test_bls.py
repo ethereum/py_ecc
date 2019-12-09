@@ -4,12 +4,12 @@ from eth_utils import (
 import pytest
 
 from py_ecc.bls import (
-    aggregate_pubkeys,
-    aggregate_signatures,
-    privtopub,
-    sign,
-    verify,
-    aggregate_verify,
+    AggregatePubkeys,
+    AggregateSignatures,
+    PrivToPub,
+    Sign,
+    Verify,
+    AggregateVerify,
 )
 from py_ecc.bls.utils import (
     compress_G1,
@@ -155,9 +155,9 @@ def test_bls_core(privkey):
     assert normalize(decompress_G1(compress_G1(p1))) == normalize(p1)
     assert normalize(decompress_G2(compress_G2(p2))) == normalize(p2)
     assert normalize(decompress_G2(compress_G2(msghash))) == normalize(msghash)
-    sig = sign(privkey, msg)
-    pub = privtopub(privkey)
-    assert verify(pub, msg, sig)
+    sig = Sign(privkey, msg)
+    pub = PrivToPub(privkey)
+    assert Verify(pub, msg, sig)
 
 
 @pytest.mark.parametrize(
@@ -168,11 +168,11 @@ def test_bls_core(privkey):
     ]
 )
 def test_signature_aggregation(msg, privkeys):
-    sigs = [sign(k, msg) for k in privkeys]
-    pubs = [privtopub(k) for k in privkeys]
-    aggsig = aggregate_signatures(sigs)
-    aggpub = aggregate_pubkeys(pubs)
-    assert verify(aggpub, msg, aggsig)
+    sigs = [Sign(k, msg) for k in privkeys]
+    pubs = [PrivToPub(k) for k in privkeys]
+    aggsig = AggregateSignatures(sigs)
+    aggpub = AggregatePubkeys(pubs)
+    assert Verify(aggpub, msg, aggsig)
 
 
 @pytest.mark.parametrize(
@@ -190,21 +190,21 @@ def test_signature_aggregation(msg, privkeys):
     ]
 )
 def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
-    sigs_1 = [sign(k, msg_1) for k in privkeys_1]
-    pubs_1 = [privtopub(k) for k in privkeys_1]
-    aggsig_1 = aggregate_signatures(sigs_1)
-    aggpub_1 = aggregate_pubkeys(pubs_1)
+    sigs_1 = [Sign(k, msg_1) for k in privkeys_1]
+    pubs_1 = [PrivToPub(k) for k in privkeys_1]
+    aggsig_1 = AggregateSignatures(sigs_1)
+    aggpub_1 = AggregatePubkeys(pubs_1)
 
-    sigs_2 = [sign(k, msg_2) for k in privkeys_2]
-    pubs_2 = [privtopub(k) for k in privkeys_2]
-    aggsig_2 = aggregate_signatures(sigs_2)
-    aggpub_2 = aggregate_pubkeys(pubs_2)
+    sigs_2 = [Sign(k, msg_2) for k in privkeys_2]
+    pubs_2 = [PrivToPub(k) for k in privkeys_2]
+    aggsig_2 = AggregateSignatures(sigs_2)
+    aggpub_2 = AggregatePubkeys(pubs_2)
 
     messages = [msg_1, msg_2]
     pubs = [aggpub_1, aggpub_2]
-    aggsig = aggregate_signatures([aggsig_1, aggsig_2])
+    aggsig = AggregateSignatures([aggsig_1, aggsig_2])
 
-    assert aggregate_verify(
+    assert AggregateVerify(
         pks=pubs,
         messages=messages,
         signature=aggsig,

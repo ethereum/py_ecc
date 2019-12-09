@@ -34,7 +34,7 @@ from .utils import (
 )
 
 
-def sign(sk: int, message: bytes) -> BLSSignature:
+def Sign(sk: int, message: bytes) -> BLSSignature:
     return G2_to_signature(
         multiply(
             hash_to_G2(message),
@@ -42,11 +42,11 @@ def sign(sk: int, message: bytes) -> BLSSignature:
         ))
 
 
-def privtopub(k: int) -> BLSPubkey:
+def PrivToPub(k: int) -> BLSPubkey:
     return G1_to_pubkey(multiply(G1, k))
 
 
-def verify(pk: BLSPubkey,
+def Verify(pk: BLSPubkey,
            message: bytes,
            signature: BLSSignature) -> bool:
     signature_point = signature_to_G2(signature)
@@ -69,23 +69,23 @@ def verify(pk: BLSPubkey,
         return False
 
 
-def aggregate_signatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
+def AggregateSignatures(signatures: Sequence[BLSSignature]) -> BLSSignature:
     o = Z2
     for s in signatures:
         o = add(o, signature_to_G2(s))
     return G2_to_signature(o)
 
 
-def aggregate_pubkeys(pks: Sequence[BLSPubkey]) -> BLSPubkey:
+def AggregatePubkeys(pks: Sequence[BLSPubkey]) -> BLSPubkey:
     o = Z1
     for p in pks:
         o = add(o, pubkey_to_G1(p))
     return G1_to_pubkey(o)
 
 
-def aggregate_verify(pks: Sequence[BLSPubkey],
-                     messages: Sequence[bytes],
-                     signature: BLSSignature) -> bool:
+def AggregateVerify(pks: Sequence[BLSPubkey],
+                    messages: Sequence[bytes],
+                    signature: BLSSignature) -> bool:
     len_msgs = len(messages)
 
     if len(pks) != len_msgs:
@@ -117,8 +117,8 @@ def aggregate_verify(pks: Sequence[BLSPubkey],
         return False
 
 
-def fast_aggregate_verify(pks: Sequence[BLSPubkey],
-                          message: bytes,
-                          signature: BLSSignature) -> bool:
-    aggregate_pubkey = aggregate_pubkeys(pks)
-    return verify(aggregate_pubkey, message, signature)
+def FastAggregateVerify(pks: Sequence[BLSPubkey],
+                        message: bytes,
+                        signature: BLSSignature) -> bool:
+    aggregate_pubkey = AggregatePubkeys(pks)
+    return Verify(aggregate_pubkey, message, signature)

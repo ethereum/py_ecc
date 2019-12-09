@@ -1,3 +1,5 @@
+from typing import Optional
+
 from eth_typing import (
     BLSPubkey,
     BLSSignature,
@@ -50,7 +52,7 @@ from .typing import (
 #
 
 
-def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
+def modular_squareroot_in_FQ2(value: FQ2) -> Optional[FQ2]:
     """
     ``modular_squareroot_in_FQ2(x)`` returns the value ``y`` such that ``y**2 % q == x``,
     and None if this is not possible. In cases where there are two solutions,
