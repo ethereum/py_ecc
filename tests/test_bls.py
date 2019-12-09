@@ -10,6 +10,7 @@ from py_ecc.bls import (
     Sign,
     Verify,
     AggregateVerify,
+    FastAggregateVerify,
 )
 from py_ecc.bls.utils import (
     compress_G1,
@@ -207,5 +208,23 @@ def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
     assert AggregateVerify(
         pks=pubs,
         messages=messages,
+        signature=aggsig,
+    )
+
+
+@pytest.mark.parametrize(
+    'msg, privkeys',
+    [
+        (b'\x12' * 32, [1, 5, 124, 735, 127409812145, 90768492698215092512159, 0]),
+        (b'\x34' * 32, [42, 666, 1274099945, 4389392949595]),
+    ]
+)
+def test_fast_aggregate_verify(msg, privkeys):
+    sigs = [Sign(sk, msg) for sk in privkeys]
+    pubs = [PrivToPub(sk) for sk in privkeys]
+    aggsig = AggregateSignatures(sigs)
+    assert FastAggregateVerify(
+        pks=pubs,
+        message=msg,
         signature=aggsig,
     )
