@@ -1,6 +1,3 @@
-from typing import (
-    Optional,
-)
 from eth_utils import (
     big_endian_to_int,
 )
@@ -15,11 +12,7 @@ from py_ecc.optimized_bls12_381 import (
     optimized_swu_G2,
 )
 
-from .constants import (
-    FQ2_ORDER,
-    EIGTH_ROOTS_OF_UNITY,
-    HASH_TO_G2_L,
-)
+from .constants import HASH_TO_G2_L
 from .typing import (
     G2Uncompressed,
 )

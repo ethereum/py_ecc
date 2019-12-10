@@ -2,7 +2,10 @@ from eth_typing import (
     BLSSignature,
     BLSPubkey,
 )
-from eth_utils import big_endian_to_int
+from eth_utils import (
+    big_endian_to_int,
+    ValidationError,
+)
 
 from py_ecc.optimized_bls12_381 import (
     is_inf,
@@ -39,7 +42,10 @@ def signature_to_G2(signature: BLSSignature) -> G2Uncompressed:
     p = G2Compressed(
         (big_endian_to_int(signature[:48]), big_endian_to_int(signature[48:]))
     )
-    return decompress_G2(p)
+    signature_point = decompress_G2(p)
+    if not subgroup_check(signature_point):
+        raise ValidationError('Signature is not a part of the E2 subgroup.')
+    return signature_point
 
 
 def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
@@ -49,4 +55,7 @@ def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
 
 def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
     z = big_endian_to_int(pubkey)
-    return decompress_G1(G1Compressed(z))
+    pubkey_point = decompress_G1(G1Compressed(z))
+    if not subgroup_check(pubkey_point):
+        raise ValidationError('Pubkey is not a part of the E1 subgroup.')
+    return pubkey_point

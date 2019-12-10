@@ -1,4 +1,7 @@
-from typing import Tuple
+from typing import (
+    Tuple,
+    Sequence,
+)
 from math import (
     ceil,
     log2,
@@ -7,26 +10,38 @@ from eth_typing import (
     BLSPubkey,
     BLSSignature,
 )
-from eth_utils import big_endian_to_int
+from eth_utils import (
+    big_endian_to_int,
+    ValidationError,
+)
 
+from py_ecc.fields import optimized_bls12_381_FQ12 as FQ12
 from py_ecc.optimized_bls12_381 import (
+    add,
+    curve_order,
+    final_exponentiate,
     G1,
     multiply,
-    curve_order,
+    neg,
+    pairing,
+    Z1,
+    Z2,
 )
 
 from .hash import (
     hkdf_expand,
     hkdf_extract,
 )
+from .hash_to_curve import hash_to_G2
 from .g2_primatives import (
     G1_to_pubkey,
+    G2_to_signature,
     pubkey_to_G1,
-    subgroup_check,
+    signature_to_G2,
 )
 
 
-def priv_to_pub(privkey: int) -> BLSPubkey:
+def PrivToPub(privkey: int) -> BLSPubkey:
     return G1_to_pubkey(multiply(G1, privkey))
 
 
@@ -39,21 +54,77 @@ def KeyGen(IKM: bytes) -> Tuple[BLSPubkey, int]:
 
 
 def KeyValidate(PK: BLSPubkey) -> bool:
-    xP = pubkey_to_G1(PK)
-    return subgroup_check(xP)
+    try:
+        pubkey_to_G1(PK)
+    except ValidationError:
+        return False
+    return True
 
 
 def CoreSign(SK: int, message: bytes, DST: bytes) -> BLSSignature:
-    pass
+    message_point = hash_to_G2(message, DST)
+    signature_point = multiply(message_point, SK)
+    return G2_to_signature(signature_point)
 
 
-def CoreVerify(PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
-    pass
+def CoreVerify(PK: BLSPubkey, message: bytes, signature: BLSSignature, DST: bytes) -> bool:
+    try:
+        signature_point = signature_to_G2(signature)
+        final_exponentiation = final_exponentiate(
+            pairing(
+                signature_point,
+                G1,
+                final_exponentiate=False,
+            ) * pairing(
+                hash_to_G2(message, DST),
+                neg(pubkey_to_G1(PK)),
+                final_exponentiate=False,
+            )
+        )
+        return final_exponentiation == FQ12.one()
+    except (ValidationError, ValueError, AssertionError):
+        return False
 
 
 def Aggregate(*signatures: BLSSignature) -> BLSSignature:
-    pass
+    accumulator = Z2  # Seed with the point at infinity
+    for signature in signatures:
+        signature_point = signature_to_G2(signature)
+        accumulator = add(accumulator, signature_point)
+    return G2_to_signature(accumulator)
 
 
-def CoreAggregateVerify(*args) -> bool:
-    pass
+def AggregatePKs(*PKs: BLSPubkey) -> BLSPubkey:
+    accumulator = Z1  # Seed with the point at infinity
+    for pk in PKs:
+        pubkey_point = pubkey_to_G1(pk)
+        accumulator = add(accumulator, pubkey_point)
+    return G1_to_pubkey(accumulator)
+
+
+def CoreAggregateVerify(PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes],
+                        signature: BLSSignature,
+                        DST: bytes) -> bool:
+    try:
+        signature_point = signature_to_G2(signature)
+        pk_aggregate = AggregatePKs(*PKs)
+        message_aggregate = Z2
+        for message in messages:
+            message_point = hash_to_G2(message, DST)
+            message_aggregate = add(message_aggregate, message_point)
+
+        final_exponentiation = final_exponentiate(
+            pairing(
+                signature_point,
+                G1,
+                final_exponentiate=False,
+            ) * pairing(
+                message_aggregate,
+                neg(pubkey_to_G1(pk_aggregate)),
+                final_exponentiate=False,
+            )
+        )
+        return final_exponentiation == FQ12.one()
+    except (ValidationError, ValueError, AssertionError):
+        return False
