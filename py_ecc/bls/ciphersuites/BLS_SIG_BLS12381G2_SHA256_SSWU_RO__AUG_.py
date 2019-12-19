@@ -9,7 +9,6 @@ from eth_typing import (
 
 from py_ecc.bls.g2_core import (
     Aggregate,
-    AggregatePKs,
     CoreAggregateVerify,
     CoreSign,
     CoreVerify,
