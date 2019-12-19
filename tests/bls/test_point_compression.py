@@ -1,32 +1,19 @@
-from eth_utils import (
-    big_endian_to_int,
-)
 import pytest
 
-from py_ecc.bls import (
-    aggregate_pubkeys,
-    aggregate_signatures,
-    privtopub,
-    sign,
-    verify,
-    aggregate_verify,
-)
-from py_ecc.bls.utils import (
+from py_ecc.bls.point_compression import (
     compress_G1,
     compress_G2,
     decompress_G1,
     decompress_G2,
-    hash_to_G2,
-    signature_to_G2,
+)
+from py_ecc.fields import (
+    optimized_bls12_381_FQ as FQ,
+    optimized_bls12_381_FQ2 as FQ2,
 )
 from py_ecc.bls.constants import (
     POW_2_381,
     POW_2_382,
     POW_2_383,
-)
-from py_ecc.fields import (
-    optimized_bls12_381_FQ as FQ,
-    optimized_bls12_381_FQ2 as FQ2,
 )
 from py_ecc.optimized_bls12_381 import (
     G1,
@@ -34,24 +21,11 @@ from py_ecc.optimized_bls12_381 import (
     Z1,
     Z2,
     b,
-    b2,
     is_on_curve,
-    multiply,
     normalize,
+    multiply,
     field_modulus as q,
 )
-
-
-def test_hash_to_G2():
-    message_hash = b'\x12' * 32
-
-    result_1 = hash_to_G2(message_hash)
-    assert is_on_curve(result_1, b2)
-
-
-def test_decompress_G2_with_no_modular_square_root_found():
-    with pytest.raises(ValueError, match="Failed to find a modular squareroot"):
-        signature_to_G2(b'\x11' * 96)
 
 
 @pytest.mark.parametrize(
@@ -132,80 +106,3 @@ def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
     else:
         with pytest.raises(ValueError):
             compress_G2(pt)
-
-
-@pytest.mark.parametrize(
-    'privkey',
-    [
-        (1),
-        (5),
-        (124),
-        (735),
-        (127409812145),
-        (90768492698215092512159),
-        (0),
-    ]
-)
-def test_bls_core(privkey):
-    p1 = multiply(G1, privkey)
-    p2 = multiply(G2, privkey)
-    msg = str(privkey).encode('utf-8')
-    msghash = hash_to_G2(msg)
-
-    assert normalize(decompress_G1(compress_G1(p1))) == normalize(p1)
-    assert normalize(decompress_G2(compress_G2(p2))) == normalize(p2)
-    assert normalize(decompress_G2(compress_G2(msghash))) == normalize(msghash)
-    sig = sign(privkey, msg)
-    pub = privtopub(privkey)
-    assert verify(pub, msg, sig)
-
-
-@pytest.mark.parametrize(
-    'msg, privkeys',
-    [
-        (b'\x12' * 32, [1, 5, 124, 735, 127409812145, 90768492698215092512159, 0]),
-        (b'\x34' * 32, [42, 666, 1274099945, 4389392949595]),
-    ]
-)
-def test_signature_aggregation(msg, privkeys):
-    sigs = [sign(k, msg) for k in privkeys]
-    pubs = [privtopub(k) for k in privkeys]
-    aggsig = aggregate_signatures(sigs)
-    aggpub = aggregate_pubkeys(pubs)
-    assert verify(aggpub, msg, aggsig)
-
-
-@pytest.mark.parametrize(
-    'msg_1, msg_2',
-    [
-        (b'\x12' * 32, b'\x34' * 32)
-    ]
-)
-@pytest.mark.parametrize(
-    'privkeys_1, privkeys_2',
-    [
-        (tuple(range(10)), tuple(range(10))),
-        ((0, 1, 2, 3), (4, 5, 6, 7)),
-        ((0, 1, 2, 3), (2, 3, 4, 5)),
-    ]
-)
-def test_multi_aggregation(msg_1, msg_2, privkeys_1, privkeys_2):
-    sigs_1 = [sign(k, msg_1) for k in privkeys_1]
-    pubs_1 = [privtopub(k) for k in privkeys_1]
-    aggsig_1 = aggregate_signatures(sigs_1)
-    aggpub_1 = aggregate_pubkeys(pubs_1)
-
-    sigs_2 = [sign(k, msg_2) for k in privkeys_2]
-    pubs_2 = [privtopub(k) for k in privkeys_2]
-    aggsig_2 = aggregate_signatures(sigs_2)
-    aggpub_2 = aggregate_pubkeys(pubs_2)
-
-    messages = [msg_1, msg_2]
-    pubs = [aggpub_1, aggpub_2]
-    aggsig = aggregate_signatures([aggsig_1, aggsig_2])
-
-    assert aggregate_verify(
-        pks=pubs,
-        messages=messages,
-        signature=aggsig,
-    )
