@@ -17,7 +17,8 @@ from py_ecc.bls.g2_core import (
     PrivToPub,
 )
 
-DST = b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_'
+DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_'
+ID = 'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_'
 
 
 def Sign(SK: int, message: bytes) -> BLSSignature:

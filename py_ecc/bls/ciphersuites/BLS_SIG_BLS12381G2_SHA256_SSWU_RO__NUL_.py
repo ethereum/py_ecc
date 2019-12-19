@@ -17,19 +17,20 @@ from py_ecc.bls.g2_core import (
     PrivToPub,
 )
 
-DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_AUG_'
+DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_'
+ID = 'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_'
 
 
 def Sign(SK: int, message: bytes) -> BLSSignature:
-    PK = PrivToPub(SK)
-    return CoreSign(SK, PK + message, DST)
+    return CoreSign(SK, message, DST)
 
 
 def Verify(PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
-    return CoreVerify(PK, PK + message, signature, DST)
+    return CoreVerify(PK, message, signature, DST)
 
 
 def AggregateVerify(pairs: Iterable[Tuple[BLSPubkey, bytes]], signature: BLSSignature) -> bool:
-    PKs, _ = zip(*pairs)  # Unzip PKs and messages
-    messages = list([pk + msg for pk, msg in pairs])
-    return CoreAggregateVerify(zip(PKs, messages), signature, DST)
+    messages, _ = zip(*pairs)
+    if len(messages) != len(set(messages)):  # Messages are not unique
+        return False
+    return CoreAggregateVerify(pairs, signature, DST)
