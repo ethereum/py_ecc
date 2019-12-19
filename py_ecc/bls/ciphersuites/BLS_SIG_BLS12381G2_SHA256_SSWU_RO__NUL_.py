@@ -1,5 +1,5 @@
 from typing import (
-    Sequence,
+    Iterable,
     Tuple,
 )
 from eth_typing import (
@@ -29,7 +29,8 @@ def Verify(PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
     return CoreVerify(PK, message, signature, DST)
 
 
-def AggregateVerify(pairs: Sequence[Tuple[BLSPubkey, bytes]], signature: BLSSignature) -> bool:
+def AggregateVerify(pairs: Iterable[Tuple[BLSPubkey, bytes]], signature: BLSSignature) -> bool:
+    pairs = list(pairs)
     _, messages = zip(*pairs)
     if len(messages) != len(set(messages)):  # Messages are not unique
         return False

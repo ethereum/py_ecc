@@ -20,4 +20,4 @@ def test_aggregate_verify(SKs, messages, success):
     messages = [bytes(msg) for msg in messages]
     signatures = [Sign(SK, msg) for SK, msg in zip(SKs, messages)]
     aggregate_signature = Aggregate(signatures)
-    assert AggregateVerify(list(zip(PKs, messages)), aggregate_signature) == success
+    assert AggregateVerify(zip(PKs, messages), aggregate_signature) == success

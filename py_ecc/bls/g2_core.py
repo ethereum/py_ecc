@@ -1,6 +1,5 @@
 from typing import (
     Iterable,
-    Sequence,
     Tuple,
 )
 from math import (
@@ -103,7 +102,7 @@ def AggregatePKs(PKs: Iterable[BLSPubkey]) -> BLSPubkey:
     return G1_to_pubkey(accumulator)
 
 
-def CoreAggregateVerify(pairs: Sequence[Tuple[BLSPubkey, bytes]],
+def CoreAggregateVerify(pairs: Iterable[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature, DST: bytes) -> bool:
     try:
         signature_point = signature_to_G2(signature)
