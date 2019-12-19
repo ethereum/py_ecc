@@ -1,5 +1,5 @@
 from typing import (
-    Union,
+    Iterable,
     Tuple,
 )
 from eth_typing import (
@@ -29,8 +29,7 @@ def Verify(PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
     return CoreVerify(PK, PK + message, signature, DST)
 
 
-def AggregateVerify(*args: Union[Tuple[BLSSignature, bytes], BLSSignature]) -> bool:
-    signature = args[-1]
-    pks, _ = list(zip(*args[:-1][0]))  # Unzip PKs and messages
-    messages = list([pk + msg for pk, msg in args[:-1]]) 
-    return CoreAggregateVerify(pks, messages, signature, DST)
+def AggregateVerify(pairs: Iterable[Tuple[BLSPubkey, bytes]], signature: BLSSignature) -> bool:
+    PKs, _ = zip(*pairs)  # Unzip PKs and messages
+    messages = list([pk + msg for pk, msg in pairs])
+    return CoreAggregateVerify(zip(PKs, messages), signature, DST)

@@ -1,6 +1,6 @@
 from typing import (
+    Iterable,
     Tuple,
-    Sequence,
 )
 from math import (
     ceil,
@@ -50,7 +50,7 @@ def KeyGen(IKM: bytes) -> Tuple[BLSPubkey, int]:
     l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
     okm = hkdf_expand(prk, b'', l)
     x = big_endian_to_int(okm) % curve_order
-    return (priv_to_pub(x), x)
+    return (PrivToPub(x), x)
 
 
 def KeyValidate(PK: BLSPubkey) -> bool:
@@ -86,7 +86,7 @@ def CoreVerify(PK: BLSPubkey, message: bytes, signature: BLSSignature, DST: byte
         return False
 
 
-def Aggregate(*signatures: BLSSignature) -> BLSSignature:
+def Aggregate(signatures: Iterable[BLSSignature]) -> BLSSignature:
     accumulator = Z2  # Seed with the point at infinity
     for signature in signatures:
         signature_point = signature_to_G2(signature)
@@ -94,7 +94,7 @@ def Aggregate(*signatures: BLSSignature) -> BLSSignature:
     return G2_to_signature(accumulator)
 
 
-def AggregatePKs(*PKs: BLSPubkey) -> BLSPubkey:
+def AggregatePKs(PKs: Iterable[BLSPubkey]) -> BLSPubkey:
     accumulator = Z1  # Seed with the point at infinity
     for pk in PKs:
         pubkey_point = pubkey_to_G1(pk)
@@ -102,13 +102,12 @@ def AggregatePKs(*PKs: BLSPubkey) -> BLSPubkey:
     return G1_to_pubkey(accumulator)
 
 
-def CoreAggregateVerify(PKs: Sequence[BLSPubkey],
-                        messages: Sequence[bytes],
-                        signature: BLSSignature,
-                        DST: bytes) -> bool:
+def CoreAggregateVerify(pairs: Iterable[Tuple[BLSPubkey, bytes]],
+                        signature: BLSSignature, DST: bytes) -> bool:
+    PKs, messages = list(zip(*pairs))  # Unzip PKs and messages
     try:
         signature_point = signature_to_G2(signature)
-        pk_aggregate = AggregatePKs(*PKs)
+        pk_aggregate = AggregatePKs(PKs)
         message_aggregate = Z2
         for message in messages:
             message_point = hash_to_G2(message, DST)
