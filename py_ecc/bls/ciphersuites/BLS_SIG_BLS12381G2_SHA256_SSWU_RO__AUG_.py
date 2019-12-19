@@ -31,6 +31,5 @@ def Verify(PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
 
 
 def AggregateVerify(pairs: Iterable[Tuple[BLSPubkey, bytes]], signature: BLSSignature) -> bool:
-    PKs, _ = zip(*pairs)  # Unzip PKs and messages
-    messages = list([pk + msg for pk, msg in pairs])
-    return CoreAggregateVerify(zip(PKs, messages), signature, DST)
+    pairs = [(pk, pk + msg) for pk, msg in pairs]
+    return CoreAggregateVerify(pairs, signature, DST)

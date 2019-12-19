@@ -13,7 +13,7 @@ from py_ecc.optimized_bls12_381 import (
     curve_order,
 )
 
-from .utils import (
+from .point_compression import (
     compress_G1,
     decompress_G1,
     compress_G2,

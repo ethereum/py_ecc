@@ -3,8 +3,6 @@ import hashlib
 import hmac
 from typing import Union
 
-from .constants import HASH_LENGTH_BYTES
-
 
 def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) -> bytes:
     """
@@ -21,7 +19,7 @@ def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], len
 
     https://tools.ietf.org/html/rfc5869
     """
-    n = math.ceil(length / HASH_LENGTH_BYTES)
+    n = math.ceil(length / 32)
 
     # okm = T(1) || T(2) || T(3) || ... || T(n)
     okm = bytearray(0)
