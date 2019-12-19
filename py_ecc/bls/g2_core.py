@@ -1,5 +1,6 @@
 from typing import (
     Iterable,
+    Sequence,
     Tuple,
 )
 from math import (
@@ -102,28 +103,17 @@ def AggregatePKs(PKs: Iterable[BLSPubkey]) -> BLSPubkey:
     return G1_to_pubkey(accumulator)
 
 
-def CoreAggregateVerify(pairs: Iterable[Tuple[BLSPubkey, bytes]],
+def CoreAggregateVerify(pairs: Sequence[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature, DST: bytes) -> bool:
-    PKs, messages = list(zip(*pairs))  # Unzip PKs and messages
     try:
         signature_point = signature_to_G2(signature)
-        pk_aggregate = AggregatePKs(PKs)
-        message_aggregate = Z2
-        for message in messages:
+        accumulator = FQ12([1] + [0] * 11)
+        for pk, message in pairs:
+            pubkey_point = pubkey_to_G1(pk)
             message_point = hash_to_G2(message, DST)
-            message_aggregate = add(message_aggregate, message_point)
+            accumulator *= pairing(message_point, pubkey_point, final_exponentiate=False)
+        accumulator *= pairing(signature_point, neg(G1), final_exponentiate=False)
+        return final_exponentiate(accumulator) == FQ12.one()
 
-        final_exponentiation = final_exponentiate(
-            pairing(
-                signature_point,
-                G1,
-                final_exponentiate=False,
-            ) * pairing(
-                message_aggregate,
-                neg(pubkey_to_G1(pk_aggregate)),
-                final_exponentiate=False,
-            )
-        )
-        return final_exponentiation == FQ12.one()
     except (ValidationError, ValueError, AssertionError):
         return False
