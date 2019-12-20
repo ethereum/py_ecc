@@ -6,10 +6,7 @@ from math import (
     ceil,
     log2,
 )
-from abc import (
-    ABC,
-    abstractproperty,
-)
+import abc
 from eth_typing import (
     BLSPubkey,
     BLSSignature,
@@ -45,10 +42,8 @@ from .g2_primatives import (
 )
 
 
-class BaseG2Ciphersuite(ABC):
-    @abstractproperty
-    def DST(self):
-        pass
+class BaseG2Ciphersuite(abc.ABC):
+    DST = b''
 
     @staticmethod
     def PrivToPub(privkey: int) -> BLSPubkey:
@@ -119,13 +114,16 @@ class BaseG2Ciphersuite(ABC):
         except (ValidationError, ValueError, AssertionError):
             return False
 
-    def Sign(self, SK: int, message: bytes) -> BLSSignature:
-        return self._CoreSign(SK, message, self.DST)
+    @classmethod
+    def Sign(cls, SK: int, message: bytes) -> BLSSignature:
+        return cls._CoreSign(SK, message, cls.DST)
 
-    def Verify(self, PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
-        return self._CoreVerify(PK, message, signature, self.DST)
+    @classmethod
+    def Verify(cls, PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
+        return cls._CoreVerify(PK, message, signature, cls.DST)
 
-    def AggregateVerify(self, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    @abc.abstractclassmethod
+    def AggregateVerify(cls, pairs: Iterable[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
         pass
 
@@ -133,45 +131,52 @@ class BaseG2Ciphersuite(ABC):
 class G2Basic(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_'
 
-    def AggregateVerify(self, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    @classmethod
+    def AggregateVerify(cls, pairs: Iterable[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
         pairs = list(pairs)
         _, messages = zip(*pairs)
         if len(messages) != len(set(messages)):  # Messages are not unique
             return False
-        return self._CoreAggregateVerify(pairs, signature, self.DST)
+        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
 
 
 class G2MessageAugmentation(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_AUG_'
 
-    def Sign(self, SK: int, message: bytes) -> BLSSignature:
-        PK = self.PrivToPub(SK)
-        return self._CoreSign(SK, PK + message, self.DST)
+    @classmethod
+    def Sign(cls, SK: int, message: bytes) -> BLSSignature:
+        PK = cls.PrivToPub(SK)
+        return cls._CoreSign(SK, PK + message, cls.DST)
 
-    def Verify(self, PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
-        return self._CoreVerify(PK, PK + message, signature, self.DST)
+    @classmethod
+    def Verify(cls, PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
+        return cls._CoreVerify(PK, PK + message, signature, cls.DST)
 
-    def AggregateVerify(self, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    @classmethod
+    def AggregateVerify(cls, pairs: Iterable[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
         pairs = list(pairs)
         pairs = [(pk, pk + msg) for pk, msg in pairs]
-        return self._CoreAggregateVerify(pairs, signature, self.DST)
+        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
 
 
 class G2PoP(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_'
 
-    def AggregateVerify(self, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    @classmethod
+    def AggregateVerify(cls, pairs: Iterable[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
-        return self._CoreAggregateVerify(pairs, signature, self.DST)
+        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
 
-    def PopProve(self, SK: int) -> BLSSignature:
-        pubkey = self.PrivToPub(SK)
-        return self._CoreSign(SK, pubkey, b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_')
+    @classmethod
+    def PopProve(cls, SK: int) -> BLSSignature:
+        pubkey = cls.PrivToPub(SK)
+        return cls._CoreSign(SK, pubkey, b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_')
 
-    def PopVerify(self, PK: BLSPubkey, proof: BLSSignature) -> bool:
-        return self._CoreVerify(PK, PK, proof, b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_')
+    @classmethod
+    def PopVerify(cls, PK: BLSPubkey, proof: BLSSignature) -> bool:
+        return cls._CoreVerify(PK, PK, proof, b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_')
 
     @staticmethod
     def _AggregatePKs(PKs: Iterable[BLSPubkey]) -> BLSPubkey:
@@ -181,7 +186,8 @@ class G2PoP(BaseG2Ciphersuite):
             accumulator = add(accumulator, pubkey_point)
         return G1_to_pubkey(accumulator)
 
-    def FastAggregateVerify(self, PKs: Iterable[BLSPubkey],
+    @classmethod
+    def FastAggregateVerify(cls, PKs: Iterable[BLSPubkey],
                             message: bytes, signature: BLSSignature) -> bool:
-        aggregate_pubkey = self._AggregatePKs(PKs)
-        return self.Verify(aggregate_pubkey, message, signature)
+        aggregate_pubkey = cls._AggregatePKs(PKs)
+        return cls.Verify(aggregate_pubkey, message, signature)

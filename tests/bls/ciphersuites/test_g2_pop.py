@@ -11,7 +11,6 @@ from py_ecc.bls.g2_primatives import (
     G2_to_signature,
 )
 
-bls = G2PoP()
 
 @pytest.mark.parametrize(
     'sk',
@@ -22,9 +21,9 @@ bls = G2PoP()
     ]
 )
 def test_pop(sk):
-    pk = bls.PrivToPub(sk)
-    proof = bls.PopProve(sk)
-    assert bls.PopVerify(pk, proof)
+    pk = G2PoP.PrivToPub(sk)
+    proof = G2PoP.PopProve(sk)
+    assert G2PoP.PopVerify(pk, proof)
 
 
 @pytest.mark.parametrize(
@@ -37,7 +36,7 @@ def test_pop(sk):
 def test_aggregate_pks(signature_points, result_point):
     signatures = [G1_to_pubkey(pt) for pt in signature_points]
     result_signature = G1_to_pubkey(result_point)
-    assert bls._AggregatePKs(signatures) == result_signature
+    assert G2PoP._AggregatePKs(signatures) == result_signature
 
 
 @pytest.mark.parametrize(
@@ -47,7 +46,7 @@ def test_aggregate_pks(signature_points, result_point):
     ]
 )
 def test_fast_aggregate_verify(SKs, message):
-    PKs = [bls.PrivToPub(sk) for sk in SKs]
-    signatures = [bls.Sign(sk, message) for sk in SKs]
-    aggregate_signature = bls.Aggregate(signatures)
-    assert bls.FastAggregateVerify(PKs, message, aggregate_signature)
+    PKs = [G2PoP.PrivToPub(sk) for sk in SKs]
+    signatures = [G2PoP.Sign(sk, message) for sk in SKs]
+    aggregate_signature = G2PoP.Aggregate(signatures)
+    assert G2PoP.FastAggregateVerify(PKs, message, aggregate_signature)

@@ -11,9 +11,6 @@ from py_ecc.bls.g2_primatives import (
 )
 from py_ecc.bls import G2Basic
 
-bls = G2Basic()
-DST = bls.DST
-
 # Tests taken from EIP 2333 https://eips.ethereum.org/EIPS/eip-2333
 @pytest.mark.parametrize(
     'ikm,result_sk',
@@ -25,19 +22,19 @@ DST = bls.DST
     ]
 )
 def test_key_gen(ikm, result_sk):
-    _, sk = bls.KeyGen(ikm)
+    _, sk = G2Basic.KeyGen(ikm)
     assert sk == result_sk
 
 
 @pytest.mark.parametrize(
     'pubkey,success',
     [
-        (bls.PrivToPub(42), True),
+        (G2Basic.PrivToPub(42), True),
         (b'11' * 48, False),
     ]
 )
 def test_key_validate(pubkey, success):
-    assert bls.KeyValidate(pubkey) == success
+    assert G2Basic.KeyValidate(pubkey) == success
 
 
 @pytest.mark.parametrize(
@@ -54,9 +51,9 @@ def test_key_validate(pubkey, success):
 )
 def test_sign_verify(privkey):
     msg = str(privkey).encode('utf-8')
-    pub = bls.PrivToPub(privkey)
-    sig = bls._CoreSign(privkey, msg, DST)
-    assert bls._CoreVerify(pub, msg, sig, DST)
+    pub = G2Basic.PrivToPub(privkey)
+    sig = G2Basic._CoreSign(privkey, msg, G2Basic.DST)
+    assert G2Basic._CoreVerify(pub, msg, sig, G2Basic.DST)
 
 
 @pytest.mark.parametrize(
@@ -69,7 +66,7 @@ def test_sign_verify(privkey):
 def test_aggregate(signature_points, result_point):
     signatures = [G2_to_signature(pt) for pt in signature_points]
     result_signature = G2_to_signature(result_point)
-    assert bls.Aggregate(signatures) == result_signature
+    assert G2Basic.Aggregate(signatures) == result_signature
 
 
 
@@ -80,8 +77,8 @@ def test_aggregate(signature_points, result_point):
     ]
 )
 def test_core_aggregate_verify(SKs, messages):
-    PKs = [bls.PrivToPub(sk) for sk in SKs]
+    PKs = [G2Basic.PrivToPub(sk) for sk in SKs]
     messages = [bytes(msg) for msg in messages]
-    signatures = [bls._CoreSign(sk, msg, DST) for sk, msg in zip(SKs, messages)]
-    aggregate_signature = bls.Aggregate(signatures)
-    assert bls._CoreAggregateVerify(zip(PKs, messages), aggregate_signature, DST)
+    signatures = [G2Basic._CoreSign(sk, msg, G2Basic.DST) for sk, msg in zip(SKs, messages)]
+    aggregate_signature = G2Basic.Aggregate(signatures)
+    assert G2Basic._CoreAggregateVerify(zip(PKs, messages), aggregate_signature, G2Basic.DST)

@@ -1,8 +1,5 @@
 import pytest
-
 from py_ecc.bls import G2Basic
-
-bls = G2Basic()
 
 @pytest.mark.parametrize(
     'SKs,messages,success',
@@ -12,8 +9,8 @@ bls = G2Basic()
     ]
 )
 def test_aggregate_verify(SKs, messages, success):
-    PKs = [bls.PrivToPub(SK) for SK in SKs]
+    PKs = [G2Basic.PrivToPub(SK) for SK in SKs]
     messages = [bytes(msg) for msg in messages]
-    signatures = [bls.Sign(SK, msg) for SK, msg in zip(SKs, messages)]
-    aggregate_signature = bls.Aggregate(signatures)
-    assert bls.AggregateVerify(zip(PKs, messages), aggregate_signature) == success
+    signatures = [G2Basic.Sign(SK, msg) for SK, msg in zip(SKs, messages)]
+    aggregate_signature = G2Basic.Aggregate(signatures)
+    assert G2Basic.AggregateVerify(zip(PKs, messages), aggregate_signature) == success
