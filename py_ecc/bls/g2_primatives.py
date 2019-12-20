@@ -12,6 +12,7 @@ from py_ecc.optimized_bls12_381 import (
     multiply,
     curve_order,
 )
+from py_ecc.typing import Optimized_Point3D
 
 from .point_compression import (
     compress_G1,
@@ -27,7 +28,7 @@ from .typing import (
 )
 
 
-def subgroup_check(P) -> bool:
+def subgroup_check(P: Optimized_Point3D) -> bool:
     return is_inf(multiply(P, curve_order))
 
 
