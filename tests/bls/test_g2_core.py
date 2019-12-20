@@ -9,18 +9,10 @@ from py_ecc.bls.g2_primatives import (
     G1_to_pubkey,
     G2_to_signature,
 )
-from py_ecc.bls.g2_core import (
-    PrivToPub,
-    KeyGen,
-    KeyValidate,
-    CoreSign,
-    CoreVerify,
-    Aggregate,
-    AggregatePKs,
-    CoreAggregateVerify,
-)
-from py_ecc.bls.ciphersuites.BLS_SIG_BLS12381G2_SHA256_SSWU_RO__AUG_ import DST
+from py_ecc.bls import G2Basic
 
+bls = G2Basic()
+DST = bls.DST
 
 # Tests taken from EIP 2333 https://eips.ethereum.org/EIPS/eip-2333
 @pytest.mark.parametrize(
@@ -33,19 +25,19 @@ from py_ecc.bls.ciphersuites.BLS_SIG_BLS12381G2_SHA256_SSWU_RO__AUG_ import DST
     ]
 )
 def test_key_gen(ikm, result_sk):
-    _, sk = KeyGen(ikm)
+    _, sk = bls.KeyGen(ikm)
     assert sk == result_sk
 
 
 @pytest.mark.parametrize(
     'pubkey,success',
     [
-        (PrivToPub(42), True),
+        (bls.PrivToPub(42), True),
         (b'11' * 48, False),
     ]
 )
 def test_key_validate(pubkey, success):
-    assert KeyValidate(pubkey) == success
+    assert bls.KeyValidate(pubkey) == success
 
 
 @pytest.mark.parametrize(
@@ -62,9 +54,9 @@ def test_key_validate(pubkey, success):
 )
 def test_sign_verify(privkey):
     msg = str(privkey).encode('utf-8')
-    pub = PrivToPub(privkey)
-    sig = CoreSign(privkey, msg, DST)
-    assert CoreVerify(pub, msg, sig, DST)
+    pub = bls.PrivToPub(privkey)
+    sig = bls._CoreSign(privkey, msg, DST)
+    assert bls._CoreVerify(pub, msg, sig, DST)
 
 
 @pytest.mark.parametrize(
@@ -77,20 +69,7 @@ def test_sign_verify(privkey):
 def test_aggregate(signature_points, result_point):
     signatures = [G2_to_signature(pt) for pt in signature_points]
     result_signature = G2_to_signature(result_point)
-    assert Aggregate(signatures) == result_signature
-
-
-@pytest.mark.parametrize(
-    'signature_points,result_point',
-    [
-        ([multiply(G1, 2), multiply(G1, 3)], multiply(G1, 2 + 3)),
-        ([multiply(G1, 42), multiply(G1, 69)], multiply(G1, 42 + 69)),
-    ]
-)
-def test_aggregate_pks(signature_points, result_point):
-    signatures = [G1_to_pubkey(pt) for pt in signature_points]
-    result_signature = G1_to_pubkey(result_point)
-    assert AggregatePKs(signatures) == result_signature
+    assert bls.Aggregate(signatures) == result_signature
 
 
 
@@ -101,8 +80,8 @@ def test_aggregate_pks(signature_points, result_point):
     ]
 )
 def test_core_aggregate_verify(SKs, messages):
-    PKs = [PrivToPub(sk) for sk in SKs]
+    PKs = [bls.PrivToPub(sk) for sk in SKs]
     messages = [bytes(msg) for msg in messages]
-    signatures = [CoreSign(sk, msg, DST) for sk, msg in zip(SKs, messages)]
-    aggregate_signature = Aggregate(signatures)
-    assert CoreAggregateVerify(zip(PKs, messages), aggregate_signature, DST)
+    signatures = [bls._CoreSign(sk, msg, DST) for sk, msg in zip(SKs, messages)]
+    aggregate_signature = bls.Aggregate(signatures)
+    assert bls._CoreAggregateVerify(zip(PKs, messages), aggregate_signature, DST)

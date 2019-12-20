@@ -8,8 +8,6 @@ from math import (
 )
 from abc import (
     ABC,
-    abstractmethod,
-    abstractstaticmethod,
     abstractproperty,
 )
 from eth_typing import (
@@ -62,7 +60,7 @@ class BaseG2Ciphersuite(ABC):
         l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
         okm = hkdf_expand(prk, b'', l)
         x = big_endian_to_int(okm) % curve_order
-        return (G2Core.PrivToPub(x), x)
+        return (BaseG2Ciphersuite.PrivToPub(x), x)
 
     @staticmethod
     def KeyValidate(PK: BLSPubkey) -> bool:
@@ -127,7 +125,8 @@ class BaseG2Ciphersuite(ABC):
     def Verify(self, PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
         return self._CoreVerify(PK, message, signature, self.DST)
 
-    def AggregateVerify(self, pairs: Iterable[Tuple[BLSPubkey, bytes]], signature: BLSSignature) -> bool:
+    def AggregateVerify(self, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+                        signature: BLSSignature) -> bool:
         pass
 
 
@@ -146,6 +145,13 @@ class G2Basic(BaseG2Ciphersuite):
 class G2MessageAugmentation(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_AUG_'
 
+    def Sign(self, SK: int, message: bytes) -> BLSSignature:
+        PK = self.PrivToPub(SK)
+        return self._CoreSign(SK, PK + message, self.DST)
+
+    def Verify(self, PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
+        return self._CoreVerify(PK, PK + message, signature, self.DST)
+
     def AggregateVerify(self, pairs: Iterable[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
         pairs = list(pairs)
@@ -153,7 +159,7 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
         return self._CoreAggregateVerify(pairs, signature, self.DST)
 
 
-class G2Pop(BaseG2Ciphersuite):
+class G2PoP(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_'
 
     def AggregateVerify(self, pairs: Iterable[Tuple[BLSPubkey, bytes]],
@@ -175,6 +181,7 @@ class G2Pop(BaseG2Ciphersuite):
             accumulator = add(accumulator, pubkey_point)
         return G1_to_pubkey(accumulator)
 
-    def FastAggregateVerify(self, PKs: Iterable[BLSPubkey], message: bytes, signature: BLSSignature) -> bool:
+    def FastAggregateVerify(self, PKs: Iterable[BLSPubkey],
+                            message: bytes, signature: BLSSignature) -> bool:
         aggregate_pubkey = self._AggregatePKs(PKs)
         return self.Verify(aggregate_pubkey, message, signature)

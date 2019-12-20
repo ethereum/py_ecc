@@ -1,12 +1,8 @@
 import pytest
 
-from py_ecc.bls.ciphersuites.BLS_SIG_BLS12381G2_SHA256_SSWU_RO__NUL_ import (
-    PrivToPub,
-    Sign,
-    Aggregate,
-    AggregateVerify,
-)
+from py_ecc.bls import G2Basic
 
+bls = G2Basic()
 
 @pytest.mark.parametrize(
     'SKs,messages,success',
@@ -16,8 +12,8 @@ from py_ecc.bls.ciphersuites.BLS_SIG_BLS12381G2_SHA256_SSWU_RO__NUL_ import (
     ]
 )
 def test_aggregate_verify(SKs, messages, success):
-    PKs = [PrivToPub(SK) for SK in SKs]
+    PKs = [bls.PrivToPub(SK) for SK in SKs]
     messages = [bytes(msg) for msg in messages]
-    signatures = [Sign(SK, msg) for SK, msg in zip(SKs, messages)]
-    aggregate_signature = Aggregate(signatures)
-    assert AggregateVerify(zip(PKs, messages), aggregate_signature) == success
+    signatures = [bls.Sign(SK, msg) for SK, msg in zip(SKs, messages)]
+    aggregate_signature = bls.Aggregate(signatures)
+    assert bls.AggregateVerify(zip(PKs, messages), aggregate_signature) == success
