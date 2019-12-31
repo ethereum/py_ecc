@@ -1,5 +1,5 @@
 from typing import (
-    Iterable,
+    Sequence,
     Tuple,
 )
 from math import (
@@ -91,7 +91,7 @@ class BaseG2Ciphersuite(abc.ABC):
             return False
 
     @staticmethod
-    def Aggregate(signatures: Iterable[BLSSignature]) -> BLSSignature:
+    def Aggregate(signatures: Sequence[BLSSignature]) -> BLSSignature:
         accumulator = Z2  # Seed with the point at infinity
         for signature in signatures:
             signature_point = signature_to_G2(signature)
@@ -99,11 +99,11 @@ class BaseG2Ciphersuite(abc.ABC):
         return G2_to_signature(accumulator)
 
     @staticmethod
-    def _CoreAggregateVerify(pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    def _CoreAggregateVerify(pairs: Sequence[Tuple[BLSPubkey, bytes]],
                              signature: BLSSignature, DST: bytes) -> bool:
         try:
             signature_point = signature_to_G2(signature)
-            accumulator = FQ12([1] + [0] * 11)
+            accumulator = FQ12.one()
             for pk, message in pairs:
                 pubkey_point = pubkey_to_G1(pk)
                 message_point = hash_to_G2(message, DST)
@@ -123,16 +123,16 @@ class BaseG2Ciphersuite(abc.ABC):
         return cls._CoreVerify(PK, message, signature, cls.DST)
 
     @abc.abstractclassmethod
-    def AggregateVerify(cls, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
-        pass
+        ...
 
 
 class G2Basic(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_'
 
     @classmethod
-    def AggregateVerify(cls, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
         pairs = list(pairs)
         _, messages = zip(*pairs)
@@ -154,32 +154,33 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
         return cls._CoreVerify(PK, PK + message, signature, cls.DST)
 
     @classmethod
-    def AggregateVerify(cls, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
         pairs = list(pairs)
         pairs = [(pk, pk + msg) for pk, msg in pairs]
         return cls._CoreAggregateVerify(pairs, signature, cls.DST)
 
 
-class G2PoP(BaseG2Ciphersuite):
+class G2ProofOfPossession(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_'
+    POP_TAG = b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_'
 
     @classmethod
-    def AggregateVerify(cls, pairs: Iterable[Tuple[BLSPubkey, bytes]],
+    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
                         signature: BLSSignature) -> bool:
         return cls._CoreAggregateVerify(pairs, signature, cls.DST)
 
     @classmethod
     def PopProve(cls, SK: int) -> BLSSignature:
         pubkey = cls.PrivToPub(SK)
-        return cls._CoreSign(SK, pubkey, b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_')
+        return cls._CoreSign(SK, pubkey, cls.POP_TAG)
 
     @classmethod
     def PopVerify(cls, PK: BLSPubkey, proof: BLSSignature) -> bool:
-        return cls._CoreVerify(PK, PK, proof, b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_')
+        return cls._CoreVerify(PK, PK, proof, cls.POP_TAG)
 
     @staticmethod
-    def _AggregatePKs(PKs: Iterable[BLSPubkey]) -> BLSPubkey:
+    def _AggregatePKs(PKs: Sequence[BLSPubkey]) -> BLSPubkey:
         accumulator = Z1  # Seed with the point at infinity
         for pk in PKs:
             pubkey_point = pubkey_to_G1(pk)
@@ -187,7 +188,7 @@ class G2PoP(BaseG2Ciphersuite):
         return G1_to_pubkey(accumulator)
 
     @classmethod
-    def FastAggregateVerify(cls, PKs: Iterable[BLSPubkey],
+    def FastAggregateVerify(cls, PKs: Sequence[BLSPubkey],
                             message: bytes, signature: BLSSignature) -> bool:
         aggregate_pubkey = cls._AggregatePKs(PKs)
         return cls.Verify(aggregate_pubkey, message, signature)

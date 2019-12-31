@@ -1,6 +1,6 @@
 import pytest
 
-from py_ecc.bls import G2PoP
+from py_ecc.bls import G2ProofOfPossession
 from py_ecc.optimized_bls12_381 import (
     G1,
     G2,
@@ -21,9 +21,9 @@ from py_ecc.bls.g2_primatives import (
     ]
 )
 def test_pop(sk):
-    pk = G2PoP.PrivToPub(sk)
-    proof = G2PoP.PopProve(sk)
-    assert G2PoP.PopVerify(pk, proof)
+    pk = G2ProofOfPossession.PrivToPub(sk)
+    proof = G2ProofOfPossession.PopProve(sk)
+    assert G2ProofOfPossession.PopVerify(pk, proof)
 
 
 @pytest.mark.parametrize(
@@ -36,7 +36,7 @@ def test_pop(sk):
 def test_aggregate_pks(signature_points, result_point):
     signatures = [G1_to_pubkey(pt) for pt in signature_points]
     result_signature = G1_to_pubkey(result_point)
-    assert G2PoP._AggregatePKs(signatures) == result_signature
+    assert G2ProofOfPossession._AggregatePKs(signatures) == result_signature
 
 
 @pytest.mark.parametrize(
@@ -46,7 +46,7 @@ def test_aggregate_pks(signature_points, result_point):
     ]
 )
 def test_fast_aggregate_verify(SKs, message):
-    PKs = [G2PoP.PrivToPub(sk) for sk in SKs]
-    signatures = [G2PoP.Sign(sk, message) for sk in SKs]
-    aggregate_signature = G2PoP.Aggregate(signatures)
-    assert G2PoP.FastAggregateVerify(PKs, message, aggregate_signature)
+    PKs = [G2ProofOfPossession.PrivToPub(sk) for sk in SKs]
+    signatures = [G2ProofOfPossession.Sign(sk, message) for sk in SKs]
+    aggregate_signature = G2ProofOfPossession.Aggregate(signatures)
+    assert G2ProofOfPossession.FastAggregateVerify(PKs, message, aggregate_signature)
