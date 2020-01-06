@@ -1,11 +1,4 @@
-from eth_typing import (
-    BLSPubkey,
-    BLSSignature,
-    Hash32,
-)
-from eth_utils import (
-    big_endian_to_int,
-)
+from typing import Optional
 
 from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
@@ -19,25 +12,15 @@ from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
     is_inf,
     is_on_curve,
-    add,
     normalize,
-    optimized_swu_G2,
-    multiply_clear_cofactor_G2,
-    iso_map_G2,
 )
 
 from .constants import (
     POW_2_381,
     POW_2_382,
     POW_2_383,
-    FQ2_ORDER,
     EIGTH_ROOTS_OF_UNITY,
-    HASH_TO_G2_L,
-    DST,
-)
-from .hash import (
-    hkdf_expand,
-    hkdf_extract,
+    FQ2_ORDER,
 )
 from .typing import (
     G1Compressed,
@@ -45,89 +28,6 @@ from .typing import (
     G2Compressed,
     G2Uncompressed,
 )
-
-#
-# Helpers
-#
-
-
-def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
-    """
-    ``modular_squareroot_in_FQ2(x)`` returns the value ``y`` such that ``y**2 % q == x``,
-    and None if this is not possible. In cases where there are two solutions,
-    the value with higher imaginary component is favored;
-    if both solutions have equal imaginary component the value with higher real
-    component is favored.
-    """
-    candidate_squareroot = value ** ((FQ2_ORDER + 8) // 16)
-    check = candidate_squareroot ** 2 / value
-    if check in EIGTH_ROOTS_OF_UNITY[::2]:
-        x1 = candidate_squareroot / EIGTH_ROOTS_OF_UNITY[EIGTH_ROOTS_OF_UNITY.index(check) // 2]
-        x2 = -x1
-        x1_re, x1_im = x1.coeffs
-        x2_re, x2_im = x2.coeffs
-        return x1 if (x1_im > x2_im or (x1_im == x2_im and x1_re > x2_re)) else x2
-    return None
-
-
-def hash_to_G2(message_hash: Hash32) -> G2Uncompressed:
-    """
-    Convert a message to a point on G2 as defined here:
-    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-3
-
-    Contants and inputs follow the ciphersuite ``BLS12381G2-SHA256-SSWU-RO-`` defined here:
-    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-8.9.2
-    """
-    u0 = hash_to_base_FQ2(message_hash, 0)
-    u1 = hash_to_base_FQ2(message_hash, 1)
-    q0 = map_to_curve_G2(u0)
-    q1 = map_to_curve_G2(u1)
-    r = add(q0, q1)
-    p = clear_cofactor_G2(r)
-    return p
-
-
-def hash_to_base_FQ2(message_hash: Hash32, ctr: int) -> FQ2:
-    """
-    Hash To Base for FQ2
-
-    Convert a message to a point in the finite field as defined here:
-    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-5
-    """
-    m_prime = hkdf_extract(DST, message_hash + b'\x00')
-    info_pfx = b'H2C' + bytes([ctr])
-    e = []
-
-    #  for i in (1, ..., m), where m is the extension degree of FQ2
-    for i in range(1, 3):
-        info = info_pfx + bytes([i])
-        t = hkdf_expand(m_prime, info, HASH_TO_G2_L)
-        e.append(big_endian_to_int(t))
-
-    return FQ2(e)
-
-
-def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
-    """
-    Map To Curve for G2
-
-    First, convert FQ2 point to a point on the 3-Isogeny curve.
-    SWU Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-6.6.2
-
-    Second, map 3-Isogeny curve to BLS12-381-G2 curve.
-    3-Isogeny Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#appendix-C.3
-    """
-    (x, y, z) = optimized_swu_G2(u)
-    return iso_map_G2(x, y, z)
-
-
-def clear_cofactor_G2(p: G2Uncompressed) -> G2Uncompressed:
-    """
-    Clear Cofactor via Multiplication
-
-    Ensure a point falls in the correct sub group of the curve.
-    """
-    return multiply_clear_cofactor_G2(p)
 
 
 #
@@ -177,18 +77,26 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     return (FQ(x), FQ(y), FQ(1))
 
 
-def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
-    z = compress_G1(pt)
-    return BLSPubkey(z.to_bytes(48, "big"))
-
-
-def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
-    z = big_endian_to_int(pubkey)
-    return decompress_G1(G1Compressed(z))
-
 #
 # G2
 #
+def modular_squareroot_in_FQ2(value: FQ2) -> Optional[FQ2]:
+    """
+    ``modular_squareroot_in_FQ2(x)`` returns the value ``y`` such that ``y**2 % q == x``,
+    and None if this is not possible. In cases where there are two solutions,
+    the value with higher imaginary component is favored;
+    if both solutions have equal imaginary component the value with higher real
+    component is favored.
+    """
+    candidate_squareroot = value ** ((FQ2_ORDER + 8) // 16)
+    check = candidate_squareroot ** 2 / value
+    if check in EIGTH_ROOTS_OF_UNITY[::2]:
+        x1 = candidate_squareroot / EIGTH_ROOTS_OF_UNITY[EIGTH_ROOTS_OF_UNITY.index(check) // 2]
+        x2 = -x1
+        x1_re, x1_im = x1.coeffs
+        x2_re, x2_im = x2.coeffs
+        return x1 if (x1_im > x2_im or (x1_im == x2_im and x1_re > x2_re)) else x2
+    return None
 
 
 def compress_G2(pt: G2Uncompressed) -> G2Compressed:
@@ -254,17 +162,3 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
             "The given point is not on the twisted curve over FQ**2"
         )
     return (x, y, FQ2([1, 0]))
-
-
-def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:
-    z1, z2 = compress_G2(pt)
-    return BLSSignature(
-        z1.to_bytes(48, "big") + z2.to_bytes(48, "big")
-    )
-
-
-def signature_to_G2(signature: BLSSignature) -> G2Uncompressed:
-    p = G2Compressed(
-        (big_endian_to_int(signature[:48]), big_endian_to_int(signature[48:]))
-    )
-    return decompress_G2(p)

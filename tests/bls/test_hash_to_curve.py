@@ -7,22 +7,7 @@ from eth_utils import (
 )
 import pytest
 
-from py_ecc.bls import (
-    aggregate_pubkeys,
-    aggregate_signatures,
-    privtopub,
-    sign,
-    verify,
-    verify_multiple,
-)
-from py_ecc.bls.utils import (
-    compress_G1,
-    compress_G2,
-    decompress_G1,
-    decompress_G2,
-    hash_to_G2,
-    signature_to_G2,
-)
+from py_ecc.bls.hash_to_curve import hash_to_G2
 from py_ecc.bls.constants import (
     POW_2_381,
     POW_2_382,
@@ -45,6 +30,8 @@ from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
     iso_map_G2,
 )
+
+DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO_POP_' # TODO: Switch out test for valid DST
 
 
 @pytest.mark.parametrize(
@@ -99,7 +86,7 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
     ]
 )
 def test_hash_to_G2(msg, x, y):
-    point = hash_to_G2(msg)
+    point = hash_to_G2(msg, DST)
 
     assert is_on_curve(point, b2)
 
