@@ -21,52 +21,45 @@ pip install py_ecc
 ### Basic Usage
 
 ```python
-from py_ecc.bls.G2ProofOfPossession import (
-    PrivToPub
-    Sign,
-    Verify,
-    Aggregate,
-    FastAggregateVerify,
-    AggregateVerify,
-)
+from py_ecc.bls import G2ProofOfPossession as bls_pop
 
 private_key = 5566
-public_key = PrivToPub(private_key)
+public_key = bls_pop.PrivToPub(private_key)
 
 message = b'\xab' * 32  # The message to be signed
 
 # Signing
-signature = Sign(private_key, message)
+signature = bls_pop.Sign(private_key, message)
 
 # Verifying
-assert Verify(public_key, message, signature)
+assert bls_pop.Verify(public_key, message, signature)
 ```
 
 ### Aggregating Signatures
 
 ```python
 private_keys = [3, 14, 159]
-public_keys = [PrivToPub(key) for key in private_keys]
-signatures = [Sign(key, message) for key in private_keys]
+public_keys = [bls_pop.PrivToPub(key) for key in private_keys]
+signatures = [bls_pop.Sign(key, message) for key in private_keys]
 
 # Aggregating
-agg_sig = Aggregate(signatures)
+agg_sig = bls_pop.Aggregate(signatures)
 
 # Verifying signatures over the same message.
-# Note this is only safe if Proofs of Possesion have been verified for each of the public keys beforehand.
+# Note this is only safe if Proofs of Possession have been verified for each of the public keys beforehand.
 # See the BLS standards for why this is the case.
-assert FastAggregateVerify(public_keys, message, agg_sig)
+assert bls_pop.FastAggregateVerify(public_keys, message, agg_sig)
 ```
 
 ### Multiple Aggregation
 
 ```python
 messages = [b'\xaa' * 42, b'\xbb' * 32, b'\xcc' * 64]
-signatures = [Sign(key, message) for key, message in zip(private_keys, messages)]
-agg_sig = Aggregate(signatures)
+signatures = [bls_pop.Sign(key, message) for key, message in zip(private_keys, messages)]
+agg_sig = bls_pop.Aggregate(signatures)
 
 # Verify aggregate signature with different messages
-assert AggregateVerify(zip(public_keys, messages), agg_sig)
+assert bls_pop.AggregateVerify(zip(public_keys, messages), agg_sig)
 ```
 
 ## Developer Setup
