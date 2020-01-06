@@ -1,11 +1,4 @@
-from eth_typing import (
-    BLSPubkey,
-    BLSSignature,
-    Hash32,
-)
-from eth_utils import (
-    big_endian_to_int,
-)
+from typing import Optional
 
 from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
@@ -19,7 +12,6 @@ from py_ecc.optimized_bls12_381 import (
     field_modulus as q,
     is_inf,
     is_on_curve,
-    multiply,
     normalize,
 )
 
@@ -27,69 +19,15 @@ from .constants import (
     POW_2_381,
     POW_2_382,
     POW_2_383,
-    FQ2_order,
-    G2_cofactor,
-    eighth_roots_of_unity,
-)
-from .hash import (
-    hash_eth2,
+    EIGTH_ROOTS_OF_UNITY,
+    FQ2_ORDER,
 )
 from .typing import (
-    Domain,
     G1Compressed,
     G1Uncompressed,
     G2Compressed,
     G2Uncompressed,
 )
-
-#
-# Helpers
-#
-
-
-def modular_squareroot_in_FQ2(value: FQ2) -> FQ2:
-    """
-    ``modular_squareroot_in_FQ2(x)`` returns the value ``y`` such that ``y**2 % q == x``,
-    and None if this is not possible. In cases where there are two solutions,
-    the value with higher imaginary component is favored;
-    if both solutions have equal imaginary component the value with higher real
-    component is favored.
-    """
-    candidate_squareroot = value ** ((FQ2_order + 8) // 16)
-    check = candidate_squareroot ** 2 / value
-    if check in eighth_roots_of_unity[::2]:
-        x1 = candidate_squareroot / eighth_roots_of_unity[eighth_roots_of_unity.index(check) // 2]
-        x2 = -x1
-        x1_re, x1_im = x1.coeffs
-        x2_re, x2_im = x2.coeffs
-        return x1 if (x1_im > x2_im or (x1_im == x2_im and x1_re > x2_re)) else x2
-    return None
-
-
-def _get_x_coordinate(message_hash: Hash32, domain: Domain) -> FQ2:
-    # Initial candidate x coordinate
-    x_re = big_endian_to_int(hash_eth2(message_hash + domain + b'\x01'))
-    x_im = big_endian_to_int(hash_eth2(message_hash + domain + b'\x02'))
-    x_coordinate = FQ2([x_re, x_im])  # x_re + x_im * i
-
-    return x_coordinate
-
-
-def hash_to_G2(message_hash: Hash32, domain: Domain) -> G2Uncompressed:
-    x_coordinate = _get_x_coordinate(message_hash, domain)
-
-    # Test candidate y coordinates until a one is found
-    while 1:
-        y_coordinate_squared = x_coordinate ** 3 + FQ2([4, 4])  # The curve is y^2 = x^3 + 4(i + 1)
-        y_coordinate = modular_squareroot_in_FQ2(y_coordinate_squared)
-        if y_coordinate is not None:  # Check if quadratic residue found
-            break
-        x_coordinate += FQ2([1, 0])  # Add 1 and try again
-
-    return multiply(
-        (x_coordinate, y_coordinate, FQ2([1, 0])),
-        G2_cofactor,
-    )
 
 
 #
@@ -139,18 +77,26 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     return (FQ(x), FQ(y), FQ(1))
 
 
-def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
-    z = compress_G1(pt)
-    return BLSPubkey(z.to_bytes(48, "big"))
-
-
-def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
-    z = big_endian_to_int(pubkey)
-    return decompress_G1(G1Compressed(z))
-
 #
 # G2
 #
+def modular_squareroot_in_FQ2(value: FQ2) -> Optional[FQ2]:
+    """
+    ``modular_squareroot_in_FQ2(x)`` returns the value ``y`` such that ``y**2 % q == x``,
+    and None if this is not possible. In cases where there are two solutions,
+    the value with higher imaginary component is favored;
+    if both solutions have equal imaginary component the value with higher real
+    component is favored.
+    """
+    candidate_squareroot = value ** ((FQ2_ORDER + 8) // 16)
+    check = candidate_squareroot ** 2 / value
+    if check in EIGTH_ROOTS_OF_UNITY[::2]:
+        x1 = candidate_squareroot / EIGTH_ROOTS_OF_UNITY[EIGTH_ROOTS_OF_UNITY.index(check) // 2]
+        x2 = -x1
+        x1_re, x1_im = x1.coeffs
+        x2_re, x2_im = x2.coeffs
+        return x1 if (x1_im > x2_im or (x1_im == x2_im and x1_re > x2_re)) else x2
+    return None
 
 
 def compress_G2(pt: G2Uncompressed) -> G2Compressed:
@@ -216,18 +162,3 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
             "The given point is not on the twisted curve over FQ**2"
         )
     return (x, y, FQ2([1, 0]))
-
-
-def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:
-    z1, z2 = compress_G2(pt)
-    return BLSSignature(
-        z1.to_bytes(48, "big") +
-        z2.to_bytes(48, "big")
-    )
-
-
-def signature_to_G2(signature: BLSSignature) -> G2Uncompressed:
-    p = G2Compressed(
-        (big_endian_to_int(signature[:48]), big_endian_to_int(signature[48:]))
-    )
-    return decompress_G2(p)
