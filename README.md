@@ -42,7 +42,7 @@ signature = Sign(private_key, message)
 assert Verify(public_key, message, signature)
 ```
 
-### Aggregating Signatures and Public Keys
+### Aggregating Signatures
 
 ```python
 private_keys = [3, 14, 159]
@@ -79,12 +79,12 @@ If you would like to hack on py_ecc, please check out the [Ethereum Development 
 - Documentation
 
 ## Got bug?
+
 Feel free to create issue under https://github.com/ethereum/py_ecc/issues
 
-
 ## Copyright and Licensing
-Project is licensed under the MIT license.
 
+Project is licensed under the MIT license.
 
 ## Release setup
 
