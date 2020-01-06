@@ -4,59 +4,69 @@ Elliptic curve crypto in python including secp256k1 and alt_bn128
 
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ethereum/py_ecc) [![Build Status](https://circleci.com/gh/ethereum/py_ecc.svg?style=shield)](https://circleci.com/gh/ethereum/py_ecc) [![PyPI version](https://badge.fury.io/py/py-ecc.svg)](https://badge.fury.io/py/py-ecc)
 
-
 ## Quickstart
+
 ```sh
 pip install py_ecc
 ```
 
 ## BLS Signatures
 
-```python
-from py_ecc import bls
+`py_ecc` implements the [IETF BLS draft standard v0](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-00) with [hash-to-curve v5](https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05) as per the inter-blockchain standardization agreement. The BLS standards specify [different ciphersuites](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-00#section-4.2) which each have different functionality to accommodate various use cases. The following ciphersuites are availible from this library:
 
-domain = 43
+- `G2Basic` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_`
+- `G2MessageAugmentation` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_AUG_`
+- `G2ProofOfPossession` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_`
+
+### Basic Usage
+
+```python
+from py_ecc.bls.G2ProofOfPossession import (
+    PrivToPub
+    Sign,
+    Verify,
+    Aggregate,
+    FastAggregateVerify,
+    AggregateVerify,
+)
 
 private_key = 5566
-public_key = bls.privtopub(private_key)
+public_key = PrivToPub(private_key)
 
-# Hash your message to 32 bytes
-message_hash = b'\xab' * 32
+message = b'\xab' * 32  # The message to be signed
 
 # Signing
-signature = bls.sign(message_hash, private_key, domain)
+signature = Sign(private_key, message)
 
 # Verifying
-assert bls.verify(message_hash, public_key, signature, domain)
+assert Verify(public_key, message, signature)
 ```
-
-Think of a `domain` as a version. Signing and verifying would not work on different domains. Setting a new domain in an upgraded system prevents it from being affected by the old messages and signatures.
 
 ### Aggregating Signatures and Public Keys
 
 ```python
 private_keys = [3, 14, 159]
-public_keys = [bls.privtopub(key) for key in private_keys]
-signatures = [bls.sign(message_hash, key, domain) for key in private_keys]
+public_keys = [PrivToPub(key) for key in private_keys]
+signatures = [Sign(key, message) for key in private_keys]
 
 # Aggregating
-agg_sig = bls.aggregate_signatures(signatures)
-agg_pub = bls.aggregate_pubkeys(public_keys)
+agg_sig = Aggregate(signatures)
 
-# Verifying
-assert bls.verify(message_hash, agg_pub, agg_sig, domain)
+# Verifying signatures over the same message.
+# Note this is only safe if Proofs of Possesion have been verified for each of the public keys beforehand.
+# See the BLS standards for why this is the case.
+assert FastAggregateVerify(public_keys, message, agg_sig)
 ```
 
 ### Multiple Aggregation
 
 ```python
-message_hash_1, message_hash_2 = b'\xaa' * 32, b'\xbb' * 32
+messages = [b'\xaa' * 42, b'\xbb' * 32, b'\xcc' * 64]
+signatures = [Sign(key, message) for key, message in zip(private_keys, messages)]
+agg_sig = Aggregate(signatures)
 
-msg_hashes = [message_hash_1, message_hash_2]
-agg_pubs = [agg_pub_1, agg_pub_2]
-agg_agg_sig = bls.aggregate_signatures([agg_sig_1, agg_sig_2])
-
-assert bls.verify_multiple(agg_pubs, msg_hashes, agg_agg_sig, domain)
+# Verify aggregate signature with different messages
+assert AggregateVerify(zip(public_keys, messages), agg_sig)
 ```
 
 ## Developer Setup
