@@ -42,7 +42,7 @@ def hash_to_field_FQ2(message: bytes, count: int, DST: bytes) -> List[FQ2]:
     M = 2  # m is the extension degree of FQ2
     len_in_bytes = count * M * HASH_TO_FIELD_L
     pseudo_random_bytes = expand_message_xmd(message, DST, len_in_bytes)
-    u: List[FQ2] = []
+    u = []
     for i in range(0, count):
         e: List[int] = []
         for j in range(0, M):
