@@ -1,25 +1,18 @@
-from eth_utils import (
-    big_endian_to_int,
-)
-
+from typing import List
 from py_ecc.fields import (
     optimized_bls12_381_FQ2 as FQ2,
 )
 from py_ecc.optimized_bls12_381 import (
     add,
     iso_map_G2,
+    field_modulus,
     multiply_clear_cofactor_G2,
     optimized_swu_G2,
 )
 
-from .constants import HASH_TO_G2_L
-from .typing import (
-    G2Uncompressed,
-)
-from .hash import (
-    hkdf_expand,
-    hkdf_extract,
-)
+from .constants import HASH_TO_FIELD_L
+from .hash import expand_message_xmd
+from .typing import G2Uncompressed
 
 
 # Hash to G2
@@ -31,8 +24,7 @@ def hash_to_G2(message: bytes, DST: bytes) -> G2Uncompressed:
     Contants and inputs follow the ciphersuite ``BLS12381G2-SHA256-SSWU-RO-`` defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-8.9.2
     """
-    u0 = hash_to_base_FQ2(message, 0, DST)
-    u1 = hash_to_base_FQ2(message, 1, DST)
+    u0, u1 = hash_to_field_FQ2(message, 2, DST)
     q0 = map_to_curve_G2(u0)
     q1 = map_to_curve_G2(u1)
     r = add(q0, q1)
@@ -40,24 +32,26 @@ def hash_to_G2(message: bytes, DST: bytes) -> G2Uncompressed:
     return p
 
 
-def hash_to_base_FQ2(message: bytes, ctr: int, DST: bytes) -> FQ2:
+def hash_to_field_FQ2(message: bytes, count: int, DST: bytes) -> List[FQ2]:
     """
-    Hash To Base for FQ2
+    Hash To Base Field for FQ2
 
     Convert a message to a point in the finite field as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-5
     """
-    m_prime = hkdf_extract(DST, message + b'\x00')
-    info_pfx = b'H2C' + bytes([ctr])
-    e = []
+    M = 2  # m is the extension degree of FQ2
+    len_in_bytes = count * M * HASH_TO_FIELD_L
+    pseudo_random_bytes = expand_message_xmd(message, DST, len_in_bytes)
+    u: List[FQ2] = []
+    for i in range(0, count):
+        e: List[int] = []
+        for j in range(0, M):
+            elem_offset = HASH_TO_FIELD_L * (j + i * M)
+            tv = pseudo_random_bytes[elem_offset: elem_offset + HASH_TO_FIELD_L]
+            e.append(int.from_bytes(tv, 'big') % field_modulus)
+        u.append(FQ2(e))
 
-    #  for i in (1, ..., m), where m is the extension degree of FQ2
-    for i in range(1, 3):
-        info = info_pfx + bytes([i])
-        t = hkdf_expand(m_prime, info, HASH_TO_G2_L)
-        e.append(big_endian_to_int(t))
-
-    return FQ2(e)
+    return u
 
 
 def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
