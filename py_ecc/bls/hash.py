@@ -1,15 +1,13 @@
 import hmac
 import math
-from typing import (
-    List,
-    Union,
-)
+from typing import Union
 from hashlib import sha256 as _sha256
 
 from .constants import (
     HASH_TO_FIELD_B_IN_BYTES,
     HASH_TO_FIELD_R_IN_BYTES,
 )
+
 
 def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) -> bytes:
     """
@@ -42,6 +40,7 @@ def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], len
 
     # Return first `length` bytes.
     return okm[:length]
+
 
 def sha256(x: bytes) -> bytes:
     m = _sha256()

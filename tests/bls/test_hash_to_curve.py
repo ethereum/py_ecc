@@ -59,6 +59,7 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
     assert g2_y == result_y
 
 
+# Tests taken from: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/master/draft-irtf-cfrg-hash-to-curve.md#bls12381g2_xmdsha-256_sswu_ro_
 @pytest.mark.parametrize(
     'msg,x,y',
     [
@@ -78,7 +79,6 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
 )
 def test_hash_to_G2(msg, x, y):
     point = hash_to_G2(msg, DST)
-
     assert is_on_curve(point, b2)
 
     # Affine
