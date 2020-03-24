@@ -44,7 +44,7 @@ def hash_to_field_FQ2(message: bytes, count: int, DST: bytes) -> List[FQ2]:
     pseudo_random_bytes = expand_message_xmd(message, DST, len_in_bytes)
     u = []
     for i in range(0, count):
-        e: List[int] = []
+        e = []
         for j in range(0, M):
             elem_offset = HASH_TO_FIELD_L * (j + i * M)
             tv = pseudo_random_bytes[elem_offset: elem_offset + HASH_TO_FIELD_L]
