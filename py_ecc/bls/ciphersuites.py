@@ -46,7 +46,7 @@ class BaseG2Ciphersuite(abc.ABC):
     DST = b''
 
     @staticmethod
-    def PrivToPub(privkey: int) -> BLSPubkey:
+    def SkToPk(privkey: int) -> BLSPubkey:
         return G1_to_pubkey(multiply(G1, privkey))
 
     @staticmethod
@@ -55,7 +55,7 @@ class BaseG2Ciphersuite(abc.ABC):
         l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
         okm = hkdf_expand(prk, b'', l)
         x = big_endian_to_int(okm) % curve_order
-        return (BaseG2Ciphersuite.PrivToPub(x), x)
+        return (BaseG2Ciphersuite.SkToPk(x), x)
 
     @staticmethod
     def KeyValidate(PK: BLSPubkey) -> bool:
@@ -129,7 +129,7 @@ class BaseG2Ciphersuite(abc.ABC):
 
 
 class G2Basic(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_'
+    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_'
 
     @classmethod
     def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
@@ -142,11 +142,11 @@ class G2Basic(BaseG2Ciphersuite):
 
 
 class G2MessageAugmentation(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_AUG_'
+    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_'
 
     @classmethod
     def Sign(cls, SK: int, message: bytes) -> BLSSignature:
-        PK = cls.PrivToPub(SK)
+        PK = cls.SkToPk(SK)
         return cls._CoreSign(SK, PK + message, cls.DST)
 
     @classmethod
@@ -162,8 +162,8 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
 
 
 class G2ProofOfPossession(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_'
-    POP_TAG = b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_'
+    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
+    POP_TAG = b'BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
 
     @classmethod
     def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
@@ -172,7 +172,7 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
 
     @classmethod
     def PopProve(cls, SK: int) -> BLSSignature:
-        pubkey = cls.PrivToPub(SK)
+        pubkey = cls.SkToPk(SK)
         return cls._CoreSign(SK, pubkey, cls.POP_TAG)
 
     @classmethod

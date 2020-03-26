@@ -21,7 +21,7 @@ from py_ecc.bls.g2_primatives import (
     ]
 )
 def test_pop(sk):
-    pk = G2ProofOfPossession.PrivToPub(sk)
+    pk = G2ProofOfPossession.SkToPk(sk)
     proof = G2ProofOfPossession.PopProve(sk)
     assert G2ProofOfPossession.PopVerify(pk, proof)
 
@@ -46,7 +46,7 @@ def test_aggregate_pks(signature_points, result_point):
     ]
 )
 def test_fast_aggregate_verify(SKs, message):
-    PKs = [G2ProofOfPossession.PrivToPub(sk) for sk in SKs]
+    PKs = [G2ProofOfPossession.SkToPk(sk) for sk in SKs]
     signatures = [G2ProofOfPossession.Sign(sk, message) for sk in SKs]
     aggregate_signature = G2ProofOfPossession.Aggregate(signatures)
     assert G2ProofOfPossession.FastAggregateVerify(PKs, message, aggregate_signature)

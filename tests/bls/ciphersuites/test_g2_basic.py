@@ -9,7 +9,7 @@ from py_ecc.bls import G2Basic
     ]
 )
 def test_aggregate_verify(SKs, messages, success):
-    PKs = [G2Basic.PrivToPub(SK) for SK in SKs]
+    PKs = [G2Basic.SkToPk(SK) for SK in SKs]
     messages = [bytes(msg) for msg in messages]
     signatures = [G2Basic.Sign(SK, msg) for SK, msg in zip(SKs, messages)]
     aggregate_signature = G2Basic.Aggregate(signatures)

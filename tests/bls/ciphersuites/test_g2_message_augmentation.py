@@ -16,7 +16,7 @@ from py_ecc.bls import G2MessageAugmentation
 )
 def test_sign_verify(privkey):
     msg = str(privkey).encode('utf-8')
-    pub = G2MessageAugmentation.PrivToPub(privkey)
+    pub = G2MessageAugmentation.SkToPk(privkey)
     sig = G2MessageAugmentation.Sign(privkey, msg)
     assert G2MessageAugmentation.Verify(pub, msg, sig)
 
@@ -28,7 +28,7 @@ def test_sign_verify(privkey):
     ]	
 )	
 def test_aggregate_verify(SKs, messages):	
-    PKs = [G2MessageAugmentation.PrivToPub(SK) for SK in SKs]	
+    PKs = [G2MessageAugmentation.SkToPk(SK) for SK in SKs]	
     messages = [bytes(msg) + PK for msg, PK in zip(messages, PKs)]	
     signatures = [G2MessageAugmentation.Sign(SK, msg) for SK, msg in zip(SKs, messages)]	
     aggregate_signature = G2MessageAugmentation.Aggregate(signatures)	
