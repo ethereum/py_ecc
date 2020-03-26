@@ -29,7 +29,7 @@ def test_key_gen(ikm, result_sk):
 @pytest.mark.parametrize(
     'pubkey,success',
     [
-        (G2Basic.PrivToPub(42), True),
+        (G2Basic.SkToPk(42), True),
         (b'11' * 48, False),
     ]
 )
@@ -51,7 +51,7 @@ def test_key_validate(pubkey, success):
 )
 def test_sign_verify(privkey):
     msg = str(privkey).encode('utf-8')
-    pub = G2Basic.PrivToPub(privkey)
+    pub = G2Basic.SkToPk(privkey)
     sig = G2Basic._CoreSign(privkey, msg, G2Basic.DST)
     assert G2Basic._CoreVerify(pub, msg, sig, G2Basic.DST)
 
@@ -77,7 +77,7 @@ def test_aggregate(signature_points, result_point):
     ]
 )
 def test_core_aggregate_verify(SKs, messages):
-    PKs = [G2Basic.PrivToPub(sk) for sk in SKs]
+    PKs = [G2Basic.SkToPk(sk) for sk in SKs]
     messages = [bytes(msg) for msg in messages]
     signatures = [G2Basic._CoreSign(sk, msg, G2Basic.DST) for sk, msg in zip(SKs, messages)]
     aggregate_signature = G2Basic.Aggregate(signatures)
