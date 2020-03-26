@@ -188,7 +188,7 @@ class FQ(object):
         sgn0_be(x) = -1 when x > -x
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-4.1.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-4.1.1
         """
         if self.n == 0:
             return 1
@@ -384,7 +384,7 @@ class FQP(object):
         sgn0_be(x) = -1 when x > -x
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-05#section-4.1.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-4.1.1
         """
         sign = 0
         for x_i in reversed(self.coeffs):
