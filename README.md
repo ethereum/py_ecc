@@ -12,11 +12,11 @@ pip install py_ecc
 
 ## BLS Signatures
 
-`py_ecc` implements the [IETF BLS draft standard v0](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-00) with [hash-to-curve v6](https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06) as per the inter-blockchain standardization agreement. The BLS standards specify [different ciphersuites](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-00#section-4.2) which each have different functionality to accommodate various use cases. The following ciphersuites are availible from this library:
+`py_ecc` implements the [IETF BLS draft standard v0](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-02) with [hash-to-curve v6](https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06) as per the inter-blockchain standardization agreement. The BLS standards specify [different ciphersuites](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-02#section-4) which each have different functionality to accommodate various use cases. The following ciphersuites are available from this library:
 
-- `G2Basic` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_`
-- `G2MessageAugmentation` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_AUG_`
-- `G2ProofOfPossession` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_`
+- `G2Basic` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_`
+- `G2MessageAugmentation` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_`
+- `G2ProofOfPossession` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_`
 
 ### Basic Usage
 
@@ -24,7 +24,7 @@ pip install py_ecc
 from py_ecc.bls import G2ProofOfPossession as bls_pop
 
 private_key = 5566
-public_key = bls_pop.PrivToPub(private_key)
+public_key = bls_pop.SkToPk(private_key)
 
 message = b'\xab' * 32  # The message to be signed
 
@@ -39,7 +39,7 @@ assert bls_pop.Verify(public_key, message, signature)
 
 ```python
 private_keys = [3, 14, 159]
-public_keys = [bls_pop.PrivToPub(key) for key in private_keys]
+public_keys = [bls_pop.SkToPk(key) for key in private_keys]
 signatures = [bls_pop.Sign(key, message) for key in private_keys]
 
 # Aggregating
