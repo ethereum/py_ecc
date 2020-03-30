@@ -1,4 +1,5 @@
 from typing import (
+    Optional,
     Tuple,
     TypeVar,
     Union,
@@ -64,8 +65,8 @@ Field = TypeVar(
     bls12_381_FQ2,
     bls12_381_FQ12,
 )
-Point2D = Tuple[Field, Field]
-Point3D = Tuple[Field, Field, Field]
+Point2D = Optional[Tuple[Field, Field]]  # Point at infinity is encoded as a None
+Point3D = Optional[Tuple[Field, Field, Field]]  # Point at infinity is encoded as a None
 GeneralPoint = Union[Point2D[Field], Point3D[Field]]
 
 
