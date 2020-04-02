@@ -42,11 +42,11 @@ def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], len
     return okm[:length]
 
 
-def i2osp(x: int, xlen: int):
+def i2osp(x: int, xlen: int) -> bytes:
     return x.to_bytes(xlen, byteorder='big', signed=False)
 
 
-def os2ip(x):
+def os2ip(x: bytes) -> int:
     return int.from_bytes(x, byteorder='big', signed=False)
 
 
