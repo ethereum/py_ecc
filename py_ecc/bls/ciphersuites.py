@@ -50,7 +50,7 @@ class BaseG2Ciphersuite(abc.ABC):
         return G1_to_pubkey(multiply(G1, privkey))
 
     @staticmethod
-    def KeyGen(IKM: bytes, key_info=b'') -> int:
+    def KeyGen(IKM: bytes, key_info: bytes = b'') -> int:
         prk = hkdf_extract(b'BLS-SIG-KEYGEN-SALT-', IKM + b'\x00')
         l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
         okm = hkdf_expand(prk, key_info + i2osp(l, 2), l)
