@@ -1,5 +1,6 @@
 from typing import (
     Sequence,
+    Union,
 )
 from math import (
     ceil,
@@ -92,17 +93,26 @@ class BaseG2Ciphersuite(abc.ABC):
             return False
 
     @staticmethod
-    def Aggregate(signatures: Sequence[BLSSignature]) -> BLSSignature:
-        accumulator = Z2  # Seed with the point at infinity
-        for signature in signatures:
-            signature_point = signature_to_G2(signature)
-            accumulator = add(accumulator, signature_point)
-        return G2_to_signature(accumulator)
+    def Aggregate(signatures: Sequence[BLSSignature]) -> Union[BLSSignature, bool]:
+        try:
+            if len(signatures) < 1:
+                raise ValidationError('Insufficient number of signatures. (n < 1)')
+            accumulator = Z2  # Seed with the point at infinity
+            for signature in signatures:
+                signature_point = signature_to_G2(signature)
+                accumulator = add(accumulator, signature_point)
+            return G2_to_signature(accumulator)
+        except ValidationError:
+            return False
 
     @staticmethod
     def _CoreAggregateVerify(PKs: Sequence[BLSPubkey], messages: Sequence[bytes],
                              signature: BLSSignature, DST: bytes) -> bool:
         try:
+            if len(PKs) != len(messages):
+                raise ValidationError('len(PKs) != len(messages)')
+            if len(PKs) < 1:
+                raise ValidationError('Insufficient number of signatures. (n < 1)')
             signature_point = signature_to_G2(signature)
             accumulator = FQ12.one()
             for pk, message in zip(PKs, messages):
@@ -178,15 +188,22 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
         return cls._CoreVerify(PK, PK, proof, cls.POP_TAG)
 
     @staticmethod
-    def _AggregatePKs(PKs: Sequence[BLSPubkey]) -> BLSPubkey:
-        accumulator = Z1  # Seed with the point at infinity
-        for pk in PKs:
-            pubkey_point = pubkey_to_G1(pk)
-            accumulator = add(accumulator, pubkey_point)
-        return G1_to_pubkey(accumulator)
+    def _AggregatePKs(PKs: Sequence[BLSPubkey]) -> Union[BLSPubkey, bool]:
+        try:
+            if len(PKs) < 1:
+                raise ValidationError('Insufficient number of PKs. (n < 1)')
+            accumulator = Z1  # Seed with the point at infinity
+            for pk in PKs:
+                pubkey_point = pubkey_to_G1(pk)
+                accumulator = add(accumulator, pubkey_point)
+            return G1_to_pubkey(accumulator)
+        except ValidationError:
+            return False
 
     @classmethod
     def FastAggregateVerify(cls, PKs: Sequence[BLSPubkey],
                             message: bytes, signature: BLSSignature) -> bool:
         aggregate_pubkey = cls._AggregatePKs(PKs)
+        if aggregate_pubkey is False:
+            return False
         return cls.Verify(aggregate_pubkey, message, signature)
