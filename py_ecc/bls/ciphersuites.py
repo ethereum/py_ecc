@@ -204,6 +204,6 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
     def FastAggregateVerify(cls, PKs: Sequence[BLSPubkey],
                             message: bytes, signature: BLSSignature) -> bool:
         aggregate_pubkey = cls._AggregatePKs(PKs)
-        if aggregate_pubkey is False:
+        if isinstance(aggregate_pubkey, bool):
             return False
         return cls.Verify(aggregate_pubkey, message, signature)
