@@ -32,4 +32,4 @@ def test_aggregate_verify(SKs, messages):
     messages = [bytes(msg) + PK for msg, PK in zip(messages, PKs)]	
     signatures = [G2MessageAugmentation.Sign(SK, msg) for SK, msg in zip(SKs, messages)]	
     aggregate_signature = G2MessageAugmentation.Aggregate(signatures)	
-    assert G2MessageAugmentation.AggregateVerify(zip(PKs, messages), aggregate_signature)
+    assert G2MessageAugmentation.AggregateVerify(PKs, messages, aggregate_signature)

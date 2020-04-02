@@ -1,6 +1,5 @@
 from typing import (
     Sequence,
-    Tuple,
 )
 from math import (
     ceil,
@@ -50,12 +49,12 @@ class BaseG2Ciphersuite(abc.ABC):
         return G1_to_pubkey(multiply(G1, privkey))
 
     @staticmethod
-    def KeyGen(IKM: bytes) -> Tuple[BLSPubkey, int]:
-        prk = hkdf_extract(b'BLS-SIG-KEYGEN-SALT-', IKM)
+    def KeyGen(IKM: bytes, key_info=b'') -> int:
+        prk = hkdf_extract(b'BLS-SIG-KEYGEN-SALT-', IKM + b'\x00')
         l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
-        okm = hkdf_expand(prk, b'', l)
+        okm = hkdf_expand(prk, key_info + l.to_bytes(2, 'big'), l)
         x = big_endian_to_int(okm) % curve_order
-        return (BaseG2Ciphersuite.SkToPk(x), x)
+        return x
 
     @staticmethod
     def KeyValidate(PK: BLSPubkey) -> bool:
@@ -74,6 +73,7 @@ class BaseG2Ciphersuite(abc.ABC):
     @staticmethod
     def _CoreVerify(PK: BLSPubkey, message: bytes, signature: BLSSignature, DST: bytes) -> bool:
         try:
+            assert BaseG2Ciphersuite.KeyValidate(PK)
             signature_point = signature_to_G2(signature)
             final_exponentiation = final_exponentiate(
                 pairing(
@@ -99,12 +99,12 @@ class BaseG2Ciphersuite(abc.ABC):
         return G2_to_signature(accumulator)
 
     @staticmethod
-    def _CoreAggregateVerify(pairs: Sequence[Tuple[BLSPubkey, bytes]],
+    def _CoreAggregateVerify(PKs: Sequence[BLSPubkey], messages: Sequence[bytes],
                              signature: BLSSignature, DST: bytes) -> bool:
         try:
             signature_point = signature_to_G2(signature)
             accumulator = FQ12.one()
-            for pk, message in pairs:
+            for pk, message in zip(PKs, messages):
                 pubkey_point = pubkey_to_G1(pk)
                 message_point = hash_to_G2(message, DST)
                 accumulator *= pairing(message_point, pubkey_point, final_exponentiate=False)
@@ -123,8 +123,8 @@ class BaseG2Ciphersuite(abc.ABC):
         return cls._CoreVerify(PK, message, signature, cls.DST)
 
     @abc.abstractclassmethod
-    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
-                        signature: BLSSignature) -> bool:
+    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
         ...
 
 
@@ -132,13 +132,11 @@ class G2Basic(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_'
 
     @classmethod
-    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
-                        signature: BLSSignature) -> bool:
-        pairs = list(pairs)
-        _, messages = zip(*pairs)
+    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
         if len(messages) != len(set(messages)):  # Messages are not unique
             return False
-        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
+        return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
 
 class G2MessageAugmentation(BaseG2Ciphersuite):
@@ -154,11 +152,10 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
         return cls._CoreVerify(PK, PK + message, signature, cls.DST)
 
     @classmethod
-    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
-                        signature: BLSSignature) -> bool:
-        pairs = list(pairs)
-        pairs = [(pk, pk + msg) for pk, msg in pairs]
-        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
+    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
+        messages = [pk + msg for pk, msg in zip(PKs, messages)]
+        return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
 
 class G2ProofOfPossession(BaseG2Ciphersuite):
@@ -166,9 +163,9 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
     POP_TAG = b'BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
 
     @classmethod
-    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
-                        signature: BLSSignature) -> bool:
-        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
+    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
+        return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
     @classmethod
     def PopProve(cls, SK: int) -> BLSSignature:

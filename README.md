@@ -14,9 +14,9 @@ pip install py_ecc
 
 `py_ecc` implements the [IETF BLS draft standard v0](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-02) with [hash-to-curve v6](https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06) as per the inter-blockchain standardization agreement. The BLS standards specify [different ciphersuites](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-02#section-4) which each have different functionality to accommodate various use cases. The following ciphersuites are available from this library:
 
-- `G2Basic` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_`
-- `G2MessageAugmentation` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_AUG_`
-- `G2ProofOfPossession` also known as `BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_`
+- `G2Basic` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_`
+- `G2MessageAugmentation` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_`
+- `G2ProofOfPossession` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_`
 
 ### Basic Usage
 

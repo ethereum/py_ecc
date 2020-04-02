@@ -13,4 +13,4 @@ def test_aggregate_verify(SKs, messages, success):
     messages = [bytes(msg) for msg in messages]
     signatures = [G2Basic.Sign(SK, msg) for SK, msg in zip(SKs, messages)]
     aggregate_signature = G2Basic.Aggregate(signatures)
-    assert G2Basic.AggregateVerify(zip(PKs, messages), aggregate_signature) == success
+    assert G2Basic.AggregateVerify(PKs, messages, aggregate_signature) == success
