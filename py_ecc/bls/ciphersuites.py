@@ -11,7 +11,6 @@ from eth_typing import (
     BLSSignature,
 )
 from eth_utils import (
-    big_endian_to_int,
     ValidationError,
 )
 
@@ -31,6 +30,8 @@ from py_ecc.optimized_bls12_381 import (
 from .hash import (
     hkdf_expand,
     hkdf_extract,
+    i2osp,
+    os2ip,
 )
 from .hash_to_curve import hash_to_G2
 from .g2_primatives import (
@@ -52,8 +53,8 @@ class BaseG2Ciphersuite(abc.ABC):
     def KeyGen(IKM: bytes, key_info=b'') -> int:
         prk = hkdf_extract(b'BLS-SIG-KEYGEN-SALT-', IKM + b'\x00')
         l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
-        okm = hkdf_expand(prk, key_info + l.to_bytes(2, 'big'), l)
-        x = big_endian_to_int(okm) % curve_order
+        okm = hkdf_expand(prk, key_info + i2osp(l, 2), l)
+        x = os2ip(okm) % curve_order
         return x
 
     @staticmethod
