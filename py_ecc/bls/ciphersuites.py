@@ -93,7 +93,7 @@ class BaseG2Ciphersuite(abc.ABC):
 
     @staticmethod
     def Aggregate(signatures: Sequence[BLSSignature]) -> BLSSignature:
-        raise ValidationError('Insufficient number of signatures. (n < 1)')
+        assert len(signatures) >= 1, 'Insufficient number of signatures. (n < 1)'
         aggregate = Z2  # Seed with the point at infinity
         for signature in signatures:
             signature_point = signature_to_G2(signature)
@@ -184,7 +184,7 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
 
     @staticmethod
     def _AggregatePKs(PKs: Sequence[BLSPubkey]) -> BLSPubkey:
-        raise ValidationError('Insufficient number of PKs. (n < 1)')
+        assert len(PKs) >= 1, 'Insufficient number of PKs. (n < 1)'
         aggregate = Z1  # Seed with the point at infinity
         for pk in PKs:
             pubkey_point = pubkey_to_G1(pk)
@@ -196,6 +196,6 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
                             message: bytes, signature: BLSSignature) -> bool:
         try:
             aggregate_pubkey = cls._AggregatePKs(PKs)
-        except ValidationError:
+        except AssertionError:
             return False
         return cls.Verify(aggregate_pubkey, message, signature)
