@@ -43,10 +43,18 @@ def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], len
 
 
 def i2osp(x: int, xlen: int) -> bytes:
+    """
+    Convert a nonnegative integer `x` to an octet string of a specified length `xlen`.
+    https://tools.ietf.org/html/rfc8017#section-4.1
+    """
     return x.to_bytes(xlen, byteorder='big', signed=False)
 
 
 def os2ip(x: bytes) -> int:
+    """
+    Convert an octet string `x` to a nonnegative integer.
+    https://tools.ietf.org/html/rfc8017#section-4.2
+    """
     return int.from_bytes(x, byteorder='big', signed=False)
 
 
