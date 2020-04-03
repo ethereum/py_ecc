@@ -55,10 +55,6 @@ def test_aggregate(signature_points, result_point):
     assert G2Basic.Aggregate(signatures) == result_signature
 
 
-def test_aggregate_n_0():
-    assert not G2Basic.Aggregate(())
-
-
 @pytest.mark.parametrize(
     'SKs,messages',
     [
