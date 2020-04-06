@@ -15,6 +15,7 @@ from eth_utils import (
     big_endian_to_int,
     ValidationError,
 )
+from hashlib import sha256
 
 from py_ecc.fields import optimized_bls12_381_FQ12 as FQ12
 from py_ecc.optimized_bls12_381 import (
@@ -46,6 +47,10 @@ class BaseG2Ciphersuite(abc.ABC):
     DST = b''
 
     @staticmethod
+    def xmd_hash_function(x: bytes) -> bytes:
+        return sha256(x).digest()
+
+    @staticmethod
     def PrivToPub(privkey: int) -> BLSPubkey:
         return G1_to_pubkey(multiply(G1, privkey))
 
@@ -65,14 +70,15 @@ class BaseG2Ciphersuite(abc.ABC):
             return False
         return True
 
-    @staticmethod
-    def _CoreSign(SK: int, message: bytes, DST: bytes) -> BLSSignature:
-        message_point = hash_to_G2(message, DST)
+    @classmethod
+    def _CoreSign(cls, SK: int, message: bytes, DST: bytes) -> BLSSignature:
+        message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
         signature_point = multiply(message_point, SK)
         return G2_to_signature(signature_point)
 
-    @staticmethod
-    def _CoreVerify(PK: BLSPubkey, message: bytes, signature: BLSSignature, DST: bytes) -> bool:
+    @classmethod
+    def _CoreVerify(cls, PK: BLSPubkey, message: bytes,
+                    signature: BLSSignature, DST: bytes) -> bool:
         try:
             signature_point = signature_to_G2(signature)
             final_exponentiation = final_exponentiate(
@@ -81,7 +87,7 @@ class BaseG2Ciphersuite(abc.ABC):
                     G1,
                     final_exponentiate=False,
                 ) * pairing(
-                    hash_to_G2(message, DST),
+                    hash_to_G2(message, DST, cls.xmd_hash_function),
                     neg(pubkey_to_G1(PK)),
                     final_exponentiate=False,
                 )
@@ -98,15 +104,15 @@ class BaseG2Ciphersuite(abc.ABC):
             accumulator = add(accumulator, signature_point)
         return G2_to_signature(accumulator)
 
-    @staticmethod
-    def _CoreAggregateVerify(pairs: Sequence[Tuple[BLSPubkey, bytes]],
+    @classmethod
+    def _CoreAggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
                              signature: BLSSignature, DST: bytes) -> bool:
         try:
             signature_point = signature_to_G2(signature)
             accumulator = FQ12.one()
             for pk, message in pairs:
                 pubkey_point = pubkey_to_G1(pk)
-                message_point = hash_to_G2(message, DST)
+                message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
                 accumulator *= pairing(message_point, pubkey_point, final_exponentiate=False)
             accumulator *= pairing(signature_point, neg(G1), final_exponentiate=False)
             return final_exponentiate(accumulator) == FQ12.one()

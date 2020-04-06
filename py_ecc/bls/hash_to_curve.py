@@ -1,4 +1,7 @@
-from typing import List
+from typing import (
+    Callable,
+    Tuple,
+)
 from py_ecc.fields import (
     optimized_bls12_381_FQ2 as FQ2,
 )
@@ -16,7 +19,8 @@ from .typing import G2Uncompressed
 
 
 # Hash to G2
-def hash_to_G2(message: bytes, DST: bytes) -> G2Uncompressed:
+def hash_to_G2(message: bytes, DST: bytes,
+               hash_function: Callable[[bytes], bytes]) -> G2Uncompressed:
     """
     Convert a message to a point on G2 as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-6.6.3
@@ -26,7 +30,7 @@ def hash_to_G2(message: bytes, DST: bytes) -> G2Uncompressed:
     Contants and inputs follow the ciphersuite ``BLS12381G2_XMD:SHA-256_SSWU_RO_`` defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-8.7.2
     """
-    u0, u1 = hash_to_field_FQ2(message, 2, DST)
+    u0, u1 = hash_to_field_FQ2(message, 2, DST, hash_function)
     q0 = map_to_curve_G2(u0)
     q1 = map_to_curve_G2(u1)
     r = add(q0, q1)
@@ -34,7 +38,8 @@ def hash_to_G2(message: bytes, DST: bytes) -> G2Uncompressed:
     return p
 
 
-def hash_to_field_FQ2(message: bytes, count: int, DST: bytes) -> List[FQ2]:
+def hash_to_field_FQ2(message: bytes, count: int, DST: bytes,
+                      hash_function: Callable[[bytes], bytes]) -> Tuple[FQ2, ...]:
     """
     Hash To Base Field for FQ2
 
@@ -43,7 +48,7 @@ def hash_to_field_FQ2(message: bytes, count: int, DST: bytes) -> List[FQ2]:
     """
     M = 2  # m is the extension degree of FQ2
     len_in_bytes = count * M * HASH_TO_FIELD_L
-    pseudo_random_bytes = expand_message_xmd(message, DST, len_in_bytes)
+    pseudo_random_bytes = expand_message_xmd(message, DST, len_in_bytes, hash_function)
     u = []
     for i in range(0, count):
         e = []
@@ -52,8 +57,7 @@ def hash_to_field_FQ2(message: bytes, count: int, DST: bytes) -> List[FQ2]:
             tv = pseudo_random_bytes[elem_offset: elem_offset + HASH_TO_FIELD_L]
             e.append(int.from_bytes(tv, 'big') % field_modulus)
         u.append(FQ2(e))
-
-    return u
+    return tuple(u)
 
 
 def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
