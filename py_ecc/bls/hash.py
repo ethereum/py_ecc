@@ -52,7 +52,11 @@ def xor(a: bytes, b: bytes) -> bytes:
 def expand_message_xmd(msg: bytes, DST: bytes, len_in_bytes: int, hash_function: HASH) -> bytes:
     b_in_bytes = hash_function().digest_size
     r_in_bytes = hash_function().block_size
+    if len(DST) > 255:
+        raise ValueError('DST must be <= 255 bytes')
     ell = math.ceil(len_in_bytes / b_in_bytes)
+    if ell > 255:
+        raise ValueError('invalid len in bytes for hash function')
     DST_prime = ALL_BYTES[len(DST)] + DST  # Prepend the length if the DST as a single byte
     Z_pad = b'\x00' * r_in_bytes
     l_i_b_str = len_in_bytes.to_bytes(2, 'big')
