@@ -61,25 +61,22 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
 
 
 # Tests taken from: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/master/draft-irtf-cfrg-hash-to-curve.md#bls12381g2_xmdsha-256_sswu_ro_
+@pytest.mark.parametrize('H', [sha256])
 @pytest.mark.parametrize(
-    'msg,x,y,H',
+    'msg,x,y',
     [
         (b'',
         FQ2([0x0d3b02ee071b12d1e79138c3900ca3da7b8021ac462fe6ed68080dc9a5f1c5de46b7fe171e8b3e4e7537e7746757aeca, 0x0d4733459fead6a1f30e5f92df08ecfd0db9bcd0f3e2f2de0f00c8f45e081420aa4392eade61eade57d7a68474672fc1]),
-        FQ2([0x09cc6f7b3074f0c82510e65d8fc58f6033e03ba7358005a13e2bbd7f429b080f29731ef08c3780c9e3c746578b96b05c, 0x0011531b8e08900a4f6f612e1e27432961419ce6a5ee3ec904a53588982d36ec4ea37be80b6cb7d986b38faec67dbe44]),
-        lambda x: sha256(x).digest()),
+        FQ2([0x09cc6f7b3074f0c82510e65d8fc58f6033e03ba7358005a13e2bbd7f429b080f29731ef08c3780c9e3c746578b96b05c, 0x0011531b8e08900a4f6f612e1e27432961419ce6a5ee3ec904a53588982d36ec4ea37be80b6cb7d986b38faec67dbe44])),
         (b'abc',
         FQ2([0x0b6d276d0bfbddde617a9ab4c175b07c9c4aecad2cdd6cc9ca541b61334a69c58680ef5692bbad03d2f572838df32b66, 0x139e9d78ff6d9d163f979d14a64c5e57f82f1ef7e42ece338b571a9e92c0666f0f6bf1a5fc21e2d32bcb6432eab7037c]),
-        FQ2([0x022f9ee5d596d06c5f2f735c3c5f743978f79fd57bf7d4291e221227f490d3f276066de9f9edc89c57e048ef4cf0ef72, 0x14dd23517516a80d1d840e34f51dfb76946c7670fca0f36ad8ec9bde4ea82dfae119a21b076519bcc1c00152989a4d45]),
-        lambda x: sha256(x).digest()),
+        FQ2([0x022f9ee5d596d06c5f2f735c3c5f743978f79fd57bf7d4291e221227f490d3f276066de9f9edc89c57e048ef4cf0ef72, 0x14dd23517516a80d1d840e34f51dfb76946c7670fca0f36ad8ec9bde4ea82dfae119a21b076519bcc1c00152989a4d45])),
         (b'abcdef0123456789',
         FQ2([0x0ded52c30aace28d3e9cc5c1b47861ae4dd4e9cd17622e0f5b9d584af0397cd0e3bae80d4ee2d9d4b18c390f63154dfd, 0x046701a03f361a0b8392ca387585f7ee6534dcec9450a035e39dc37387d5ca079b9557447f7d9cad0bd9671cb65ada02]),
-        FQ2([0x07a5cf56c5ea1d69ad59c0e80cc16c0c1b27f02840b396eb0ea320f70e87f705c6fa70cfeb9719b14badbb058bec5a4c, 0x0674d1f7c9e8e84d8d7a07b40231257571c43160fd566e8d24459d17ca52f6068e1b63aaae5359d8869d4abc66de66b6]),
-        lambda x: sha256(x).digest()),
+        FQ2([0x07a5cf56c5ea1d69ad59c0e80cc16c0c1b27f02840b396eb0ea320f70e87f705c6fa70cfeb9719b14badbb058bec5a4c, 0x0674d1f7c9e8e84d8d7a07b40231257571c43160fd566e8d24459d17ca52f6068e1b63aaae5359d8869d4abc66de66b6])),
         (b'a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         FQ2([0x0161130ef4aa2f60f751e6b3dd48ac6e994d2d2613897c5dd26945bc72f33cc2977e1255c3f2dc0f1440d15a71c29b40, 0x06db1818f132a61f5fe86d315faa8de4653049ac9cf7fbbc6d9987e5864d82a0156259d56192109bafddd5c30b9f01f5]),
-        FQ2([0x00f7fab0fedc978b974a38a1755244727b8a4eb31073653fa949594645ad181880d20ff0c91c4375b7e451fe803c9847, 0x0964d550ee8752b6db99555ffcd442b4185267f31e3d57435ea73896a7a9fe952bd67f90fd75f4413212ac9640a7672c]),
-        lambda x: sha256(x).digest()),
+        FQ2([0x00f7fab0fedc978b974a38a1755244727b8a4eb31073653fa949594645ad181880d20ff0c91c4375b7e451fe803c9847, 0x0964d550ee8752b6db99555ffcd442b4185267f31e3d57435ea73896a7a9fe952bd67f90fd75f4413212ac9640a7672c])),
     ]
 )
 def test_hash_to_G2(msg, x, y, H):

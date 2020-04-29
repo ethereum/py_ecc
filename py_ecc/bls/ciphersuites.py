@@ -45,10 +45,7 @@ from .g2_primatives import (
 
 class BaseG2Ciphersuite(abc.ABC):
     DST = b''
-
-    @staticmethod
-    def xmd_hash_function(x: bytes) -> bytes:
-        return sha256(x).digest()
+    xmd_hash_function = sha256
 
     @staticmethod
     def PrivToPub(privkey: int) -> BLSPubkey:

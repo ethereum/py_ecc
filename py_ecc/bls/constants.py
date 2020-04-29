@@ -23,5 +23,3 @@ ALL_BYTES = tuple(bytes([i]) for i in range(256))
 # Paramaters for hashing to the field as specified in:
 # https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-8.7
 HASH_TO_FIELD_L = 64
-HASH_TO_FIELD_B_IN_BYTES = 32
-HASH_TO_FIELD_R_IN_BYTES = 64
