@@ -65,7 +65,7 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
     if not success:
         numerator = numerator * iso_3_z_t2
 
-    if t.sgn0_be() != y.sgn0_be():
+    if t.sgn0 != y.sgn0:
         y = -y
 
     y = y * denominator

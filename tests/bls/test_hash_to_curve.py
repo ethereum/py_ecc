@@ -14,6 +14,8 @@ from py_ecc.bls.constants import (
 from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
+    optimized_bls12_381_FQ12 as FQ12,
+    optimized_bls12_381_FQP as FQP,
 )
 from py_ecc.optimized_bls12_381 import (
     G1,
@@ -63,17 +65,17 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
     'msg,x,y',
     [
         (b'',
-        FQ2([0x0d3b02ee071b12d1e79138c3900ca3da7b8021ac462fe6ed68080dc9a5f1c5de46b7fe171e8b3e4e7537e7746757aeca, 0x0d4733459fead6a1f30e5f92df08ecfd0db9bcd0f3e2f2de0f00c8f45e081420aa4392eade61eade57d7a68474672fc1]),
-        FQ2([0x09cc6f7b3074f0c82510e65d8fc58f6033e03ba7358005a13e2bbd7f429b080f29731ef08c3780c9e3c746578b96b05c, 0x0011531b8e08900a4f6f612e1e27432961419ce6a5ee3ec904a53588982d36ec4ea37be80b6cb7d986b38faec67dbe44])),
+        FQ2([0x0a650bd36ae7455cb3fe5d8bb1310594551456f5c6593aec9ee0c03d2f6cb693bd2c5e99d4e23cbaec767609314f51d3, 0x0fbdae26f9f9586a46d4b0b70390d09064ef2afe5c99348438a3c7d9756471e015cb534204c1b6824617a85024c772dc]),
+        FQ2([0x0d8d49e7737d8f9fc5cef7c4b8817633103faf2613016cb86a1f3fc29968fe2413e232d9208d2d74a89bf7a48ac36f83, 0x02e5cf8f9b7348428cc9e66b9a9b36fe45ba0b0a146290c3a68d92895b1af0e1f2d9f889fb412670ae8478d8abd4c5aa])),
         (b'abc',
-        FQ2([0x0b6d276d0bfbddde617a9ab4c175b07c9c4aecad2cdd6cc9ca541b61334a69c58680ef5692bbad03d2f572838df32b66, 0x139e9d78ff6d9d163f979d14a64c5e57f82f1ef7e42ece338b571a9e92c0666f0f6bf1a5fc21e2d32bcb6432eab7037c]),
-        FQ2([0x022f9ee5d596d06c5f2f735c3c5f743978f79fd57bf7d4291e221227f490d3f276066de9f9edc89c57e048ef4cf0ef72, 0x14dd23517516a80d1d840e34f51dfb76946c7670fca0f36ad8ec9bde4ea82dfae119a21b076519bcc1c00152989a4d45])),
+        FQ2([0x1953ce6d4267939c7360756d9cca8eb34aac4633ef35369a7dc249445069888e7d1b3f9d2e75fbd468fbcbba7110ea02, 0x03578447618463deb106b60e609c6f7cc446dc6035f84a72801ba17c94cd800583b493b948eff0033f09086fdd7f6175]),
+        FQ2([0x0882ab045b8fe4d7d557ebb59a63a35ac9f3d312581b509af0f8eaa2960cbc5e1e36bb969b6e22980b5cbdd0787fcf4e, 0x0184d26779ae9d4670aca9b267dbd4d3b30443ad05b8546d36a195686e1ccc3a59194aea05ed5bce7c3144a29ec047c4])),
         (b'abcdef0123456789',
-        FQ2([0x0ded52c30aace28d3e9cc5c1b47861ae4dd4e9cd17622e0f5b9d584af0397cd0e3bae80d4ee2d9d4b18c390f63154dfd, 0x046701a03f361a0b8392ca387585f7ee6534dcec9450a035e39dc37387d5ca079b9557447f7d9cad0bd9671cb65ada02]),
-        FQ2([0x07a5cf56c5ea1d69ad59c0e80cc16c0c1b27f02840b396eb0ea320f70e87f705c6fa70cfeb9719b14badbb058bec5a4c, 0x0674d1f7c9e8e84d8d7a07b40231257571c43160fd566e8d24459d17ca52f6068e1b63aaae5359d8869d4abc66de66b6])),
+        FQ2([0x17b461fc3b96a30c2408958cbfa5f5927b6063a8ad199d5ebf2d7cdeffa9c20c85487204804fab53f950b2f87db365aa, 0x195fad48982e186ce3c5c82133aefc9b26d55979b6f530992a8849d4263ec5d57f7a181553c8799bcc83da44847bdc8d]),
+        FQ2([0x174a3473a3af2d0302b9065e895ca4adba4ece6ce0b41148ba597001abb152f852dd9a96fb45c9de0a43d944746f833e, 0x005cdf3d984e3391e7e969276fb4bc02323c5924a4449af167030d855acc2600cf3d4fab025432c6d868c79571a95bef])),
         (b'a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        FQ2([0x0161130ef4aa2f60f751e6b3dd48ac6e994d2d2613897c5dd26945bc72f33cc2977e1255c3f2dc0f1440d15a71c29b40, 0x06db1818f132a61f5fe86d315faa8de4653049ac9cf7fbbc6d9987e5864d82a0156259d56192109bafddd5c30b9f01f5]),
-        FQ2([0x00f7fab0fedc978b974a38a1755244727b8a4eb31073653fa949594645ad181880d20ff0c91c4375b7e451fe803c9847, 0x0964d550ee8752b6db99555ffcd442b4185267f31e3d57435ea73896a7a9fe952bd67f90fd75f4413212ac9640a7672c])),
+        FQ2([0x0a162306f3b0f2bb326f0c4fb0e1fea020019c3af796dcd1d7264f50ddae94cacf3cade74603834d44b9ab3d5d0a6c98, 0x123b6bd9feeba26dd4ad00f8bfda2718c9700dc093ea5287d7711844644eb981848316d3f3f57d5d3a652c6cdc816aca]),
+        FQ2([0x15c1d4f1a685bb63ee67ca1fd96155e3d091e852a684b78d085fd34f6091e5249ddddbdcf2e7ec82ce6c04c63647eeb7, 0x05483f3b96d9252dd4fc0868344dfaf3c9d145e3387db23fa8e449304fab6a7b6ec9c15f05c0a1ea66ff0efcc03e001a])),
     ]
 )
 def test_hash_to_G2(msg, x, y, H):
@@ -86,3 +88,38 @@ def test_hash_to_G2(msg, x, y, H):
 
     assert x == result_x
     assert y == result_y
+
+@pytest.mark.parametrize('degree', [
+    (1),
+    (2),
+    (12),
+])
+@pytest.mark.parametrize('value, expected', [
+    (0x00, 0),
+    (0x10, 0),
+    (0x01, 1),
+])
+def test_FQ_sgn0(degree, value, expected):
+    if degree == 1:
+        x = FQ(value)
+    elif degree == 2:
+        x = FQ2([value, 0])
+    elif degree == 12:
+        x = FQ12([value] + [0] * 11)
+
+    assert x.sgn0 == expected
+    if value != 0:
+        assert x.sgn0 != (-x).sgn0
+
+
+@pytest.mark.parametrize('value, expected', [
+    ([0x00, 0x00], 0),
+    ([0x10, 0x00], 0),
+    ([0x01, 0x00], 1),
+    ([0x01, 0x01], 1),
+    ([0x10, 0x10], 0),
+])
+def test_FQ2_sgn0(value, expected):
+    x = FQ2(value)
+    y = FQP(value, modulus_coeffs=FQ2.FQ2_MODULUS_COEFFS)
+    assert x.sgn0 == y.sgn0 == expected

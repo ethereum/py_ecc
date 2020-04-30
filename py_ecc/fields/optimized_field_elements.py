@@ -1,3 +1,11 @@
+try:
+    # Python 3.8
+    from functools import cached_property  # type: ignore
+except (ImportError, SyntaxError):
+    # Python 3 to 3.7
+    from cached_property import cached_property
+
+
 from typing import (  # noqa: F401
     cast,
     List,
@@ -28,6 +36,15 @@ T_FQP = TypeVar('T_FQP', bound="FQP")
 T_FQ2 = TypeVar('T_FQ2', bound="FQ2")
 T_FQ12 = TypeVar('T_FQ12', bound="FQ12")
 IntOrFQ = Union[int, T_FQ]
+
+
+def mod_int(x: IntOrFQ, n: int) -> int:
+    if isinstance(x, int):
+        return x % n
+    elif isinstance(x, FQ):
+        return x.n % n
+    else:
+        raise TypeError("Only int and T_FQ types are accepted: got %s" % type(x))
 
 
 class FQ(object):
@@ -182,20 +199,18 @@ class FQ(object):
     def __int__(self: T_FQ) -> int:
         return self.n
 
-    def sgn0_be(self: T_FQ) -> int:
+    @cached_property
+    def sgn0(self: T_FQ) -> int:
         """
         Calculates the sign of a value.
-        sgn0_be(x) = -1 when x > -x
+        sgn0(x) = 1 when x is 'negative'; otherwise, sg0(x) = 0
+
+        Note this is an optimized variant for m = 1
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-4.1.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-4.1
         """
-        if self.n == 0:
-            return 1
-        neg = type(self)(-self)
-        if neg.n > self.n:
-            return 1
-        return -1
+        return self.n % 2
 
     @classmethod
     def one(cls: Type[T_FQ]) -> T_FQ:
@@ -378,31 +393,22 @@ class FQP(object):
     def __neg__(self: T_FQP) -> T_FQP:
         return type(self)([-c for c in self.coeffs])
 
-    def sgn0_be(self: T_FQP) -> int:
+    @cached_property
+    def sgn0(self: T_FQP) -> int:
         """
         Calculates the sign of a value.
-        sgn0_be(x) = -1 when x > -x
+        sgn0(x) = 1 when x is 'negative'; otherwise, sg0(x) = 0
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-4.1.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-4.1
         """
         sign = 0
-        for x_i in reversed(self.coeffs):
-            sign_i = 0
-            if isinstance(x_i, int):
-                if x_i == 0:
-                    sign_i = 0
-                elif (-x_i % self.field_modulus) > (x_i % self.field_modulus):
-                    sign_i = 1
-                else:
-                    sign_i = -1
-            elif isinstance(x_i, FQ):
-                sign_i = x_i.sgn0_be()
-            else:
-                raise TypeError("Only int and T_FQ types are accepted: got {type(x_i)}")
-
-            if sign == 0:
-                sign = sign_i
+        zero = 1
+        for x_i in self.coeffs:
+            sign_i = mod_int(x_i, 2)
+            zero_i = x_i == 0
+            sign = sign or (zero and sign_i)
+            zero = zero and zero_i
         return sign
 
     @classmethod
@@ -427,6 +433,23 @@ class FQ2(FQP):
 
         self.mc_tuples = [(i, c) for i, c in enumerate(self.FQ2_MODULUS_COEFFS) if c]
         super().__init__(coeffs, self.FQ2_MODULUS_COEFFS)
+
+    @cached_property
+    def sgn0(self: T_FQP) -> int:
+        """
+        Calculates the sign of a value.
+        sgn0(x) = 1 when x is 'negative'; otherwise, sg0(x) = 0
+
+        Note this is an optimized variant for m = 2
+
+        Defined here:
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-4.1
+        """
+        x_0, x_1 = self.coeffs
+        sign_0 = mod_int(x_0, 2)
+        zero_0 = x_0 == 0
+        sign_1 = mod_int(x_1, 2)
+        return sign_0 or (zero_0 and sign_1)
 
 
 class FQ12(FQP):
