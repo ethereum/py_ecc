@@ -1,5 +1,4 @@
 from typing import (
-    Callable,
     Tuple,
 )
 from _hashlib import HASH  # type: ignore

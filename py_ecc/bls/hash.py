@@ -1,7 +1,6 @@
 import hmac
 import math
 from typing import (
-    Callable,
     Union,
 )
 from hashlib import sha256
