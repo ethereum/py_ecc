@@ -182,20 +182,17 @@ class FQ(object):
     def __int__(self: T_FQ) -> int:
         return self.n
 
-    def sgn0_be(self: T_FQ) -> int:
+    def sgn0(self: T_FQ) -> int:
         """
         Calculates the sign of a value.
-        sgn0_be(x) = -1 when x > -x
+        sgn0(x) = 0 when x > -x
+
+        Note this is an optimized variant for m = 1
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-4.1.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-4.1
         """
-        if self.n == 0:
-            return 1
-        neg = type(self)(-self)
-        if neg.n > self.n:
-            return 1
-        return -1
+        return self.n % 2
 
     @classmethod
     def one(cls: Type[T_FQ]) -> T_FQ:
@@ -378,31 +375,26 @@ class FQP(object):
     def __neg__(self: T_FQP) -> T_FQP:
         return type(self)([-c for c in self.coeffs])
 
-    def sgn0_be(self: T_FQP) -> int:
+    def sgn0(self: T_FQP) -> int:
         """
         Calculates the sign of a value.
-        sgn0_be(x) = -1 when x > -x
+        sgn0(x) = 0 when x > -x
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-4.1.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-4.1
         """
         sign = 0
+        zero = 1
         for x_i in reversed(self.coeffs):
-            sign_i = 0
             if isinstance(x_i, int):
-                if x_i == 0:
-                    sign_i = 0
-                elif (-x_i % self.field_modulus) > (x_i % self.field_modulus):
-                    sign_i = 1
-                else:
-                    sign_i = -1
+                sign_i = x_i % 2
             elif isinstance(x_i, FQ):
-                sign_i = x_i.sgn0_be()
+                sign_i = x_i.sgn0()
             else:
                 raise TypeError("Only int and T_FQ types are accepted: got {type(x_i)}")
-
-            if sign == 0:
-                sign = sign_i
+            zero_i = x_i == 0
+            sign = sign | (zero & sign_i)
+            zero = zero & zero_i
         return sign
 
     @classmethod
