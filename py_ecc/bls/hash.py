@@ -56,7 +56,7 @@ def expand_message_xmd(msg: bytes, DST: bytes, len_in_bytes: int, hash_function:
     ell = math.ceil(len_in_bytes / b_in_bytes)
     if ell > 255:
         raise ValueError('invalid len in bytes for hash function')
-    DST_prime = ALL_BYTES[len(DST)] + DST  # Prepend the length if the DST as a single byte
+    DST_prime = DST + ALL_BYTES[len(DST)]  # Append the length of the DST as a single byte
     Z_pad = b'\x00' * r_in_bytes
     l_i_b_str = len_in_bytes.to_bytes(2, 'big')
     b_0 = hash_function(Z_pad + msg + l_i_b_str + b'\x00' + DST_prime).digest()

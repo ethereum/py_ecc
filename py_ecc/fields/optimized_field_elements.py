@@ -185,7 +185,7 @@ class FQ(object):
     def sgn0(self: T_FQ) -> int:
         """
         Calculates the sign of a value.
-        sgn0(x) = 0 when x > -x
+        sgn0(x) = 1 when x is 'negative'
 
         Note this is an optimized variant for m = 1
 
@@ -378,14 +378,14 @@ class FQP(object):
     def sgn0(self: T_FQP) -> int:
         """
         Calculates the sign of a value.
-        sgn0(x) = 0 when x > -x
+        sgn0(x) = 1 when x is 'negative'
 
         Defined here:
         https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-4.1
         """
         sign = 0
         zero = 1
-        for x_i in reversed(self.coeffs):
+        for x_i in self.coeffs:
             if isinstance(x_i, int):
                 sign_i = x_i % 2
             elif isinstance(x_i, FQ):
@@ -393,8 +393,8 @@ class FQP(object):
             else:
                 raise TypeError("Only int and T_FQ types are accepted: got {type(x_i)}")
             zero_i = x_i == 0
-            sign = sign | (zero & sign_i)
-            zero = zero & zero_i
+            sign = sign or (zero and sign_i)
+            zero = zero and zero_i
         return sign
 
     @classmethod
