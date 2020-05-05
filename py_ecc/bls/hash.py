@@ -4,7 +4,7 @@ from typing import (
     Union,
 )
 from hashlib import sha256
-from _hashlib import HASH  # type: ignore
+from _hashlib import HASH
 
 from .constants import (
     ALL_BYTES,

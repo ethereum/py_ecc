@@ -1,7 +1,7 @@
 from typing import (
     Tuple,
 )
-from _hashlib import HASH  # type: ignore
+from _hashlib import HASH
 
 from py_ecc.fields import (
     optimized_bls12_381_FQ2 as FQ2,
