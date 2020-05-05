@@ -16,4 +16,10 @@ POW_2_381 = 2**381
 POW_2_382 = 2**382
 POW_2_383 = 2**383
 
-HASH_TO_G2_L = 64
+
+# Store all the possible single bytes for faster access in hash-to-field
+ALL_BYTES = tuple(bytes([i]) for i in range(256))
+
+# Paramaters for hashing to the field as specified in:
+# https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-06#section-8.7
+HASH_TO_FIELD_L = 64

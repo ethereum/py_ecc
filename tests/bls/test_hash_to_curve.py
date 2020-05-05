@@ -6,6 +6,7 @@ from eth_utils import (
     big_endian_to_int,
 )
 import pytest
+from hashlib import sha256
 
 from py_ecc.bls.hash_to_curve import hash_to_G2
 from py_ecc.bls.constants import (
@@ -31,7 +32,7 @@ from py_ecc.optimized_bls12_381 import (
     iso_map_G2,
 )
 
-DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO_POP_' # TODO: Switch out test for valid DST
+DST = b'BLS12381G2_XMD:SHA-256_SSWU_RO_TESTGEN'
 
 
 @pytest.mark.parametrize(
@@ -59,35 +60,27 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
     assert g2_y == result_y
 
 
+# Tests taken from: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/master/draft-irtf-cfrg-hash-to-curve.md#bls12381g2_xmdsha-256_sswu_ro_
+@pytest.mark.parametrize('H', [sha256])
 @pytest.mark.parametrize(
     'msg,x,y',
     [
-        (b'msg',
-        FQ2([int('7896efdac56b0f6cbd8c78841676d63fc733b692628687bf25273aa8a107bd8cb53bbdb705b551e239dffe019abd4df', 16), int('bd557eda8d16ab2cb2e71cca4d7b343985064daad04734e07da5cdda26610b59cdc0810a25276467d24b315bf7860e0', 16)]),
-        FQ2([int('1bdb6290cae9f30f263dd40f014b9f4406c3fbbc5fea47e2ebd45e42332553961eb53a15c09e5e090d7a7122dc6657', 16), int('18370459c44e799af8ef31634a683e340e79c3a06f912594d287a443620933b47a2a3e5ce4470539eae50f6d49b8ebd6', 16)])),
-        (b'01234567890123456789012345678901',
-        FQ2([int('16b7456df1dfa411b8be80c503864b0795b0b9a7674c05c00e7bdee5a75cbdeec633e16a104406ea626ea6845f5d19b5', 16), int('12ae54eeb3b4dc113d7e80302e51456224087955910479929bf912d89177aa050376960002a96fc6541ac041957f4b93', 16)]),
-        FQ2([int('1632fe9d91a984f30a7d9b3bab6583974a2ca55933d96cba85f39ddd61ea0129274f75ad7de29473adf3db676dcdb6a3', 16), int('8d5d3b670fca3661122b0ca5929e48f293a5a5c1261050c46b6a08eac3f7d1f5075e2139a63f98e717ecc7c2e00d042', 16)])),
         (b'',
-        FQ2([int('c38e18c9ca92ad387cbfa0e9bd62e53e4f938006097a092d5e9f2c6f3963d78969e7631bf8d6a8a9aad36bc82d763c1', 16), int('23ebc431b239ee7606aad7cd4eee60bb70df3e5072ede86946ffaddb0584e1fcfcee9484869f41e09ab4d64b9e4a72a', 16)]),
-        FQ2([int('735ae5ca4a2320d820e15501ee79c42ff58a6f40e8549eada554e07c94b34b6634b6034f8735a7e4ac01db81b00f58e', 16), int('1687b6a2fb9e542426d508d4a58846c0e3496ede2e12f57f3358110874ba0011e2107e0742eeb6707682d5ddf319b6f6', 16)])),
-        (b'abcdefghijklmnopqrstuvwxyz',
-        FQ2([int('db85d0c792c586c6efb4126e98a8a8788d28187a6432cbdd57444a8c937ce20e0fc0774477150d31bfff83a050b530e', 16), int('13505f5cbb1503c7b1206edd31364a467f5159d741cffe8f443f2282b4adfcf5f1450bd2fe6127991ff60955b3b40015', 16)]),
-        FQ2([int('1738e4903e5618fcba965861c73d7c7a7544fabc9762ccdf9842dbba30566ce33047c3ff714ce8a10323bcac0ee88479', 16), int('d0df337706a8b4c367ea189d9e213f47455399ddf734358695e84ad09630a724082ad22dda74e6cd41378dbb89b0ebd', 16)])),
-        (b'\xff' * 100,
-        FQ2([int('a2b9bb7afda6e1c3cb2340aa679ce00469a14c651becd30fa231c83ab82d1b92db074058c3673daaaa2a113f0c3ea56', 16), int('e7fcdf25cf4465f58de593bf6445ec1cd164de346a27ed46314dcbb35a830650f5bb4d8049878d9a84a34013fa4fb11', 16)]),
-        FQ2([int('14f909c9fb9fb14c0e7455ed5306edaad40e7c57cdd719f59730db6ae64161db1f1a8159db4d97700fba7547920fe1a2', 16), int('1702a797d33e0c7b3fac012da0ef1960e0f4551f23ffee3e12dc36ac4acdd6d78bee97bad76689b8e70dac80449a626c', 16)])),
-        (b'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-        FQ2([int('7e2b8b61562339640addfda3202f5d657aa77c143bf5bceda818525ba6f984eba2648528928d6c9680f752dd88d91e3', 16), int('1663cd7231bd9708bebe0be61baecf2b89ebaa658150696f5be2dbe0e092ec698c931e8795ac6319f1c5fdda5d14136a', 16)]),
-        FQ2([int('33d40a6eb88c11c6018fcc00489bc4b9dd700c20d1bab21ad463c5ee63ce671d199020ba743828d450da050f0385680', 16), int('10336a533d1e3564da20bffe87ebc82121cfbfad2e36ecb950c5e12d8552bf932f5f5e846a50e9706b21b0db6585a777', 16)])),
-        (b'e46b320165eec91e6344fa10340d5b3208304d6cad29d0d5aed18466d1d9d80e',
-        FQ2([int('119a71e0d20489cf8c5f82c51e879e7b344e53307b53be650df7f3f04907b75b71fdafe26e8d4e14e603440b09efe6f3', 16), int('e4ea193377da29537e8fe6f6f631adff10afaef2ea1eb2107d30d97358c1a19975e0a8bb62650ff90447cf5b3719c1d', 16)]),
-        FQ2([int('1142f2e077cc4230ee3cf07565ee626141ea9b86a79a0422d7f0e84c281ca09c5bbbe95f21e51285618c81d6dfda943d', 16), int('15e4da056552343eb519b3087962521d112c7e307d731373e8f1c72415306ccbc3c14fc6d68d61d2feeda3ea2e7729f', 16)])),
+        FQ2([0x0d3b02ee071b12d1e79138c3900ca3da7b8021ac462fe6ed68080dc9a5f1c5de46b7fe171e8b3e4e7537e7746757aeca, 0x0d4733459fead6a1f30e5f92df08ecfd0db9bcd0f3e2f2de0f00c8f45e081420aa4392eade61eade57d7a68474672fc1]),
+        FQ2([0x09cc6f7b3074f0c82510e65d8fc58f6033e03ba7358005a13e2bbd7f429b080f29731ef08c3780c9e3c746578b96b05c, 0x0011531b8e08900a4f6f612e1e27432961419ce6a5ee3ec904a53588982d36ec4ea37be80b6cb7d986b38faec67dbe44])),
+        (b'abc',
+        FQ2([0x0b6d276d0bfbddde617a9ab4c175b07c9c4aecad2cdd6cc9ca541b61334a69c58680ef5692bbad03d2f572838df32b66, 0x139e9d78ff6d9d163f979d14a64c5e57f82f1ef7e42ece338b571a9e92c0666f0f6bf1a5fc21e2d32bcb6432eab7037c]),
+        FQ2([0x022f9ee5d596d06c5f2f735c3c5f743978f79fd57bf7d4291e221227f490d3f276066de9f9edc89c57e048ef4cf0ef72, 0x14dd23517516a80d1d840e34f51dfb76946c7670fca0f36ad8ec9bde4ea82dfae119a21b076519bcc1c00152989a4d45])),
+        (b'abcdef0123456789',
+        FQ2([0x0ded52c30aace28d3e9cc5c1b47861ae4dd4e9cd17622e0f5b9d584af0397cd0e3bae80d4ee2d9d4b18c390f63154dfd, 0x046701a03f361a0b8392ca387585f7ee6534dcec9450a035e39dc37387d5ca079b9557447f7d9cad0bd9671cb65ada02]),
+        FQ2([0x07a5cf56c5ea1d69ad59c0e80cc16c0c1b27f02840b396eb0ea320f70e87f705c6fa70cfeb9719b14badbb058bec5a4c, 0x0674d1f7c9e8e84d8d7a07b40231257571c43160fd566e8d24459d17ca52f6068e1b63aaae5359d8869d4abc66de66b6])),
+        (b'a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        FQ2([0x0161130ef4aa2f60f751e6b3dd48ac6e994d2d2613897c5dd26945bc72f33cc2977e1255c3f2dc0f1440d15a71c29b40, 0x06db1818f132a61f5fe86d315faa8de4653049ac9cf7fbbc6d9987e5864d82a0156259d56192109bafddd5c30b9f01f5]),
+        FQ2([0x00f7fab0fedc978b974a38a1755244727b8a4eb31073653fa949594645ad181880d20ff0c91c4375b7e451fe803c9847, 0x0964d550ee8752b6db99555ffcd442b4185267f31e3d57435ea73896a7a9fe952bd67f90fd75f4413212ac9640a7672c])),
     ]
 )
-def test_hash_to_G2(msg, x, y):
-    point = hash_to_G2(msg, DST)
-
+def test_hash_to_G2(msg, x, y, H):
+    point = hash_to_G2(msg, DST, H)
     assert is_on_curve(point, b2)
 
     # Affine
