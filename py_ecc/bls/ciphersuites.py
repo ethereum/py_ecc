@@ -1,6 +1,5 @@
 from typing import (
     Sequence,
-    Tuple,
 )
 from math import (
     ceil,
@@ -12,7 +11,6 @@ from eth_typing import (
     BLSSignature,
 )
 from eth_utils import (
-    big_endian_to_int,
     ValidationError,
 )
 from hashlib import sha256
@@ -33,6 +31,8 @@ from py_ecc.optimized_bls12_381 import (
 from .hash import (
     hkdf_expand,
     hkdf_extract,
+    i2osp,
+    os2ip,
 )
 from .hash_to_curve import hash_to_G2
 from .g2_primatives import (
@@ -48,16 +48,16 @@ class BaseG2Ciphersuite(abc.ABC):
     xmd_hash_function = sha256
 
     @staticmethod
-    def PrivToPub(privkey: int) -> BLSPubkey:
+    def SkToPk(privkey: int) -> BLSPubkey:
         return G1_to_pubkey(multiply(G1, privkey))
 
     @staticmethod
-    def KeyGen(IKM: bytes) -> Tuple[BLSPubkey, int]:
-        prk = hkdf_extract(b'BLS-SIG-KEYGEN-SALT-', IKM)
+    def KeyGen(IKM: bytes, key_info: bytes = b'') -> int:
+        prk = hkdf_extract(b'BLS-SIG-KEYGEN-SALT-', IKM + b'\x00')
         l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
-        okm = hkdf_expand(prk, b'', l)
-        x = big_endian_to_int(okm) % curve_order
-        return (BaseG2Ciphersuite.PrivToPub(x), x)
+        okm = hkdf_expand(prk, key_info + i2osp(l, 2), l)
+        x = os2ip(okm) % curve_order
+        return x
 
     @staticmethod
     def KeyValidate(PK: BLSPubkey) -> bool:
@@ -77,6 +77,7 @@ class BaseG2Ciphersuite(abc.ABC):
     def _CoreVerify(cls, PK: BLSPubkey, message: bytes,
                     signature: BLSSignature, DST: bytes) -> bool:
         try:
+            assert BaseG2Ciphersuite.KeyValidate(PK)
             signature_point = signature_to_G2(signature)
             final_exponentiation = final_exponentiate(
                 pairing(
@@ -95,24 +96,29 @@ class BaseG2Ciphersuite(abc.ABC):
 
     @staticmethod
     def Aggregate(signatures: Sequence[BLSSignature]) -> BLSSignature:
-        accumulator = Z2  # Seed with the point at infinity
+        assert len(signatures) >= 1, 'Insufficient number of signatures. (n < 1)'
+        aggregate = Z2  # Seed with the point at infinity
         for signature in signatures:
             signature_point = signature_to_G2(signature)
-            accumulator = add(accumulator, signature_point)
-        return G2_to_signature(accumulator)
+            aggregate = add(aggregate, signature_point)
+        return G2_to_signature(aggregate)
 
     @classmethod
-    def _CoreAggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
+    def _CoreAggregateVerify(cls, PKs: Sequence[BLSPubkey], messages: Sequence[bytes],
                              signature: BLSSignature, DST: bytes) -> bool:
         try:
+            if len(PKs) != len(messages):
+                raise ValidationError('len(PKs) != len(messages)')
+            if len(PKs) < 1:
+                raise ValidationError('Insufficient number of signatures. (n < 1)')
             signature_point = signature_to_G2(signature)
-            accumulator = FQ12.one()
-            for pk, message in pairs:
+            aggregate = FQ12.one()
+            for pk, message in zip(PKs, messages):
                 pubkey_point = pubkey_to_G1(pk)
                 message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
-                accumulator *= pairing(message_point, pubkey_point, final_exponentiate=False)
-            accumulator *= pairing(signature_point, neg(G1), final_exponentiate=False)
-            return final_exponentiate(accumulator) == FQ12.one()
+                aggregate *= pairing(message_point, pubkey_point, final_exponentiate=False)
+            aggregate *= pairing(signature_point, neg(G1), final_exponentiate=False)
+            return final_exponentiate(aggregate) == FQ12.one()
 
         except (ValidationError, ValueError, AssertionError):
             return False
@@ -126,30 +132,28 @@ class BaseG2Ciphersuite(abc.ABC):
         return cls._CoreVerify(PK, message, signature, cls.DST)
 
     @abc.abstractclassmethod
-    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
-                        signature: BLSSignature) -> bool:
+    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
         ...
 
 
 class G2Basic(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_NUL_'
+    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_'
 
     @classmethod
-    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
-                        signature: BLSSignature) -> bool:
-        pairs = list(pairs)
-        _, messages = zip(*pairs)
+    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
         if len(messages) != len(set(messages)):  # Messages are not unique
             return False
-        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
+        return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
 
 class G2MessageAugmentation(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_AUG_'
+    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_'
 
     @classmethod
     def Sign(cls, SK: int, message: bytes) -> BLSSignature:
-        PK = cls.PrivToPub(SK)
+        PK = cls.SkToPk(SK)
         return cls._CoreSign(SK, PK + message, cls.DST)
 
     @classmethod
@@ -157,25 +161,24 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
         return cls._CoreVerify(PK, PK + message, signature, cls.DST)
 
     @classmethod
-    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
-                        signature: BLSSignature) -> bool:
-        pairs = list(pairs)
-        pairs = [(pk, pk + msg) for pk, msg in pairs]
-        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
+    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
+        messages = [pk + msg for pk, msg in zip(PKs, messages)]
+        return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
 
 class G2ProofOfPossession(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2-SHA256-SSWU-RO-_POP_'
-    POP_TAG = b'BLS_POP_BLS12381G2-SHA256-SSWU-RO-_POP_'
+    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
+    POP_TAG = b'BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
 
     @classmethod
-    def AggregateVerify(cls, pairs: Sequence[Tuple[BLSPubkey, bytes]],
-                        signature: BLSSignature) -> bool:
-        return cls._CoreAggregateVerify(pairs, signature, cls.DST)
+    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
+                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
+        return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
     @classmethod
     def PopProve(cls, SK: int) -> BLSSignature:
-        pubkey = cls.PrivToPub(SK)
+        pubkey = cls.SkToPk(SK)
         return cls._CoreSign(SK, pubkey, cls.POP_TAG)
 
     @classmethod
@@ -184,14 +187,18 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
 
     @staticmethod
     def _AggregatePKs(PKs: Sequence[BLSPubkey]) -> BLSPubkey:
-        accumulator = Z1  # Seed with the point at infinity
+        assert len(PKs) >= 1, 'Insufficient number of PKs. (n < 1)'
+        aggregate = Z1  # Seed with the point at infinity
         for pk in PKs:
             pubkey_point = pubkey_to_G1(pk)
-            accumulator = add(accumulator, pubkey_point)
-        return G1_to_pubkey(accumulator)
+            aggregate = add(aggregate, pubkey_point)
+        return G1_to_pubkey(aggregate)
 
     @classmethod
     def FastAggregateVerify(cls, PKs: Sequence[BLSPubkey],
                             message: bytes, signature: BLSSignature) -> bool:
-        aggregate_pubkey = cls._AggregatePKs(PKs)
+        try:
+            aggregate_pubkey = cls._AggregatePKs(PKs)
+        except AssertionError:
+            return False
         return cls.Verify(aggregate_pubkey, message, signature)

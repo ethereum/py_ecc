@@ -15,7 +15,10 @@ from py_ecc.optimized_bls12_381 import (
 )
 
 from .constants import HASH_TO_FIELD_L
-from .hash import expand_message_xmd
+from .hash import (
+    expand_message_xmd,
+    os2ip,
+)
 from .typing import G2Uncompressed
 
 
@@ -56,7 +59,7 @@ def hash_to_field_FQ2(message: bytes, count: int,
         for j in range(0, M):
             elem_offset = HASH_TO_FIELD_L * (j + i * M)
             tv = pseudo_random_bytes[elem_offset: elem_offset + HASH_TO_FIELD_L]
-            e.append(int.from_bytes(tv, 'big') % field_modulus)
+            e.append(os2ip(tv) % field_modulus)
         u.append(FQ2(e))
     return tuple(u)
 

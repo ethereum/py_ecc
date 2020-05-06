@@ -3,7 +3,6 @@ from eth_typing import (
     BLSPubkey,
 )
 from eth_utils import (
-    big_endian_to_int,
     ValidationError,
 )
 
@@ -14,6 +13,10 @@ from py_ecc.optimized_bls12_381 import (
 )
 from py_ecc.typing import Optimized_Point3D
 
+from .hash import (
+    i2osp,
+    os2ip,
+)
 from .point_compression import (
     compress_G1,
     decompress_G1,
@@ -34,15 +37,11 @@ def subgroup_check(P: Optimized_Point3D) -> bool:
 
 def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:
     z1, z2 = compress_G2(pt)
-    return BLSSignature(
-        z1.to_bytes(48, "big") + z2.to_bytes(48, "big")
-    )
+    return BLSSignature(i2osp(z1, 48) + i2osp(z2, 48))
 
 
 def signature_to_G2(signature: BLSSignature) -> G2Uncompressed:
-    p = G2Compressed(
-        (big_endian_to_int(signature[:48]), big_endian_to_int(signature[48:]))
-    )
+    p = G2Compressed((os2ip(signature[:48]), os2ip(signature[48:])))
     signature_point = decompress_G2(p)
     if not subgroup_check(signature_point):
         raise ValidationError('Signature is not a part of the E2 subgroup.')
@@ -51,11 +50,11 @@ def signature_to_G2(signature: BLSSignature) -> G2Uncompressed:
 
 def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
     z = compress_G1(pt)
-    return BLSPubkey(z.to_bytes(48, "big"))
+    return BLSPubkey(i2osp(z, 48))
 
 
 def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
-    z = big_endian_to_int(pubkey)
+    z = os2ip(pubkey)
     pubkey_point = decompress_G1(G1Compressed(z))
     if not subgroup_check(pubkey_point):
         raise ValidationError('Pubkey is not a part of the E1 subgroup.')

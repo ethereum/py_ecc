@@ -2,9 +2,6 @@
 These are temporary tests to check the functionality of helper functions in `hash_to_G2`
 They should be removed and replaced with a final version when hash to curve is complete.
 """
-from eth_utils import (
-    big_endian_to_int,
-)
 import pytest
 from hashlib import sha256
 
