@@ -57,9 +57,7 @@ def os2ip(x: bytes) -> int:
 
 
 def sha256(x: bytes) -> bytes:
-    m = hashlib.sha256
-    m.update(x)
-    return m.digest()
+    return hashlib.sha256(x).digest()
 
 
 def xor(a: bytes, b: bytes) -> bytes:
