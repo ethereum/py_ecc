@@ -57,10 +57,10 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
         if temp1 == FQ2.zero() and not success and not success_2:
             y = eta_sqrt_candidate
             success_2 = True
-    else:
-        if not success and not success_2:
-            # Unreachable
-            raise Exception("Hash to Curve - Optimized SWU failure")
+
+    if not success and not success_2:
+        # Unreachable
+        raise Exception("Hash to Curve - Optimized SWU failure")
 
     if not success:
         numerator = numerator * iso_3_z_t2

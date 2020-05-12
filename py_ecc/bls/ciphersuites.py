@@ -96,7 +96,11 @@ class BaseG2Ciphersuite(abc.ABC):
 
     @staticmethod
     def Aggregate(signatures: Sequence[BLSSignature]) -> BLSSignature:
-        assert len(signatures) >= 1, 'Insufficient number of signatures. (n < 1)'
+        if len(signatures) < 1:
+            raise ValidationError(
+                'Insufficient number of signatures: should be greater than'
+                ' or equal to 1, got %d' % len(signatures)
+            )
         aggregate = Z2  # Seed with the point at infinity
         for signature in signatures:
             signature_point = signature_to_G2(signature)
@@ -108,9 +112,15 @@ class BaseG2Ciphersuite(abc.ABC):
                              signature: BLSSignature, DST: bytes) -> bool:
         try:
             if len(PKs) != len(messages):
-                raise ValidationError('len(PKs) != len(messages)')
+                raise ValidationError(
+                    'len(PKs) != len(messages): got len(PKs)=%s, len(messages)=%s'
+                    % (len(PKs), len(messages))
+                )
             if len(PKs) < 1:
-                raise ValidationError('Insufficient number of signatures. (n < 1)')
+                raise ValidationError(
+                    'Insufficient number of PKs: should be greater than'
+                    ' or equal to 1, got %d' % len(PKs)
+                )
             signature_point = signature_to_G2(signature)
             aggregate = FQ12.one()
             for pk, message in zip(PKs, messages):

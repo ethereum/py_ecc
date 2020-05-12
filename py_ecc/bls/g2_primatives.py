@@ -4,6 +4,7 @@ from eth_typing import (
 )
 from eth_utils import (
     ValidationError,
+    encode_hex,
 )
 
 from py_ecc.optimized_bls12_381 import (
@@ -44,7 +45,9 @@ def signature_to_G2(signature: BLSSignature) -> G2Uncompressed:
     p = G2Compressed((os2ip(signature[:48]), os2ip(signature[48:])))
     signature_point = decompress_G2(p)
     if not subgroup_check(signature_point):
-        raise ValidationError('Signature is not a part of the E2 subgroup.')
+        raise ValidationError(
+            'Signature (%s) is not a part of the E2 subgroup.' % encode_hex(signature)
+        )
     return signature_point
 
 
@@ -57,5 +60,5 @@ def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
     z = os2ip(pubkey)
     pubkey_point = decompress_G1(G1Compressed(z))
     if not subgroup_check(pubkey_point):
-        raise ValidationError('Pubkey is not a part of the E1 subgroup.')
+        raise ValidationError('Pubkey (%s) is not a part of the E1 subgroup.' % encode_hex(pubkey))
     return pubkey_point
