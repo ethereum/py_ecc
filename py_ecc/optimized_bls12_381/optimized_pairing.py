@@ -107,6 +107,7 @@ assert linefunc(one, one, one)[0] == FQ(0)
 assert linefunc(one, one, two)[0] != FQ(0)
 assert linefunc(one, one, negtwo)[0] == FQ(0)
 
+
 # Main miller loop
 def miller_loop(Q: Optimized_Point3D[FQ2],
                 P: Optimized_Point3D[FQ],
@@ -114,21 +115,22 @@ def miller_loop(Q: Optimized_Point3D[FQ2],
     if Q is None or P is None:
         return FQ12.one()
     cast_P = cast_point_to_fq12(P)
-    twist_Q = twist(Q)
-    R = Q  # type: Optimized_Point3D[FQ2]
+    twist_R = twist_Q = twist(Q)
+    R = Q  # type: Optimized_Point3D[FQ12]
     f_num, f_den = FQ12.one(), FQ12.one()
     # for i in range(log_ate_loop_count, -1, -1):
     for v in pseudo_binary_encoding[62::-1]:
-        twist_R = twist(R)
         _n, _d = linefunc(twist_R, twist_R, cast_P)
         f_num = f_num * f_num * _n
         f_den = f_den * f_den * _d
         R = double(R)
+        twist_R = twist(R)
         if v == 1:
             _n, _d = linefunc(twist_R, twist_Q, cast_P)
             f_num = f_num * _n
             f_den = f_den * _d
             R = add(R, Q)
+            twist_R = twist(R)
     # assert R == multiply(Q, ate_loop_count)
     # Q1 = (Q[0] ** field_modulus, Q[1] ** field_modulus, Q[2] ** field_modulus)
     # assert is_on_curve(Q1, b12)
