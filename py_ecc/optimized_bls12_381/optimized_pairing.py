@@ -20,7 +20,6 @@ from .optimized_curve import (
     add,
     multiply,
     is_on_curve,
-    neg,
     twist,
     b,
     b2,
