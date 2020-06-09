@@ -115,7 +115,7 @@ def miller_loop(Q: Optimized_Point3D[FQ2],
         return FQ12.one()
     cast_P = cast_point_to_fq12(P)
     twist_R = twist_Q = twist(Q)
-    R = Q  # type: Optimized_Point3D[FQ12]
+    R = Q  # type: Optimized_Point3D[FQ2]
     f_num, f_den = FQ12.one(), FQ12.one()
     # for i in range(log_ate_loop_count, -1, -1):
     for v in pseudo_binary_encoding[62::-1]:
