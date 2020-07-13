@@ -165,7 +165,7 @@ exptable = [FQ12([0] * i + [1] + [0] * (11 - i)) ** field_modulus for i in range
 
 
 def exp_by_p(x: FQ12) -> FQ12:
-    return sum([exptable[i] * x.coeffs[i] for i in range(12)], FQ12.zero())
+    return sum((table_entry * coeff for table_entry, coeff in zip(exptable, x.coeffs)), FQ12.zero())
 
 
 def final_exponentiate(p: FQ12) -> FQ12:
