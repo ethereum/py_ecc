@@ -164,11 +164,11 @@ def pairing(Q: Optimized_Point3D[FQ2],
 exptable = [FQ12([0] * i + [1] + [0] * (11 - i)) ** field_modulus for i in range(12)]
 
 
-def exp_by_p(x: FQ12):
+def exp_by_p(x: FQ12) -> FQ12:
     return sum([exptable[i] * x.coeffs[i] for i in range(12)], FQ12.zero())
 
 
-def final_exponentiate(p: Optimized_Field) -> Optimized_Field:
+def final_exponentiate(p: FQ12) -> FQ12:
     cofactor = (field_modulus ** 4 - field_modulus ** 2 + 1) // curve_order
     p2 = exp_by_p(exp_by_p(p)) * p
     p3 = exp_by_p(exp_by_p(exp_by_p(exp_by_p(exp_by_p(exp_by_p(p2)))))) / p2
