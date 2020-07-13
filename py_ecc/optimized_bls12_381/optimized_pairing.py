@@ -166,8 +166,6 @@ def exp_by_p(x: FQ12):
     return sum([exptable[i] * x.coeffs[i] for i in range(12)], FQ12.zero())
 
 def final_exponentiate(p: Optimized_Field) -> Optimized_Field:
-    p6m1 = field_modulus ** 6 - 1
-    p2p1 = field_modulus ** 2 + 1
     cofactor = (field_modulus ** 4 - field_modulus ** 2 + 1) // curve_order
     p2 = exp_by_p(exp_by_p(p)) * p
     p3 = exp_by_p(exp_by_p(exp_by_p(exp_by_p(exp_by_p(exp_by_p(p2)))))) / p2
