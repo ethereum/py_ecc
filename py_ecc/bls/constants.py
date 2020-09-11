@@ -17,5 +17,5 @@ POW_2_382 = 2**382
 POW_2_383 = 2**383
 
 # Paramaters for hashing to the field as specified in:
-# https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-8.8.1
+# https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-8.8.1
 HASH_TO_FIELD_L = 64

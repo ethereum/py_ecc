@@ -12,7 +12,7 @@ pip install py_ecc
 
 ## BLS Signatures
 
-`py_ecc` implements the [IETF BLS draft standard v2](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-02) with [hash-to-curve v7](https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07) as per the inter-blockchain standardization agreement. The BLS standards specify [different ciphersuites](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-02#section-4) which each have different functionality to accommodate various use cases. The following ciphersuites are available from this library:
+`py_ecc` implements the [IETF BLS draft standard v3](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-03) as per the inter-blockchain standardization agreement. The BLS standards specify [different ciphersuites](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-03#section-4) which each have different functionality to accommodate various use cases. The following ciphersuites are available from this library:
 
 - `G2Basic` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_`
 - `G2MessageAugmentation` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_`
