@@ -27,12 +27,12 @@ def hash_to_G2(message: bytes, DST: bytes,
                hash_function: HASH) -> G2Uncompressed:
     """
     Convert a message to a point on G2 as defined here:
-    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-6.6.3
+    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-6.6.3
 
     The idea is to first hash into FQ2 and then use SSWU to map the result into G2.
 
     Contants and inputs follow the ciphersuite ``BLS12381G2_XMD:SHA-256_SSWU_RO_`` defined here:
-    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-8.8.2
+    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-8.8.2
     """
     u0, u1 = hash_to_field_FQ2(message, 2, DST, hash_function)
     q0 = map_to_curve_G2(u0)
@@ -48,7 +48,7 @@ def hash_to_field_FQ2(message: bytes, count: int,
     Hash To Base Field for FQ2
 
     Convert a message to a point in the finite field as defined here:
-    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-5.2
+    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-5.3
     """
     M = 2  # m is the extension degree of FQ2
     len_in_bytes = count * M * HASH_TO_FIELD_L
@@ -69,10 +69,10 @@ def map_to_curve_G2(u: FQ2) -> G2Uncompressed:
     Map To Curve for G2
 
     First, convert FQ2 point to a point on the 3-Isogeny curve.
-    SWU Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-6.6.3
+    SWU Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-6.6.3
 
     Second, map 3-Isogeny curve to BLS12-381-G2 curve.
-    3-Isogeny Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#appendix-C.3
+    3-Isogeny Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#appendix-C.3
     """
     (x, y, z) = optimized_swu_G2(u)
     return iso_map_G2(x, y, z)

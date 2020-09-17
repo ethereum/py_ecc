@@ -208,7 +208,7 @@ class FQ(object):
         Note this is an optimized variant for m = 1
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-4.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-4.1
         """
         return self.n % 2
 
@@ -400,7 +400,7 @@ class FQP(object):
         sgn0(x) = 1 when x is 'negative'; otherwise, sg0(x) = 0
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-4.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-4.1
         """
         sign = 0
         zero = 1
@@ -443,7 +443,7 @@ class FQ2(FQP):
         Note this is an optimized variant for m = 2
 
         Defined here:
-        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-07#section-4.1
+        https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-4.1
         """
         x_0, x_1 = self.coeffs
         sign_0 = mod_int(x_0, 2)
