@@ -1,21 +1,18 @@
 import pytest
 
 from py_ecc.bls import G2ProofOfPossession
+from py_ecc.bls.ciphersuites import (
+    Z1_PUBKEY,
+    Z2_SIGNATURE,
+)
 from py_ecc.optimized_bls12_381 import (
     G1,
-    G2,
-    Z1,
-    Z2,
     multiply,
 )
 from py_ecc.bls.g2_primatives import (
     G1_to_pubkey,
     G2_to_signature,
 )
-
-
-Z1_PUBKEY = G1_to_pubkey(Z1)
-Z2_SIGNATURE = G2_to_signature(Z2)
 
 
 sample_message = b'\x12' * 32
@@ -59,7 +56,7 @@ def test_aggregate_pks(signature_points, result_point):
     'PK, message, signature, result',
     [
         (G2ProofOfPossession.SkToPk(1), sample_message, G2ProofOfPossession.Sign(1, sample_message), True),
-        # (None, sample_message, Z2_SIGNATURE, False),
+        (None, sample_message, Z2_SIGNATURE, False),  # wrong type
         (Z1_PUBKEY, sample_message, Z2_SIGNATURE, False),
     ]
 )

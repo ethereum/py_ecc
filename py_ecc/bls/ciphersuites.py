@@ -44,6 +44,7 @@ from .g2_primatives import (
 
 
 Z1_PUBKEY = G1_to_pubkey(Z1)
+Z2_SIGNATURE = G2_to_signature(Z2)
 
 
 def is_Z1_pubkey(PK: bytes) -> bool:
@@ -62,7 +63,7 @@ class BaseG2Ciphersuite(abc.ABC):
     #
     @staticmethod
     def _is_valid_privkey(privkey: int) -> bool:
-        return isinstance(privkey, int) and privkey > 0 and privkey <= curve_order
+        return isinstance(privkey, int) and privkey > 0 and privkey < curve_order
 
     @staticmethod
     def _is_valid_pubkey(pubkey: bytes) -> bool:
@@ -83,8 +84,17 @@ class BaseG2Ciphersuite(abc.ABC):
     #
     @classmethod
     def SkToPk(cls, privkey: int) -> BLSPubkey:
-        # Inputs validation
-        assert cls._is_valid_privkey(privkey)
+        """
+        The SkToPk algorithm takes a secret key SK and outputs the
+        corresponding public key PK.
+
+        Raise `ValidationError` when there is input validation error.
+        """
+        try:
+            # Inputs validation
+            assert cls._is_valid_privkey(privkey)
+        except Exception as e:
+            raise ValidationError(e)
 
         # Procedure
         return G1_to_pubkey(multiply(G1, privkey))
@@ -113,9 +123,18 @@ class BaseG2Ciphersuite(abc.ABC):
 
     @classmethod
     def _CoreSign(cls, SK: int, message: bytes, DST: bytes) -> BLSSignature:
-        # Inputs validation
-        assert cls._is_valid_privkey(SK)
-        assert cls._is_valid_message(message)
+        """
+        The CoreSign algorithm computes a signature from SK, a secret key,
+        and message, an octet string.
+
+        Raise `ValidationError` when there is input validation error.
+        """
+        try:
+            # Inputs validation
+            assert cls._is_valid_privkey(SK)
+            assert cls._is_valid_message(message)
+        except Exception as e:
+            raise ValidationError(e)
 
         # Procedure
         message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
@@ -151,12 +170,22 @@ class BaseG2Ciphersuite(abc.ABC):
 
     @classmethod
     def Aggregate(cls, signatures: Sequence[BLSSignature]) -> BLSSignature:
-        # Inputs validation
-        for signature in signatures:
-            assert cls._is_valid_signature(signature)
+        """
+        The Aggregate algorithm aggregates multiple signatures into one.
+
+        Raise `ValidationError` when there is input validation error.
+        """
+        try:
+            # Inputs validation
+            for signature in signatures:
+                assert cls._is_valid_signature(signature)
+
+            # Preconditions
+            assert len(signatures) >= 1
+        except Exception as e:
+            raise ValidationError(e)
 
         # Procedure
-        assert len(signatures) >= 1
         aggregate = Z2  # Seed with the point at infinity
         for signature in signatures:
             signature_point = signature_to_G2(signature)
@@ -271,7 +300,16 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
 
     @staticmethod
     def _AggregatePKs(PKs: Sequence[BLSPubkey]) -> BLSPubkey:
-        assert len(PKs) >= 1, 'Insufficient number of PKs. (n < 1)'
+        """
+        Aggregate the public keys.
+
+        Raise `ValidationError` when there is input validation error.
+        """
+        try:
+            assert len(PKs) >= 1, 'Insufficient number of PKs. (n < 1)'
+        except Exception as e:
+            raise ValidationError(e)
+
         aggregate = Z1  # Seed with the point at infinity
         for pk in PKs:
             pubkey_point = pubkey_to_G1(pk)
