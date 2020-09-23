@@ -161,5 +161,15 @@ def pairing(Q: Optimized_Point3D[FQ2],
     return miller_loop(twist(Q), cast_point_to_fq12(P), final_exponentiate=final_exponentiate)
 
 
-def final_exponentiate(p: Optimized_Field) -> Optimized_Field:
-    return p ** ((field_modulus ** 12 - 1) // curve_order)
+exptable = [FQ12([0] * i + [1] + [0] * (11 - i)) ** field_modulus for i in range(12)]
+
+
+def exp_by_p(x: FQ12) -> FQ12:
+    return sum((table_entry * coeff for table_entry, coeff in zip(exptable, x.coeffs)), FQ12.zero())
+
+
+def final_exponentiate(p: FQ12) -> FQ12:
+    cofactor = (field_modulus ** 4 - field_modulus ** 2 + 1) // curve_order
+    p2 = exp_by_p(exp_by_p(p)) * p
+    p3 = exp_by_p(exp_by_p(exp_by_p(exp_by_p(exp_by_p(exp_by_p(p2)))))) / p2
+    return p3 ** cofactor
