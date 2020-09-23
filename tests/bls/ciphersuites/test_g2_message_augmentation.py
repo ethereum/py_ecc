@@ -11,7 +11,6 @@ from py_ecc.bls import G2MessageAugmentation
         (735),
         (127409812145),
         (90768492698215092512159),
-        (0),
     ]
 )
 def test_sign_verify(privkey):
@@ -24,7 +23,7 @@ def test_sign_verify(privkey):
 @pytest.mark.parametrize(	
     'SKs,messages',	
     [	
-        (range(10), range(10)),	
+        (list(range(1, 11)), list(range(1, 11)))
     ]	
 )	
 def test_aggregate_verify(SKs, messages):	

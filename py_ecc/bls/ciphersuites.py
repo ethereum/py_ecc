@@ -43,32 +43,81 @@ from .g2_primatives import (
 )
 
 
+Z1_PUBKEY = G1_to_pubkey(Z1)
+
+
+def is_Z1_pubkey(PK: bytes) -> bool:
+    """
+    Check if PK is point at infinity.
+    """
+    return PK == Z1_PUBKEY
+
+
 class BaseG2Ciphersuite(abc.ABC):
     DST = b''
     xmd_hash_function = sha256
 
+    #
+    # Input validation helpers
+    #
     @staticmethod
-    def SkToPk(privkey: int) -> BLSPubkey:
-        return G1_to_pubkey(multiply(G1, privkey))
+    def _is_valid_privkey(privkey: int) -> bool:
+        return isinstance(privkey, int) and privkey > 0 and privkey <= curve_order
 
     @staticmethod
-    def KeyGen(IKM: bytes, key_info: bytes = b'') -> int:
-        prk = hkdf_extract(b'BLS-SIG-KEYGEN-SALT-', IKM + b'\x00')
-        l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
-        okm = hkdf_expand(prk, key_info + i2osp(l, 2), l)
-        x = os2ip(okm) % curve_order
-        return x
+    def _is_valid_pubkey(pubkey: bytes) -> bool:
+        # SV: minimal-pubkey-size
+        return isinstance(pubkey, bytes) and len(pubkey) == 48
+
+    @staticmethod
+    def _is_valid_message(message: bytes) -> bool:
+        return isinstance(message, bytes)
+
+    @staticmethod
+    def _is_valid_signature(signature: bytes) -> bool:
+        # SV: minimal-pubkey-size
+        return isinstance(signature, bytes) and len(signature) == 96
+
+    #
+    # APIs
+    #
+    @classmethod
+    def SkToPk(cls, privkey: int) -> BLSPubkey:
+        # Inputs validation
+        assert cls._is_valid_privkey(privkey)
+
+        # Procedure
+        return G1_to_pubkey(multiply(G1, privkey))
+
+    @classmethod
+    def KeyGen(cls, IKM: bytes, key_info: bytes = b'') -> int:
+        salt = b'BLS-SIG-KEYGEN-SALT-'
+        SK = 0
+        while SK == 0:
+            salt = cls.xmd_hash_function(salt).digest()
+            prk = hkdf_extract(salt, IKM + b'\x00')
+            l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
+            okm = hkdf_expand(prk, key_info + i2osp(l, 2), l)
+            SK = os2ip(okm) % curve_order
+        return SK
 
     @staticmethod
     def KeyValidate(PK: BLSPubkey) -> bool:
         try:
-            pubkey_to_G1(PK)
+            if is_Z1_pubkey(PK):
+                return False
+            pubkey_to_G1(PK)  # pubkey_to_G1 includes subgroup check
         except ValidationError:
             return False
         return True
 
     @classmethod
     def _CoreSign(cls, SK: int, message: bytes, DST: bytes) -> BLSSignature:
+        # Inputs validation
+        assert cls._is_valid_privkey(SK)
+        assert cls._is_valid_message(message)
+
+        # Procedure
         message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
         signature_point = multiply(message_point, SK)
         return G2_to_signature(signature_point)
@@ -77,7 +126,13 @@ class BaseG2Ciphersuite(abc.ABC):
     def _CoreVerify(cls, PK: BLSPubkey, message: bytes,
                     signature: BLSSignature, DST: bytes) -> bool:
         try:
-            assert BaseG2Ciphersuite.KeyValidate(PK)
+            # Inputs validation
+            assert cls._is_valid_pubkey(PK)
+            assert cls._is_valid_message(message)
+            assert cls._is_valid_signature(signature)
+
+            # Procedure
+            assert cls.KeyValidate(PK)
             signature_point = signature_to_G2(signature)
             final_exponentiation = final_exponentiate(
                 pairing(
@@ -94,13 +149,14 @@ class BaseG2Ciphersuite(abc.ABC):
         except (ValidationError, ValueError, AssertionError):
             return False
 
-    @staticmethod
-    def Aggregate(signatures: Sequence[BLSSignature]) -> BLSSignature:
-        if len(signatures) < 1:
-            raise ValidationError(
-                'Insufficient number of signatures: should be greater than'
-                ' or equal to 1, got %d' % len(signatures)
-            )
+    @classmethod
+    def Aggregate(cls, signatures: Sequence[BLSSignature]) -> BLSSignature:
+        # Inputs validation
+        for signature in signatures:
+            assert cls._is_valid_signature(signature)
+
+        # Procedure
+        assert len(signatures) >= 1
         aggregate = Z2  # Seed with the point at infinity
         for signature in signatures:
             signature_point = signature_to_G2(signature)
@@ -111,19 +167,22 @@ class BaseG2Ciphersuite(abc.ABC):
     def _CoreAggregateVerify(cls, PKs: Sequence[BLSPubkey], messages: Sequence[bytes],
                              signature: BLSSignature, DST: bytes) -> bool:
         try:
-            if len(PKs) != len(messages):
-                raise ValidationError(
-                    'len(PKs) != len(messages): got len(PKs)=%s, len(messages)=%s'
-                    % (len(PKs), len(messages))
-                )
-            if len(PKs) < 1:
-                raise ValidationError(
-                    'Insufficient number of PKs: should be greater than'
-                    ' or equal to 1, got %d' % len(PKs)
-                )
+            # Inputs validation
+            for pk in PKs:
+                assert cls._is_valid_pubkey(pk)
+            for message in messages:
+                assert cls._is_valid_message(message)
+            assert len(PKs) == len(messages)
+            assert cls._is_valid_signature(signature)
+
+            # Preconditions
+            assert len(PKs) >= 1
+
+            # Procedure
             signature_point = signature_to_G2(signature)
             aggregate = FQ12.one()
             for pk, message in zip(PKs, messages):
+                assert cls.KeyValidate(pk)
                 pubkey_point = pubkey_to_G1(pk)
                 message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
                 aggregate *= pairing(message_point, pubkey_point, final_exponentiate=False)
@@ -173,6 +232,8 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
     @classmethod
     def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
                         messages: Sequence[bytes], signature: BLSSignature) -> bool:
+        if len(PKs) != len(messages):
+            return False
         messages = [pk + msg for pk, msg in zip(PKs, messages)]
         return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
@@ -180,6 +241,19 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
 class G2ProofOfPossession(BaseG2Ciphersuite):
     DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
     POP_TAG = b'BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
+
+    @classmethod
+    def _is_valid_pubkey(cls, pubkey: bytes) -> bool:
+        """
+        Note: PopVerify is a precondition for -Verify APIs
+        However, it's difficult to verify it with the API interface in runtime.
+        To ensure `is_Z1_pubkey` is checked in `FastAggregateVerify`,
+        we check it in the input validation.
+        See https://github.com/cfrg/draft-irtf-cfrg-bls-signature/issues/27 for the discussion.
+        """
+        if is_Z1_pubkey(pubkey):
+            return False
+        return super()._is_valid_pubkey(pubkey)
 
     @classmethod
     def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
@@ -208,7 +282,18 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
     def FastAggregateVerify(cls, PKs: Sequence[BLSPubkey],
                             message: bytes, signature: BLSSignature) -> bool:
         try:
+            # Inputs validation
+            for pk in PKs:
+                assert cls._is_valid_pubkey(pk)
+            assert cls._is_valid_message(message)
+            assert cls._is_valid_signature(signature)
+
+            # Preconditions
+            assert len(PKs) >= 1
+
+            # Procedure
             aggregate_pubkey = cls._AggregatePKs(PKs)
-        except AssertionError:
+        except (ValidationError, AssertionError):
             return False
-        return cls.Verify(aggregate_pubkey, message, signature)
+        else:
+            return cls.Verify(aggregate_pubkey, message, signature)
