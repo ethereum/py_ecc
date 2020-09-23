@@ -154,10 +154,10 @@ def twist(pt: Optimized_Point3D[FQP]) -> Optimized_Point3D[FQ12]:
     xcoeffs = [_x.coeffs[0] - _x.coeffs[1], _x.coeffs[1]]
     ycoeffs = [_y.coeffs[0] - _y.coeffs[1], _y.coeffs[1]]
     zcoeffs = [_z.coeffs[0] - _z.coeffs[1], _z.coeffs[1]]
-    nx = FQ12([xcoeffs[0]] + [0] * 5 + [xcoeffs[1]] + [0] * 5)
+    nx = FQ12([0] + [xcoeffs[0]] + [0] * 5 + [xcoeffs[1]] + [0] * 4)
     ny = FQ12([ycoeffs[0]] + [0] * 5 + [ycoeffs[1]] + [0] * 5)
-    nz = FQ12([zcoeffs[0]] + [0] * 5 + [zcoeffs[1]] + [0] * 5)
-    return (nx / w ** 2, ny / w**3, nz)
+    nz = FQ12([0] * 3 + [zcoeffs[0]] + [0] * 5 + [zcoeffs[1]] + [0] * 2)
+    return (nx, ny, nz)
 
 
 # Check that the twist creates a point that is on the curve
