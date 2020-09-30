@@ -32,7 +32,6 @@ def test_key_validate(pubkey, success):
         (735),
         (127409812145),
         (90768492698215092512159),
-        (0),
     ]
 )
 def test_sign_verify(privkey):
@@ -58,7 +57,7 @@ def test_aggregate(signature_points, result_point):
 @pytest.mark.parametrize(
     'SKs,messages',
     [
-        (range(5), range(5)),
+        (list(range(1, 6)), list(range(1, 6))),
     ]
 )
 def test_core_aggregate_verify(SKs, messages):
