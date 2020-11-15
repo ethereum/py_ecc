@@ -12,6 +12,8 @@ pip install py_ecc
 
 ## BLS Signatures
 
+**Warning: It contains some experimental codes and has NOT been audited.**
+
 `py_ecc` implements the [IETF BLS draft standard v4](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-04) as per the inter-blockchain standardization agreement. The BLS standards specify [different ciphersuites](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-04#section-4) which each have different functionality to accommodate various use cases. The following ciphersuites are available from this library:
 
 - `G2Basic` also known as `BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_`
