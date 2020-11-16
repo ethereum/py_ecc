@@ -94,6 +94,9 @@ SAMPLE_MESSAGE = b'helloworld'
     [
         (G2Basic.SkToPk(1), SAMPLE_MESSAGE, G2Basic.Sign(1, SAMPLE_MESSAGE), True),
         (G2Basic.SkToPk(2), SAMPLE_MESSAGE, G2Basic.Sign(1, SAMPLE_MESSAGE), False),
+        (G2Basic.SkToPk(1), SAMPLE_MESSAGE, Z2_SIGNATURE, False),
+        (Z1_PUBKEY, SAMPLE_MESSAGE, G2Basic.Sign(1, SAMPLE_MESSAGE), False),
+        (Z1_PUBKEY, SAMPLE_MESSAGE, Z2_SIGNATURE, False),
         (
             b'\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',  # noqa: E501
             SAMPLE_MESSAGE,
