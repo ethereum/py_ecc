@@ -277,7 +277,7 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
         To ensure KeyValidate has been checked, we check it in the input validation.
         See https://github.com/cfrg/draft-irtf-cfrg-bls-signature/issues/27 for the discussion.
         """
-        if super()._is_valid_pubkey(pubkey) is False:
+        if not super()._is_valid_pubkey(pubkey):
             return False
         return cls.KeyValidate(BLSPubkey(pubkey))
 

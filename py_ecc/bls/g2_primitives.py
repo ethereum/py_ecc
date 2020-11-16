@@ -63,4 +63,4 @@ def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
 
 def pubkey_subgroup_check(pt: G1Uncompressed) -> None:
     if not subgroup_check(pt):
-        raise ValidationError('Pubkey (%s) is not a part of the E1 subgroup.')
+        raise ValidationError('Pubkey is not a part of the E1 subgroup.')
