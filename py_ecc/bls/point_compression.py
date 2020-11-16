@@ -19,6 +19,7 @@ from .constants import (
     POW_2_381,
     POW_2_382,
     POW_2_383,
+    POW_2_384,
     EIGTH_ROOTS_OF_UNITY,
     FQ2_ORDER,
 )
@@ -28,6 +29,52 @@ from .typing import (
     G2Compressed,
     G2Uncompressed,
 )
+
+
+#
+# The most-significant three bits of a G1 or G2 encoding should be masked away before
+# the coordinate(s) are interpreted.
+# These bits are used to unambiguously represent the underlying element
+# The format: (c_flag, b_flag, a_flag, x)
+# https://github.com/zcash/librustzcash/blob/6e0364cd42a2b3d2b958a54771ef51a8db79dd29/pairing/src/bls12_381/README.md#bls12-381-instantiation  # noqa: E501
+#
+def get_c_flag(z: int) -> bool:
+    """
+    The most significant bit.
+    """
+    return bool((z % POW_2_384) // POW_2_383)
+
+
+def get_b_flag(z: int) -> bool:
+    """
+    The second-most significant bit.
+    """
+    return bool((z % POW_2_383) // POW_2_382)
+
+
+def get_a_flag(z: int) -> bool:
+    """
+    The third-most significant bit.
+    """
+    return bool((z % POW_2_382) // POW_2_381)
+
+
+def is_point_at_infinity(z1: int, z2: Optional[int] = None) -> bool:
+    return (z1 % POW_2_381 == 0) and (
+        z2 is None or (z2 is not None and z2 == 0)
+    )
+
+
+def validate_point_at_infinity(z1: int, a_flag: bool, z2: Optional[int] = None) -> None:
+    """
+    If z2 is None, the given z1 is a G1 point.
+    Else, (z1, z2) is a G2 point.
+    """
+    if a_flag == 0:
+        if not is_point_at_infinity(z1, z2):
+            raise ValueError("Should be point at infinity")
+    else:
+        raise ValueError("a_flag should be 0")
 
 
 #
@@ -56,10 +103,23 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     """
     Recovers x and y coordinates from the compressed point.
     """
-    # b_flag == 1 indicates the infinity point
-    b_flag = (z % POW_2_383) // POW_2_382
-    if b_flag == 1:
+    c_flag = get_c_flag(z)
+    b_flag = get_b_flag(z)
+    a_flag = get_a_flag(z)
+
+    # c_flag == 1 indicates the compressed form
+    if not c_flag:
+        raise ValueError("c_flag should be 1")
+
+    # b_flag == 1 indicates the point at infinity
+    if b_flag:
+        validate_point_at_infinity(z1=z, a_flag=a_flag)
         return Z1
+    else:
+        if is_point_at_infinity(z):
+            raise ValueError("b_flag should be 1")
+
+    # not point at infinity, check a_flag
     x = z % POW_2_381
 
     # Try solving y coordinate from the equation Y^2 = X^3 + b
@@ -71,7 +131,6 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
             "The given point is not on G1: y**2 = x**3 + b"
         )
     # Choose the y whose leftmost bit is equal to the a_flag
-    a_flag = (z % POW_2_382) // POW_2_381
     if (y * 2) // q != a_flag:
         y = q - y
     return (FQ(x), FQ(y), FQ(1))
@@ -136,12 +195,23 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     Recovers x and y coordinates from the compressed point (z1, z2).
     """
     z1, z2 = p
+    c_flag1 = get_c_flag(z1)
+    b_flag1 = get_b_flag(z1)
+    a_flag1 = get_a_flag(z1)
+
+    # c_flag == 1 indicates the compressed form
+    if not c_flag1:
+        raise ValueError("c_flag should be 1")
 
     # b_flag == 1 indicates the infinity point
-    b_flag1 = (z1 % POW_2_383) // POW_2_382
-    if b_flag1 == 1:
+    if b_flag1:
+        validate_point_at_infinity(z1=z1, a_flag=a_flag1, z2=z2)
         return Z2
+    else:
+        if is_point_at_infinity(z1, z2):
+            raise ValueError("b_flag should be 1")
 
+    # not point at infinity, check a_flag
     x1 = z1 % POW_2_381
     x2 = z2
     # x1 is the imaginary part, x2 is the real part
@@ -152,7 +222,6 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
 
     # Choose the y whose leftmost bit of the imaginary part is equal to the a_flag1
     # If y_im happens to be zero, then use the bit of y_re
-    a_flag1 = (z1 % POW_2_382) // POW_2_381
     y_re, y_im = y.coeffs
     if (y_im > 0 and (y_im * 2) // q != a_flag1) or (y_im == 0 and (y_re * 2) // q != a_flag1):
         y = FQ2((y * -1).coeffs)
@@ -161,4 +230,12 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
         raise ValueError(
             "The given point is not on the twisted curve over FQ**2"
         )
+
+    # Validate z2 flags
+    c_flag2 = get_c_flag(z2)
+    b_flag2 = get_b_flag(z2)
+    a_flag2 = get_a_flag(z2)
+    if not (c_flag2 == b_flag2 == a_flag2 and c_flag2 is False):
+        raise ValueError("a_flag2, b_flag2, and c_flag2 should always set to 0")
+
     return (x, y, FQ2([1, 0]))

@@ -10,6 +10,10 @@ from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
 )
+from py_ecc.bls.hash import (
+    i2osp,
+    os2ip,
+)
 from py_ecc.bls.constants import (
     POW_2_381,
     POW_2_382,
@@ -65,6 +69,28 @@ def test_G1_compress_and_decompress_flags(pt, on_curve, is_infinity):
             decompress_G1(z)
 
 
+compressed_g1 = compress_G1(G1)
+compressed_z1 = compress_G1(Z1)
+
+
+@pytest.mark.parametrize(
+    'z, error_message',
+    [
+        (compressed_g1, None),  # baseline
+        (compressed_g1 & ~(1<<383), "c_flag should be 1"),  # set c_flag to 0
+        (compressed_g1 | (1<<382), "Should be point at infinity"),  # set b_flag to 1
+        (compressed_z1 & ~(1<<382), "b_flag should be 1"),  # set b_flag to 0
+        (compressed_z1 | (1<<381), "a_flag should be 0"),  # set a_flag to 1
+    ]
+)
+def test_decompress_G1_edge_case(z, error_message):
+    if error_message is None:
+        decompress_G1(z)
+    else:
+        with pytest.raises(ValueError, match=error_message):
+            decompress_G1(z)
+
+
 @pytest.mark.parametrize(
     'pt,on_curve,is_infinity',
     [
@@ -106,3 +132,26 @@ def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
     else:
         with pytest.raises(ValueError):
             compress_G2(pt)
+
+
+compressed_g2 = compress_G2(G2)
+compressed_z2 = compress_G2(Z2)
+
+
+@pytest.mark.parametrize(
+    'z, error_message',
+    [
+        (compressed_g2, None),  # baseline
+        ((compressed_g2[0] & ~(1<<383), compressed_g2[1]), "c_flag should be 1"),  # set c_flag1 to 0
+        ((compressed_g2[0] | (1<<382), compressed_g2[1]), "Should be point at infinity"),  # set b_flag1 to 1
+        ((compressed_z2[0] & ~(1<<382), compressed_z2[1]), "b_flag should be 1"),  # set b_flag1 to 0
+        ((compressed_z2[0] | (1<<381), compressed_z2[1]), "a_flag should be 0"),  # set a_flag1 to 1
+        ((compressed_g2[0], compressed_z2[1] | (1<<383)), "a_flag2, b_flag2, and c_flag2 should always set to 0"),  # set c_flag2 to 1
+    ]
+)
+def test_decompress_G2_edge_case(z, error_message):
+    if error_message is None:
+        decompress_G2(z)
+    else:
+        with pytest.raises(ValueError, match=error_message):
+            decompress_G2(z)
