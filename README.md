@@ -1,6 +1,8 @@
 py_ecc
 ==========================
-Elliptic curve crypto in python including secp256k1 and alt_bn128
+Elliptic curve crypto in python including secp256k1, alt_bn128, and bls12_381.
+
+> **Warning**: This library contains some experimental codes that have **NOT** been audited.
 
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ethereum/py_ecc) [![Build Status](https://circleci.com/gh/ethereum/py_ecc.svg?style=shield)](https://circleci.com/gh/ethereum/py_ecc) [![PyPI version](https://badge.fury.io/py/py-ecc.svg)](https://badge.fury.io/py/py-ecc)
 
