@@ -49,9 +49,7 @@ def is_point_at_infinity(z1: int, z2: Optional[int] = None) -> bool:
     If z2 is None, the given z1 is a G1 point.
     Else, (z1, z2) is a G2 point.
     """
-    return (z1 % POW_2_381 == 0) and (
-        z2 is None or (z2 is not None and z2 == 0)
-    )
+    return (z1 % POW_2_381 == 0) and (z2 is None or z2 == 0)
 
 
 #
@@ -87,7 +85,6 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     if not c_flag:
         raise ValueError("c_flag should be 1")
 
-    # b_flag == 1 indicates the point at infinity
     is_inf_pt = is_point_at_infinity(z)
 
     if b_flag != is_inf_pt:
@@ -179,14 +176,10 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     c_flag1, b_flag1, a_flag1 = get_flags(z1)
 
     # c_flag == 1 indicates the compressed form
-    if not c_flag1:
-        raise ValueError("c_flag should be 1")
-
     # MSB should be 1
     if not c_flag1:
         raise ValueError("c_flag should be 1")
 
-    # b_flag == 1 indicates the point at infinity
     is_inf_pt = is_point_at_infinity(z1, z2)
 
     if b_flag1 != is_inf_pt:
