@@ -15,6 +15,7 @@ EIGTH_ROOTS_OF_UNITY = tuple(
 POW_2_381 = 2**381
 POW_2_382 = 2**382
 POW_2_383 = 2**383
+POW_2_384 = 2**384
 
 # Paramaters for hashing to the field as specified in:
 # https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-8.8.1

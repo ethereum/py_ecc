@@ -16,7 +16,7 @@ from py_ecc.bls import G2Basic
     'pubkey,success',
     [
         (G2Basic.SkToPk(42), True),
-        (b'11' * 48, False),
+        (b'\x11' * 48, False),
     ]
 )
 def test_key_validate(pubkey, success):

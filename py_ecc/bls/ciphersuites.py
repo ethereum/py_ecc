@@ -106,7 +106,7 @@ class BaseG2Ciphersuite(abc.ABC):
     def KeyValidate(PK: BLSPubkey) -> bool:
         try:
             pubkey_point = pubkey_to_G1(PK)
-        except ValidationError:
+        except (ValidationError, ValueError, AssertionError):
             return False
 
         if is_inf(pubkey_point):
@@ -114,7 +114,7 @@ class BaseG2Ciphersuite(abc.ABC):
 
         try:
             pubkey_subgroup_check(pubkey_point)
-        except ValidationError:
+        except (ValidationError, ValueError, AssertionError):
             return False
 
         return True
