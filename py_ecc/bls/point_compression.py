@@ -45,6 +45,10 @@ def get_flags(z: int) -> Tuple[bool, bool, bool]:
 
 
 def is_point_at_infinity(z1: int, z2: Optional[int] = None) -> bool:
+    """
+    If z2 is None, the given z1 is a G1 point.
+    Else, (z1, z2) is a G2 point.
+    """
     return (z1 % POW_2_381 == 0) and (
         z2 is None or (z2 is not None and z2 == 0)
     )

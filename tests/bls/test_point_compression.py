@@ -10,10 +10,6 @@ from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
 )
-from py_ecc.bls.hash import (
-    i2osp,
-    os2ip,
-)
 from py_ecc.bls.constants import (
     POW_2_381,
     POW_2_382,
