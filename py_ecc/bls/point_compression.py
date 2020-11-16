@@ -91,7 +91,7 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     is_inf_pt = is_point_at_infinity(z)
 
     if b_flag != is_inf_pt:
-        raise ValueError(f"b_flag should be {int(is_inf_pt)}")
+        raise ValueError("b_flag should be %d" % int(is_inf_pt))
 
     if is_inf_pt:
         # 3 MSBs should be 110
@@ -224,7 +224,7 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
 
     # Validate z2 flags
     c_flag2, b_flag2, a_flag2 = get_flags(z2)
-    if not (c_flag2 == b_flag2 == a_flag2 and a_flag2 is False):
+    if not (c_flag2 is b_flag2 and b_flag2 is a_flag2 and a_flag2 is False):
         raise ValueError("a_flag2, b_flag2, and c_flag2 should always set to 0")
 
     return (x, y, FQ2([1, 0]))
