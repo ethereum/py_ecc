@@ -18,6 +18,7 @@ from py_ecc.bls.constants import (
     POW_2_381,
     POW_2_382,
     POW_2_383,
+    POW_2_384,
 )
 from py_ecc.optimized_bls12_381 import (
     G1,
@@ -49,7 +50,7 @@ def test_G1_compress_and_decompress_flags(pt, on_curve, is_infinity):
     z = compress_G1(pt)
     if on_curve:
         x = z % POW_2_381
-        c_flag = (z % 2**384) // POW_2_383
+        c_flag = (z % POW_2_384) // POW_2_383
         b_flag = (z % POW_2_383) // POW_2_382
         a_flag = (z % POW_2_382) // POW_2_381
         assert x < q
@@ -107,11 +108,11 @@ def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
     if on_curve:
         z1, z2 = compress_G2(pt)
         x1 = z1 % POW_2_381
-        c_flag1 = (z1 % 2**384) // POW_2_383
+        c_flag1 = (z1 % POW_2_384) // POW_2_383
         b_flag1 = (z1 % POW_2_383) // POW_2_382
         a_flag1 = (z1 % POW_2_382) // POW_2_381
         x2 = z2 % POW_2_381
-        c_flag2 = (z2 % 2**384) // POW_2_383
+        c_flag2 = (z2 % POW_2_384) // POW_2_383
         b_flag2 = (z2 % POW_2_383) // POW_2_382
         a_flag2 = (z2 % POW_2_382) // POW_2_381
         assert x1 < q
@@ -147,6 +148,8 @@ compressed_z2 = compress_G2(Z2)
         ((compressed_z2[0] & ~(1<<382), compressed_z2[1]), "b_flag should be 1"),  # set b_flag1 to 0
         ((compressed_z2[0] | (1<<381), compressed_z2[1]), "a_flag should be 0"),  # set a_flag1 to 1
         ((compressed_g2[0], compressed_z2[1] | (1<<383)), "a_flag2, b_flag2, and c_flag2 should always set to 0"),  # set c_flag2 to 1
+        ((compressed_g2[0], compressed_z2[1] | (1<<382)), "a_flag2, b_flag2, and c_flag2 should always set to 0"),  # set b_flag2 to 1
+        ((compressed_g2[0], compressed_z2[1] | (1<<381)), "a_flag2, b_flag2, and c_flag2 should always set to 0"),  # set a_flag2 to 1
     ]
 )
 def test_decompress_G2_edge_case(z, error_message):
