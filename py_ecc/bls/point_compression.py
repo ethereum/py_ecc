@@ -54,18 +54,6 @@ def is_point_at_infinity(z1: int, z2: Optional[int] = None) -> bool:
     )
 
 
-def validate_point_at_infinity(z1: int, a_flag: bool, z2: Optional[int] = None) -> None:
-    """
-    If z2 is None, the given z1 is a G1 point.
-    Else, (z1, z2) is a G2 point.
-    """
-    if not a_flag:
-        if not is_point_at_infinity(z1, z2):
-            raise ValueError("Should be point at infinity")
-    else:
-        raise ValueError("a_flag should be 0")
-
-
 #
 # G1
 #
@@ -95,18 +83,24 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     c_flag, b_flag, a_flag = get_flags(z)
 
     # c_flag == 1 indicates the compressed form
+    # MSB should be 1
     if not c_flag:
         raise ValueError("c_flag should be 1")
 
     # b_flag == 1 indicates the point at infinity
-    if b_flag:
-        validate_point_at_infinity(z1=z, a_flag=a_flag)
-        return Z1
-    else:
-        if is_point_at_infinity(z):
-            raise ValueError("a point at infinity should have b_flag 1")
+    is_inf_pt = is_point_at_infinity(z)
 
-    # not point at infinity, check a_flag
+    if b_flag != is_inf_pt:
+        raise ValueError(f"b_flag should be {int(is_inf_pt)}")
+
+    if is_inf_pt:
+        # 3 MSBs should be 110
+        if a_flag:
+            raise ValueError("a point at infinity should have a_flag == 0")
+        return Z1
+
+    # Else, not point at infinity
+    # 3 MSBs should be 100 or 101
     x = z % POW_2_381
 
     # Try solving y coordinate from the equation Y^2 = X^3 + b
@@ -188,15 +182,24 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     if not c_flag1:
         raise ValueError("c_flag should be 1")
 
-    # b_flag == 1 indicates the infinity point
-    if b_flag1:
-        validate_point_at_infinity(z1=z1, a_flag=a_flag1, z2=z2)
-        return Z2
-    else:
-        if is_point_at_infinity(z1, z2):
-            raise ValueError("a point at infinity should have b_flag 1")
+    # MSB should be 1
+    if not c_flag1:
+        raise ValueError("c_flag should be 1")
 
-    # not point at infinity, check a_flag
+    # b_flag == 1 indicates the point at infinity
+    is_inf_pt = is_point_at_infinity(z1, z2)
+
+    if b_flag1 != is_inf_pt:
+        raise ValueError("b_flag should be %d" % int(is_inf_pt))
+
+    if is_inf_pt:
+        # 3 MSBs should be 110
+        if a_flag1:
+            raise ValueError("a point at infinity should have a_flag == 0")
+        return Z2
+
+    # Else, not point at infinity
+    # 3 MSBs should be 100 or 101
     x1 = z1 % POW_2_381
     x2 = z2
     # x1 is the imaginary part, x2 is the real part

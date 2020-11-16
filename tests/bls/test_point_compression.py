@@ -75,9 +75,9 @@ compressed_z1 = compress_G1(Z1)
     [
         (compressed_g1, None),  # baseline
         (compressed_g1 & ~(1<<383), "c_flag should be 1"),  # set c_flag to 0
-        (compressed_g1 | (1<<382), "Should be point at infinity"),  # set b_flag to 1
-        (compressed_z1 & ~(1<<382), "a point at infinity should have b_flag 1"),  # set b_flag to 0
-        (compressed_z1 | (1<<381), "a_flag should be 0"),  # set a_flag to 1
+        (compressed_g1 | (1<<382), "b_flag should be 0"),  # set b_flag to 1
+        (compressed_z1 & ~(1<<382), "b_flag should be 1"),  # set b_flag to 0
+        (compressed_z1 | (1<<381), "a point at infinity should have a_flag == 0"),  # set a_flag to 1
     ]
 )
 def test_decompress_G1_edge_case(z, error_message):
@@ -140,9 +140,9 @@ compressed_z2 = compress_G2(Z2)
     [
         (compressed_g2, None),  # baseline
         ((compressed_g2[0] & ~(1<<383), compressed_g2[1]), "c_flag should be 1"),  # set c_flag1 to 0
-        ((compressed_g2[0] | (1<<382), compressed_g2[1]), "Should be point at infinity"),  # set b_flag1 to 1
-        ((compressed_z2[0] & ~(1<<382), compressed_z2[1]), "a point at infinity should have b_flag 1"),  # set b_flag1 to 0
-        ((compressed_z2[0] | (1<<381), compressed_z2[1]), "a_flag should be 0"),  # set a_flag1 to 1
+        ((compressed_g2[0] | (1<<382), compressed_g2[1]), "b_flag should be 0"),  # set b_flag1 to 1
+        ((compressed_z2[0] & ~(1<<382), compressed_z2[1]), "b_flag should be 1"),  # set b_flag1 to 0
+        ((compressed_z2[0] | (1<<381), compressed_z2[1]), "a point at infinity should have a_flag == 0"),  # set a_flag1 to 1
         ((compressed_g2[0], compressed_z2[1] | (1<<383)), "a_flag2, b_flag2, and c_flag2 should always set to 0"),  # set c_flag2 to 1
         ((compressed_g2[0], compressed_z2[1] | (1<<382)), "a_flag2, b_flag2, and c_flag2 should always set to 0"),  # set b_flag2 to 1
         ((compressed_g2[0], compressed_z2[1] | (1<<381)), "a_flag2, b_flag2, and c_flag2 should always set to 0"),  # set a_flag2 to 1
