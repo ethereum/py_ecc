@@ -58,7 +58,9 @@ def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
 
 def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
     z = os2ip(pubkey)
-    pubkey_point = decompress_G1(G1Compressed(z))
-    if not subgroup_check(pubkey_point):
-        raise ValidationError('Pubkey (%s) is not a part of the E1 subgroup.' % encode_hex(pubkey))
-    return pubkey_point
+    return decompress_G1(G1Compressed(z))
+
+
+def pubkey_subgroup_check(pt: G1Uncompressed) -> None:
+    if not subgroup_check(pt):
+        raise ValidationError('Pubkey is not a part of the E1 subgroup.')

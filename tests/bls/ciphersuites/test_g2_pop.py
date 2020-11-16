@@ -1,21 +1,22 @@
 import pytest
 
 from py_ecc.bls import G2ProofOfPossession
-from py_ecc.bls.ciphersuites import (
-    Z1_PUBKEY,
-    Z2_SIGNATURE,
-)
 from py_ecc.optimized_bls12_381 import (
     G1,
+    Z1,
+    Z2,
     multiply,
 )
-from py_ecc.bls.g2_primatives import (
+from py_ecc.bls.g2_primitives import (
     G1_to_pubkey,
     G2_to_signature,
 )
 
 
 sample_message = b'\x12' * 32
+
+Z1_PUBKEY = G1_to_pubkey(Z1)
+Z2_SIGNATURE = G2_to_signature(Z2)
 
 
 def compute_aggregate_signature(SKs, message):

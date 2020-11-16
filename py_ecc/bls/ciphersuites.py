@@ -35,23 +35,14 @@ from .hash import (
     os2ip,
 )
 from .hash_to_curve import hash_to_G2
-from .g2_primatives import (
+from .g2_primitives import (
     G1_to_pubkey,
     G2_to_signature,
     pubkey_to_G1,
     signature_to_G2,
+    pubkey_subgroup_check,
+    is_inf,
 )
-
-
-Z1_PUBKEY = G1_to_pubkey(Z1)
-Z2_SIGNATURE = G2_to_signature(Z2)
-
-
-def is_Z1_pubkey(PK: bytes) -> bool:
-    """
-    Check if PK is point at infinity.
-    """
-    return PK == Z1_PUBKEY
 
 
 class BaseG2Ciphersuite(abc.ABC):
@@ -114,11 +105,18 @@ class BaseG2Ciphersuite(abc.ABC):
     @staticmethod
     def KeyValidate(PK: BLSPubkey) -> bool:
         try:
-            if is_Z1_pubkey(PK):
-                return False
-            pubkey_to_G1(PK)  # pubkey_to_G1 includes subgroup check
+            pubkey_point = pubkey_to_G1(PK)
         except ValidationError:
             return False
+
+        if is_inf(pubkey_point):
+            return False
+
+        try:
+            pubkey_subgroup_check(pubkey_point)
+        except ValidationError:
+            return False
+
         return True
 
     @classmethod
@@ -276,13 +274,12 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
         """
         Note: PopVerify is a precondition for -Verify APIs
         However, it's difficult to verify it with the API interface in runtime.
-        To ensure `is_Z1_pubkey` is checked in `FastAggregateVerify`,
-        we check it in the input validation.
+        To ensure KeyValidate has been checked, we check it in the input validation.
         See https://github.com/cfrg/draft-irtf-cfrg-bls-signature/issues/27 for the discussion.
         """
-        if is_Z1_pubkey(pubkey):
+        if not super()._is_valid_pubkey(pubkey):
             return False
-        return super()._is_valid_pubkey(pubkey)
+        return cls.KeyValidate(BLSPubkey(pubkey))
 
     @classmethod
     def AggregateVerify(cls, PKs: Sequence[BLSPubkey],

@@ -5,10 +5,18 @@ from eth_utils import (
 )
 
 from py_ecc.bls import G2Basic
-from py_ecc.bls.ciphersuites import (
-    Z1_PUBKEY,
-    Z2_SIGNATURE,
+from py_ecc.bls.g2_primitives import (
+    G1_to_pubkey,
+    G2_to_signature,
 )
+from py_ecc.optimized_bls12_381 import (
+    Z1,
+    Z2
+)
+
+
+Z1_PUBKEY = G1_to_pubkey(Z1)
+Z2_SIGNATURE = G2_to_signature(Z2)
 
 
 @pytest.mark.parametrize(
@@ -76,3 +84,26 @@ def test_aggregate(signatures, success):
     else:
         with pytest.raises(ValidationError):
             G2Basic.Aggregate(signatures)
+
+
+SAMPLE_MESSAGE = b'helloworld'
+
+
+@pytest.mark.parametrize(
+    'pubkey, message, signature, result',
+    [
+        (G2Basic.SkToPk(1), SAMPLE_MESSAGE, G2Basic.Sign(1, SAMPLE_MESSAGE), True),
+        (G2Basic.SkToPk(2), SAMPLE_MESSAGE, G2Basic.Sign(1, SAMPLE_MESSAGE), False),
+        (G2Basic.SkToPk(1), SAMPLE_MESSAGE, Z2_SIGNATURE, False),
+        (Z1_PUBKEY, SAMPLE_MESSAGE, G2Basic.Sign(1, SAMPLE_MESSAGE), False),
+        (Z1_PUBKEY, SAMPLE_MESSAGE, Z2_SIGNATURE, False),
+        (
+            b'\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',  # noqa: E501
+            SAMPLE_MESSAGE,
+            b'\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',  # noqa: E501
+            False,
+        ),
+    ]
+)
+def test_verify(pubkey, message, signature, result):
+    assert G2Basic.Verify(pubkey, message, signature) == result
