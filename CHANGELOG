@@ -1,3 +1,62 @@
+5.1.0
+-----
+
+2020-11-16
+
+* Fix BLS G1 and G2 deserialization https://github.com/ethereum/py_ecc/pull/110
+* Fix to follow IETF BLS draft 04 point at infinity checking procedure https://github.com/ethereum/py_ecc/pull/107
+
+
+5.0.0
+-----
+
+2020-10-01
+
+* Implement IETF BLS draft 04 (https://github.com/ethereum/py_ecc/pull/103)
+
+
+4.1.0
+-----
+
+2020-09-23
+
+* Implement IETF BLS draft 03 (https://github.com/ethereum/py_ecc/pull/102)
+* Optimize BLS-12-381: Miller loop is now 33% faster (https://github.com/ethereum/py_ecc/pull/100)
+* Improve final exponentiation efficiency (https://github.com/ethereum/py_ecc/pull/101)
+
+
+4.0.0
+-----
+
+2020-05-13
+
+* Implement IETF hash-to-curve draft 07 (https://github.com/ethereum/py_ecc/pull/94)
+
+
+3.1.0
+-----
+
+2020-05-12
+
+* Fix optimized_swu + update error messages (https://github.com/ethereum/py_ecc/pull/97)
+
+
+3.0.0
+-----
+
+2020-05-12
+
+* Implement IETF BLS signature draft 02 + hash-to-curve draft 06 (https://github.com/ethereum/py_ecc/pull/87)
+* Fixes Typing errors for points at infinity (NoneTypes) (https://github.com/ethereum/py_ecc/pull/89)
+
+2.0.0
+-----
+
+2020-01-08
+
+* Implement [IETF BLS signature draft 00](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature-00)
+
+
 1.7.1
 -----
 
