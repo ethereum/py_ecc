@@ -88,7 +88,11 @@ To release a new version:
 ```sh
 make release bump=$$VERSION_PART_TO_BUMP$$
 ```
+To preview the upcoming release notes:
 
+```sh
+towncrier --draft
+```
 #### How to bumpversion
 
 The version format for this repo is `{major}.{minor}.{patch}` for stable, and
