@@ -1,7 +1,7 @@
 [tool.towncrier]
 # Read https://github.com/ethereum/<REPO_NAME>/newsfragments/README.md for instructions
 package = "py_ecc"
-filename = "docs/release_notes.rst"
+filename = "CHANGELOG"
 directory = "newsfragments"
 underlines = ["-", "~", "^"]
 issue_format = "`#{issue} <https://github.com/ethereum/<REPO_NAME>/issues/{issue}>`__"

@@ -31,7 +31,7 @@ test-all:
 	tox
 
 build-docs:
-    ./newsfragments/validate_files.py
+	python newsfragments/validate_files.py
 	towncrier --draft --version preview
 
 notes:
