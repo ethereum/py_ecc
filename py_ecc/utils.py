@@ -22,6 +22,12 @@ def prime_field_inv(a: int, n: int) -> int:
     """
     Extended euclidean algorithm to find modular inverses for integers
     """
+    # To address a == n edge case.
+    # https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-4
+    # inv0(x): This function returns the multiplicative inverse of x in
+    # F, extended to all of F by fixing inv0(0) == 0.
+    a %= n
+
     if a == 0:
         return 0
     lm, hm = 1, 0
