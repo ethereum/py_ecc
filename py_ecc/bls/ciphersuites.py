@@ -40,7 +40,7 @@ from .g2_primitives import (
     G2_to_signature,
     pubkey_to_G1,
     signature_to_G2,
-    pubkey_subgroup_check,
+    subgroup_check,
     is_inf,
 )
 
@@ -112,9 +112,7 @@ class BaseG2Ciphersuite(abc.ABC):
         if is_inf(pubkey_point):
             return False
 
-        try:
-            pubkey_subgroup_check(pubkey_point)
-        except (ValidationError, ValueError, AssertionError):
+        if not subgroup_check(pubkey_point):
             return False
 
         return True
@@ -151,6 +149,8 @@ class BaseG2Ciphersuite(abc.ABC):
             # Procedure
             assert cls.KeyValidate(PK)
             signature_point = signature_to_G2(signature)
+            if not subgroup_check(signature_point):
+                return False
             final_exponentiation = final_exponentiate(
                 pairing(
                     signature_point,
@@ -207,6 +207,8 @@ class BaseG2Ciphersuite(abc.ABC):
 
             # Procedure
             signature_point = signature_to_G2(signature)
+            if not subgroup_check(signature_point):
+                return False
             aggregate = FQ12.one()
             for pk, message in zip(PKs, messages):
                 assert cls.KeyValidate(pk)
