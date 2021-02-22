@@ -99,6 +99,8 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     # Else, not point at infinity
     # 3 MSBs should be 100 or 101
     x = z % POW_2_381
+    if x >= q:
+        raise ValueError("Point value should be less than field modulus. Got %d", x)
 
     # Try solving y coordinate from the equation Y^2 = X^3 + b
     # using quadratic residue
@@ -195,10 +197,9 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     # 3 MSBs should be 100 or 101
     x1 = z1 % POW_2_381
 
-    # Validate z2 flags
-    c_flag2, b_flag2, a_flag2 = get_flags(z2)
-    if not (c_flag2 is b_flag2 and b_flag2 is a_flag2 and a_flag2 is False):
-        raise ValueError("a_flag2, b_flag2, and c_flag2 should always set to 0")
+    # Ensure that z2 is less than the field modulus.
+    if z2 >= q:
+        raise ValueError("z2 point value should be less than field modulus. Got %d", z2)
 
     x2 = z2
     # x1 is the imaginary part, x2 is the real part
