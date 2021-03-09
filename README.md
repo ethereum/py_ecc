@@ -61,7 +61,7 @@ signatures = [bls_pop.Sign(key, message) for key, message in zip(private_keys, m
 agg_sig = bls_pop.Aggregate(signatures)
 
 # Verify aggregate signature with different messages
-assert bls_pop.AggregateVerify(zip(public_keys, messages), agg_sig)
+assert bls_pop.AggregateVerify(public_keys, messages, agg_sig)
 ```
 
 ## Developer Setup
