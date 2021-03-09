@@ -15,6 +15,7 @@ extras_require = {
     'dev': [
         "bumpversion>=0.5.3,<1",
         "twine",
+        "towncrier>=19.2.0,<20",
     ],
 }
 

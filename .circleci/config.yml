@@ -42,6 +42,12 @@ jobs:
       - image: circleci/python:3.7
         environment:
           TOXENV: lint
+  docs:
+    <<: *common
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          TOXENV: docs
   py35-core:
     <<: *common
     docker:
@@ -72,6 +78,7 @@ workflows:
   test:
     jobs:
       - lint
+      - docs
       - py35-core
       - py36-core
       - py37-core
