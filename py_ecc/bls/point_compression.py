@@ -196,6 +196,8 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     # Else, not point at infinity
     # 3 MSBs should be 100 or 101
     x1 = z1 % POW_2_381
+    if x1 >= q:
+        raise ValueError("x1 value should be less than field modulus. Got %d", x1)
 
     # Ensure that z2 is less than the field modulus.
     if z2 >= q:
