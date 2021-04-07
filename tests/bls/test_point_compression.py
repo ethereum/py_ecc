@@ -143,6 +143,7 @@ compressed_z2 = compress_G2(Z2)
         ((compressed_g2[0] & ~(1<<383), compressed_g2[1]), "c_flag should be 1"),  # set c_flag1 to 0
         ((compressed_g2[0] | (1<<382), compressed_g2[1]), "b_flag should be 0"),  # set b_flag1 to 1
         ((compressed_z2[0] & ~(1<<382), compressed_z2[1]), "b_flag should be 1"),  # set b_flag1 to 0
+        ((q | (1<<383), compressed_z2[1]), "x1 value should be less than field modulus."),  # x1 == q
         ((compressed_z2[0] | (1<<381), compressed_z2[1]), "a point at infinity should have a_flag == 0"),  # set a_flag1 to 1
         ((compressed_g2[0], compressed_z2[1] | (1<<383)), "z2 point value should be less than field modulus."),  # set c_flag2 to 1
         ((compressed_g2[0], compressed_z2[1] | (1<<382)), "z2 point value should be less than field modulus."),  # set b_flag2 to 1
