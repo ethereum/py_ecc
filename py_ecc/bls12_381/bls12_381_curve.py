@@ -63,7 +63,9 @@ def is_inf(pt: GeneralPoint[Field]) -> bool:
 def is_on_curve(pt: Point2D[Field], b: Field) -> bool:
     if is_inf(pt):
         return True
-    x, y = pt
+    # mypy doesn't recognize that the `None` check is
+    # built into the is_inf check
+    x, y = pt  # type: ignore
     return y**2 - x**3 == b
 
 
@@ -75,7 +77,9 @@ assert is_on_curve(G2, b2)
 def double(pt: Point2D[Field]) -> Point2D[Field]:
     if is_inf(pt):
         return pt
-    x, y = pt
+    # mypy doesn't recognize that the `None` check is
+    # built into the is_inf check
+    x, y = pt  # type: ignore
     m = 3 * x**2 / (2 * y)
     newx = m**2 - 2 * x
     newy = -m * newx + m * x - y

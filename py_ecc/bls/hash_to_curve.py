@@ -1,7 +1,8 @@
 from typing import (
+    Callable,
     Tuple,
 )
-from _hashlib import HASH
+from hashlib import _Hash
 
 from py_ecc.fields import (
     optimized_bls12_381_FQ2 as FQ2,
@@ -24,7 +25,7 @@ from .typing import G2Uncompressed
 
 # Hash to G2
 def hash_to_G2(message: bytes, DST: bytes,
-               hash_function: HASH) -> G2Uncompressed:
+               hash_function: Callable[..., _Hash]) -> G2Uncompressed:
     """
     Convert a message to a point on G2 as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-6.6.3
@@ -43,7 +44,7 @@ def hash_to_G2(message: bytes, DST: bytes,
 
 
 def hash_to_field_FQ2(message: bytes, count: int,
-                      DST: bytes, hash_function: HASH) -> Tuple[FQ2, ...]:
+                      DST: bytes, hash_function: Callable[..., _Hash]) -> Tuple[FQ2, ...]:
     """
     Hash To Base Field for FQ2
 
