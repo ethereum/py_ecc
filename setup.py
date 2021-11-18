@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 extras_require = {
     'test': [
-        "pytest==3.10.1",
+        "pytest==6.2.5",
         "pytest-xdist==1.26.0",
     ],
     'lint': [
@@ -61,6 +61,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
 )
