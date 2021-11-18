@@ -9,7 +9,7 @@ extras_require = {
     ],
     'lint': [
         "flake8==3.5.0",
-        "mypy==0.910",
+        "mypy==0.641",
         "mypy-extensions>=0.4.1",
     ],
     'dev': [
@@ -46,7 +46,7 @@ setup(
     package_data={'py_ecc': ['py.typed']},
     install_requires=[
         "eth-typing>=3.0.0,<4",
-        "eth-utils>=1.3.0,<2",
+        "eth-utils>=2.0.0,<3",
         "mypy-extensions>=0.4.1",
         "cached-property>=1.5.1,<2",
     ],
