@@ -1,10 +1,10 @@
-import hashlib
 import hmac
 import math
 from typing import (
-    Callable,
     Union,
 )
+import hashlib
+from _hashlib import HASH
 
 
 def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) -> bytes:
@@ -64,10 +64,7 @@ def xor(a: bytes, b: bytes) -> bytes:
     return bytes(_a ^ _b for _a, _b in zip(a, b))
 
 
-def expand_message_xmd(msg: bytes,
-                       DST: bytes,
-                       len_in_bytes: int,
-                       hash_function: Callable[..., hashlib._Hash]) -> bytes:
+def expand_message_xmd(msg: bytes, DST: bytes, len_in_bytes: int, hash_function: HASH) -> bytes:
     b_in_bytes = hash_function().digest_size
     r_in_bytes = hash_function().block_size
     if len(DST) > 255:

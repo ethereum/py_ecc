@@ -1,5 +1,4 @@
 from typing import (
-    Callable,
     Sequence,
 )
 from math import (
@@ -14,7 +13,7 @@ from eth_typing import (
 from eth_utils import (
     ValidationError,
 )
-from hashlib import sha256, _Hash
+from hashlib import sha256
 
 from py_ecc.fields import optimized_bls12_381_FQ12 as FQ12
 from py_ecc.optimized_bls12_381 import (
@@ -48,7 +47,7 @@ from .g2_primitives import (
 
 class BaseG2Ciphersuite(abc.ABC):
     DST = b''
-    xmd_hash_function: Callable[..., _Hash] = sha256
+    xmd_hash_function = sha256
 
     #
     # Input validation helpers
