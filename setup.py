@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 extras_require = {
     'test': [
-        "pytest==3.10.1",
+        "pytest==6.2.5",
         "pytest-xdist==1.26.0",
     ],
     'lint': [
@@ -45,21 +45,23 @@ setup(
     packages=find_packages(exclude=('tests', 'docs')),
     package_data={'py_ecc': ['py.typed']},
     install_requires=[
-        "eth-typing>=2.1.0,<3.0.0",
-        "eth-utils>=1.3.0,<2",
+        "eth-typing>=3.0.0,<4",
+        "eth-utils>=2.0.0,<3",
         "mypy-extensions>=0.4.1",
         "cached-property>=1.5.1,<2",
     ],
-    python_requires='>=3.5, <4',
+    python_requires='>=3.6, <4',
     extras_require=extras_require,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
 )
