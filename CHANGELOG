@@ -1,3 +1,15 @@
+6.0.0
+-----
+
+2021-12-16
+
+* Fix x1 point check (https://github.com/ethereum/py_ecc/pull/121)
+* Bump eth-typing dependency requirement (https://github.com/ethereum/py_ecc/pull/123)
+* Bump eth-utils dependency requirement (https://github.com/ethereum/py_ecc/pull/123)
+* Drop support for Python 3.5 (https://github.com/ethereum/py_ecc/pull/123)
+* Add support for Python 3.9 and 3.10 (https://github.com/ethereum/py_ecc/pull/123)
+
+
 5.2.0
 -----
 
