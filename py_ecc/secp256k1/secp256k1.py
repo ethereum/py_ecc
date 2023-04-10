@@ -167,7 +167,7 @@ def multiply(a: "PlainPoint2D", n: int) -> "PlainPoint2D":
 
 def add(a: "PlainPoint2D", b: "PlainPoint2D") -> "PlainPoint2D":
     """
-    Add two 2D points a and b using elliptic curve point addition, and return the resulting 
+    Add two 2D points a and b using elliptic curve point addition, and return the resulting
     2D point in plain coordinates.
 
     :param a: a 2D point on the elliptic curve
@@ -194,7 +194,7 @@ def deterministic_generate_k(msghash: bytes, priv: bytes) -> int:
     :param private_key: The private key to be used in the signature.
     :param curve_order: The order of the elliptic curve used in the signature algorithm.
 
-    :return: A deterministic value k that can be used as the ephemeral private key in the 
+    :return: A deterministic value k that can be used as the ephemeral private key in the
     signature generation process.
     """
     v = b'\x01' * 32
