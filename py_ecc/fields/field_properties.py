@@ -1,9 +1,8 @@
 from typing import (
     Dict,
     TYPE_CHECKING,
+    TypedDict,
 )
-
-from mypy_extensions import TypedDict
 
 if TYPE_CHECKING:
     from py_ecc.typing import (  # noqa: F401
