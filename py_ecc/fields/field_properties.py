@@ -1,6 +1,6 @@
 from typing import (
-    Dict,
     TYPE_CHECKING,
+    Dict,
     TypedDict,
 )
 
@@ -11,12 +11,14 @@ if TYPE_CHECKING:
     )
 
 
-Curve_Field_Properties = TypedDict('Curve_Field_Properties',
-                                   {
-                                       'field_modulus': int,
-                                       'fq2_modulus_coeffs': "FQ2_modulus_coeffs_type",
-                                       'fq12_modulus_coeffs': "FQ12_modulus_coeffs_type",
-                                   })
+Curve_Field_Properties = TypedDict(
+    "Curve_Field_Properties",
+    {
+        "field_modulus": int,
+        "fq2_modulus_coeffs": "FQ2_modulus_coeffs_type",
+        "fq12_modulus_coeffs": "FQ12_modulus_coeffs_type",
+    },
+)
 Field_Properties = Dict[str, Curve_Field_Properties]
 
 field_properties = {
@@ -30,4 +32,4 @@ field_properties = {
         "fq2_modulus_coeffs": (1, 0),
         "fq12_modulus_coeffs": (2, 0, 0, 0, 0, 0, -2, 0, 0, 0, 0, 0),  # Implied + [1]
     },
-}   # type: Field_Properties
+}  # type: Field_Properties

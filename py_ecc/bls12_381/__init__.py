@@ -1,32 +1,35 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+)
 
-from py_ecc.fields import (  # noqa: F401
+from py_ecc.fields import (
     bls12_381_FQ as FQ,
-    bls12_381_FQP as FQP,
     bls12_381_FQ2 as FQ2,
     bls12_381_FQ12 as FQ12,
+    bls12_381_FQP as FQP,
 )
-from .bls12_381_curve import (  # noqa: F401
-    field_modulus,
+
+from .bls12_381_curve import (
+    G1,
+    G2,
+    G12,
+    Z1,
+    Z2,
     add,
-    double,
-    multiply,
-    is_inf,
-    is_on_curve,
-    eq,
-    neg,
-    twist,
     b,
     b2,
     b12,
     curve_order,
-    G1,
-    G2,
-    Z1,
-    Z2,
-    G12,
+    double,
+    eq,
+    field_modulus,
+    is_inf,
+    is_on_curve,
+    multiply,
+    neg,
+    twist,
 )
-from .bls12_381_pairing import (  # noqa: F401
-    pairing,
+from .bls12_381_pairing import (
     final_exponentiate,
+    pairing,
 )

@@ -1,14 +1,16 @@
 from eth_typing import (
-    BLSSignature,
     BLSPubkey,
+    BLSSignature,
 )
 
 from py_ecc.optimized_bls12_381 import (
+    curve_order,
     is_inf,
     multiply,
-    curve_order,
 )
-from py_ecc.typing import Optimized_Point3D
+from py_ecc.typing import (
+    Optimized_Point3D,
+)
 
 from .hash import (
     i2osp,
@@ -16,9 +18,9 @@ from .hash import (
 )
 from .point_compression import (
     compress_G1,
-    decompress_G1,
     compress_G2,
-    decompress_G2
+    decompress_G1,
+    decompress_G2,
 )
 from .typing import (
     G1Compressed,

@@ -1,19 +1,17 @@
 from .field_elements import (
     FQ,
-    FQP,
     FQ2,
     FQ12,
+    FQP,
 )
-
 from .field_properties import (
     field_properties,
 )
-
 from .optimized_field_elements import (
     FQ as optimized_FQ,
-    FQP as optimized_FQP,
     FQ2 as optimized_FQ2,
     FQ12 as optimized_FQ12,
+    FQP as optimized_FQP,
 )
 
 
@@ -62,6 +60,7 @@ class bls12_381_FQ12(FQ12, bls12_381_FQP):
 #
 # optimized_bn128 curve fields
 #
+
 
 class optimized_bn128_FQ(optimized_FQ):
     field_modulus = field_properties["bn128"]["field_modulus"]

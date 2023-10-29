@@ -36,15 +36,15 @@ with open("./README.md") as readme:
 
 
 setup(
-    name="<PYPI_NAME>",
+    name="py-ecc",
     # *IMPORTANT*: Don't manually change the version here. Use `make bump`, as described in readme
     version="6.0.0",
-    description="""<PYPI_NAME>: <SHORT_DESCRIPTION>""",
+    description="""py-ecc: Elliptic curve crypto in python including secp256k1, alt_bn128, and bls12_381""",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="The Ethereum Foundation",
     author_email="snakecharmers@ethereum.org",
-    url="https://github.com/ethereum/<REPO_NAME>",
+    url="https://github.com/ethereum/py_ecc",
     include_package_data=True,
     install_requires=[
         "eth-typing>=3.0.0",
@@ -53,12 +53,12 @@ setup(
     ],
     python_requires=">=3.8, <4",
     extras_require=extras_require,
-    py_modules=["<MODULE_NAME>"],
+    py_modules=["py_ecc"],
     license="MIT",
     zip_safe=False,
     keywords="ethereum",
     packages=find_packages(exclude=["tests", "tests.*"]),
-    package_data={"<MODULE_NAME>": ["py.typed"]},
+    package_data={"py_ecc": ["py.typed"]},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

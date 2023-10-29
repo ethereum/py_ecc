@@ -1,12 +1,11 @@
 import hashlib
 import hmac
 import sys
-
 from typing import (
-    Any,
-    cast,
-    Tuple,
     TYPE_CHECKING,
+    Any,
+    Tuple,
+    cast,
 )
 
 if TYPE_CHECKING:
@@ -19,7 +18,8 @@ if TYPE_CHECKING:
 if sys.version_info.major == 2:
     safe_ord = ord
 else:
-    def safe_ord(value: Any) -> int:    # type: ignore
+
+    def safe_ord(value: Any) -> int:  # type: ignore
         if isinstance(value, int):
             return value
         else:
@@ -39,7 +39,7 @@ G = cast("PlainPoint2D", (Gx, Gy))
 def bytes_to_int(x: bytes) -> int:
     o = 0
     for b in x:
-        o = (o << 8) + safe_ord(b)      # type: ignore
+        o = (o << 8) + safe_ord(b)  # type: ignore
     return o
 
 
@@ -68,7 +68,7 @@ def jacobian_double(p: "PlainPoint3D") -> "PlainPoint3D":
     S = (4 * p[0] * ysq) % P
     M = (3 * p[0] ** 2 + A * p[2] ** 4) % P
     nx = (M**2 - 2 * S) % P
-    ny = (M * (S - nx) - 8 * ysq ** 2) % P
+    ny = (M * (S - nx) - 8 * ysq**2) % P
     nz = (2 * p[1] * p[2]) % P
     return cast("PlainPoint3D", (nx, ny, nz))
 
@@ -91,7 +91,7 @@ def jacobian_add(p: "PlainPoint3D", q: "PlainPoint3D") -> "PlainPoint3D":
     H2 = (H * H) % P
     H3 = (H * H2) % P
     U1H2 = (U1 * H2) % P
-    nx = (R ** 2 - H3 - 2 * U1H2) % P
+    nx = (R**2 - H3 - 2 * U1H2) % P
     ny = (R * (U1H2 - nx) - S1 * H3) % P
     nz = (H * p[2] * q[2]) % P
     return cast("PlainPoint3D", (nx, ny, nz))
@@ -102,7 +102,7 @@ def from_jacobian(p: "PlainPoint3D") -> "PlainPoint2D":
     return cast("PlainPoint2D", ((p[0] * z**2) % P, (p[1] * z**3) % P))
 
 
-def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":   # type: ignore
+def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":  # type: ignore
     if a[1] == 0 or n == 0:
         return cast("PlainPoint3D", (0, 0, 1))
     if n == 1:
@@ -129,18 +129,17 @@ def privtopub(privkey: bytes) -> "PlainPoint2D":
 
 
 def deterministic_generate_k(msghash: bytes, priv: bytes) -> int:
-    v = b'\x01' * 32
-    k = b'\x00' * 32
-    k = hmac.new(k, v + b'\x00' + priv + msghash, hashlib.sha256).digest()
+    v = b"\x01" * 32
+    k = b"\x00" * 32
+    k = hmac.new(k, v + b"\x00" + priv + msghash, hashlib.sha256).digest()
     v = hmac.new(k, v, hashlib.sha256).digest()
-    k = hmac.new(k, v + b'\x01' + priv + msghash, hashlib.sha256).digest()
+    k = hmac.new(k, v + b"\x01" + priv + msghash, hashlib.sha256).digest()
     v = hmac.new(k, v, hashlib.sha256).digest()
     return bytes_to_int(hmac.new(k, v, hashlib.sha256).digest())
 
 
 # bytes32, bytes32 -> v, r, s (as numbers)
 def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> Tuple[int, int, int]:
-
     z = bytes_to_int(msghash)
     k = deterministic_generate_k(msghash, priv)
 
@@ -162,7 +161,9 @@ def ecdsa_raw_recover(msghash: bytes, vrs: Tuple[int, int, int]) -> "PlainPoint2
     # If xcubedaxb is not a quadratic residue, then r cannot be the x coord
     # for a point on the curve, and so the sig is invalid
     if (xcubedaxb - y * y) % P != 0 or not (r % N) or not (s % N):
-        raise ValueError("sig is invalid, %d cannot be the x coord for point on curve" % r)
+        raise ValueError(
+            "sig is invalid, %d cannot be the x coord for point on curve" % r
+        )
     z = bytes_to_int(msghash)
     Gz = jacobian_multiply(cast("PlainPoint3D", (Gx, Gy, 1)), (N - z) % N)
     XY = jacobian_multiply(cast("PlainPoint3D", (x, y, 1)), s)

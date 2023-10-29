@@ -1,2 +1,2 @@
 def test_import():
-    import <MODULE_NAME>  # noqa: F401
+    import py_ecc  # noqa: F401

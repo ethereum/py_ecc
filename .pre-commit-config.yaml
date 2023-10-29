@@ -1,4 +1,4 @@
-exclude: '.project-template|docs/conf.py'
+exclude: '.project-template|docs/conf.py|.bumpversion.cfg'
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -42,4 +42,6 @@ repos:
     rev: v1.5.1
     hooks:
     -   id: mypy
-        exclude: tests/
+        # mypy checks are turned off for now, re-enable as typing is updated
+        # see issue #131
+        exclude: 'tests/|py_ecc/'

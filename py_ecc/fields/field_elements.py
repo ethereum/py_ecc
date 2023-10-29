@@ -1,12 +1,12 @@
 from typing import (  # noqa: F401
-    cast,
+    TYPE_CHECKING,
     List,
     Sequence,
     Tuple,
     Type,
     TypeVar,
     Union,
-    TYPE_CHECKING,
+    cast,
 )
 
 from py_ecc.utils import (
@@ -24,10 +24,10 @@ if TYPE_CHECKING:
 
 # These new TypeVars are needed because these classes are kind of base classes and
 # we need the output type to correspond to the type of the inherited class
-T_FQ = TypeVar('T_FQ', bound="FQ")
-T_FQP = TypeVar('T_FQP', bound="FQP")
-T_FQ2 = TypeVar('T_FQ2', bound="FQ2")
-T_FQ12 = TypeVar('T_FQ12', bound="FQ12")
+T_FQ = TypeVar("T_FQ", bound="FQ")
+T_FQP = TypeVar("T_FQP", bound="FQP")
+T_FQ2 = TypeVar("T_FQ2", bound="FQ2")
+T_FQ12 = TypeVar("T_FQ12", bound="FQ12")
 IntOrFQ = Union[int, T_FQ]
 
 
@@ -36,6 +36,7 @@ class FQ(object):
     A class for field elements in FQ. Wrap a number in this class,
     and it becomes a field element.
     """
+
     n = None  # type: int
     field_modulus = None  # type: int
 
@@ -49,8 +50,9 @@ class FQ(object):
             self.n = val % self.field_modulus
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(val))
+                "Expected an int or FQ object, but got object of type {}".format(
+                    type(val)
+                )
             )
 
     def __add__(self: T_FQ, other: IntOrFQ) -> T_FQ:
@@ -60,8 +62,9 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object, but got object of type {}".format(
+                    type(other)
+                )
             )
 
         return type(self)((self.n + on) % self.field_modulus)
@@ -73,8 +76,9 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object, but got object of type {}".format(
+                    type(other)
+                )
             )
 
         return type(self)((self.n * on) % self.field_modulus)
@@ -92,8 +96,9 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object, but got object of type {}".format(
+                    type(other)
+                )
             )
 
         return type(self)((on - self.n) % self.field_modulus)
@@ -105,8 +110,9 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object, but got object of type {}".format(
+                    type(other)
+                )
             )
 
         return type(self)((self.n - on) % self.field_modulus)
@@ -118,8 +124,9 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object, but got object of type {}".format(
+                    type(other)
+                )
             )
 
         return type(self)(
@@ -136,8 +143,9 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object, but got object of type {}".format(
+                    type(other)
+                )
             )
 
         return type(self)(
@@ -164,8 +172,9 @@ class FQ(object):
             return self.n == other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object, but got object of type {}".format(
+                    type(other)
+                )
             )
 
     def __ne__(self: T_FQ, other: IntOrFQ) -> bool:
@@ -196,24 +205,21 @@ class FQP(object):
     """
     A class for elements in polynomial extension fields
     """
+
     degree = 0
     field_modulus = None  # type: int
 
-    def __init__(self,
-                 coeffs: Sequence[IntOrFQ],
-                 modulus_coeffs: Sequence[IntOrFQ] = ()) -> None:
+    def __init__(
+        self, coeffs: Sequence[IntOrFQ], modulus_coeffs: Sequence[IntOrFQ] = ()
+    ) -> None:
         if self.field_modulus is None:
             raise AttributeError("Field Modulus hasn't been specified")
 
         if len(coeffs) != len(modulus_coeffs):
-            raise Exception(
-                "coeffs and modulus_coeffs aren't of the same length"
-            )
+            raise Exception("coeffs and modulus_coeffs aren't of the same length")
         # Encoding all coefficients in the corresponding type FQ
         self.FQP_corresponding_FQ_class = type(
-            "FQP_corresponding_FQ_class",
-            (FQ,),
-            {'field_modulus': self.field_modulus}
+            "FQP_corresponding_FQ_class", (FQ,), {"field_modulus": self.field_modulus}
         )  # type: Type[FQ]
         self.coeffs = tuple(
             self.FQP_corresponding_FQ_class(c) for c in coeffs
@@ -226,8 +232,7 @@ class FQP(object):
     def __add__(self: T_FQP, other: T_FQP) -> T_FQP:
         if not isinstance(other, type(self)):
             raise TypeError(
-                "Expected an FQP object, but got object of type {}"
-                .format(type(other))
+                "Expected an FQP object, but got object of type {}".format(type(other))
             )
 
         return type(self)([x + y for x, y in zip(self.coeffs, other.coeffs)])
@@ -235,8 +240,7 @@ class FQP(object):
     def __sub__(self: T_FQP, other: T_FQP) -> T_FQP:
         if not isinstance(other, type(self)):
             raise TypeError(
-                "Expected an FQP object, but got object of type {}"
-                .format(type(other))
+                "Expected an FQP object, but got object of type {}".format(type(other))
             )
 
         return type(self)([x - y for x, y in zip(self.coeffs, other.coeffs)])
@@ -252,12 +256,14 @@ class FQP(object):
             while len(b) > self.degree:
                 exp, top = len(b) - self.degree - 1, b.pop()
                 for i in range(self.degree):
-                    b[exp + i] -= top * self.FQP_corresponding_FQ_class(self.modulus_coeffs[i])
+                    b[exp + i] -= top * self.FQP_corresponding_FQ_class(
+                        self.modulus_coeffs[i]
+                    )
             return type(self)(b)
         else:
             raise TypeError(
-                "Expected an int or FQ object or FQP object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object or FQP object, "
+                f"but got object of type {type(other)}"
             )
 
     def __rmul__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
@@ -270,8 +276,8 @@ class FQP(object):
             return self * other.inv()
         else:
             raise TypeError(
-                "Expected an int or FQ object or FQP object, but got object of type {}"
-                .format(type(other))
+                "Expected an int or FQ object or FQP object, "
+                f"but got object of type {type(other)}"
             )
 
     def __truediv__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
@@ -294,7 +300,8 @@ class FQP(object):
             [0] * (self.degree + 1),
         )
         low, high = (
-            # Ignore mypy yelling about the inner types for  the tuples being incompatible
+            # Ignore mypy yelling about the inner types for the tuples being
+            # incompatible
             cast(List[IntOrFQ], list(self.coeffs + (0,))),
             cast(List[IntOrFQ], list(self.modulus_coeffs + (1,))),
         )
@@ -322,16 +329,15 @@ class FQP(object):
                     nm[i + j] -= lm[i] * int(r[j])
                     new[i + j] -= low[i] * int(r[j])
             lm, low, hm, high = nm, new, lm, low
-        return type(self)(lm[:self.degree]) / low[0]
+        return type(self)(lm[: self.degree]) / low[0]
 
     def __repr__(self: T_FQP) -> str:
         return repr(self.coeffs)
 
-    def __eq__(self: T_FQP, other: T_FQP) -> bool:     # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __eq__(self: T_FQP, other: T_FQP) -> bool:  # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         if not isinstance(other, type(self)):
             raise TypeError(
-                "Expected an FQP object, but got object of type {}"
-                .format(type(other))
+                "Expected an FQP object, but got object of type {}".format(type(other))
             )
 
         for c1, c2 in zip(self.coeffs, other.coeffs):
@@ -339,7 +345,7 @@ class FQP(object):
                 return False
         return True
 
-    def __ne__(self: T_FQP, other: T_FQP) -> bool:     # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __ne__(self: T_FQP, other: T_FQP) -> bool:  # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         return not self == other
 
     def __neg__(self: T_FQP) -> T_FQP:
@@ -358,6 +364,7 @@ class FQ2(FQP):
     """
     The quadratic extension field
     """
+
     degree = 2
     FQ2_MODULUS_COEFFS = None  # type: FQ2_modulus_coeffs_type
 
@@ -372,6 +379,7 @@ class FQ12(FQP):
     """
     The 12th-degree extension field
     """
+
     degree = 12
     FQ12_MODULUS_COEFFS = None  # type: FQ12_modulus_coeffs_type
 

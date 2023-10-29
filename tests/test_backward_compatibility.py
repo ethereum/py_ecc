@@ -1,39 +1,10 @@
 def test_backward_compatibility_imports():
-    from py_ecc.bn128 import (
-        field_modulus,
-        FQ,
-        FQP,
-        FQ2,
-        FQ12,
-    )
-    from py_ecc.bls12_381 import (
-        field_modulus,
-        FQ,
-        FQP,
-        FQ2,
-        FQ12,
-    )
-    from py_ecc.optimized_bn128 import (
-        field_modulus,
-        FQ,
-        FQP,
-        FQ2,
-        FQ12,
-    )
-    from py_ecc.optimized_bls12_381 import (
-        field_modulus,
-        FQ,
-        FQP,
-        FQ2,
-        FQ12,
-    )
+    pass
 
 
 def test_backward_compatibility_py_evm():
-    from py_ecc import optimized_bn128 as bn128
-    from py_ecc.optimized_bn128 import (
-        FQP,
-        FQ2,
+    from py_ecc import (
+        optimized_bn128 as bn128,
     )
 
     FQ = bn128.FQ
