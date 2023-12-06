@@ -16,7 +16,7 @@ from .constants import (
     ISO_3_MAP_COEFFICIENTS,
     ISO_3_Z,
     P_MINUS_9_DIV_16,
-    POSITIVE_EIGTH_ROOTS_OF_UNITY,
+    POSITIVE_EIGHTH_ROOTS_OF_UNITY,
 )
 
 
@@ -88,7 +88,7 @@ def sqrt_division_FQ2(u: FQ2, v: FQ2) -> Tuple[bool, FQ2]:
     # Verify there is a valid root
     is_valid_root = False
     result = gamma
-    roots = POSITIVE_EIGTH_ROOTS_OF_UNITY
+    roots = POSITIVE_EIGHTH_ROOTS_OF_UNITY
     for root in roots:
         # Valid if (root * gamma)^2 * v - u == 0
         sqrt_candidate = root * gamma

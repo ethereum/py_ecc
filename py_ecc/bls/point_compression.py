@@ -19,7 +19,7 @@ from py_ecc.optimized_bls12_381 import (
 )
 
 from .constants import (
-    EIGTH_ROOTS_OF_UNITY,
+    EIGHTH_ROOTS_OF_UNITY,
     FQ2_ORDER,
     POW_2_381,
     POW_2_382,
@@ -130,10 +130,10 @@ def modular_squareroot_in_FQ2(value: FQ2) -> Optional[FQ2]:
     """
     candidate_squareroot = value ** ((FQ2_ORDER + 8) // 16)
     check = candidate_squareroot**2 / value
-    if check in EIGTH_ROOTS_OF_UNITY[::2]:
+    if check in EIGHTH_ROOTS_OF_UNITY[::2]:
         x1 = (
             candidate_squareroot
-            / EIGTH_ROOTS_OF_UNITY[EIGTH_ROOTS_OF_UNITY.index(check) // 2]
+            / EIGHTH_ROOTS_OF_UNITY[EIGHTH_ROOTS_OF_UNITY.index(check) // 2]
         )
         x2 = -x1
         x1_re, x1_im = x1.coeffs
