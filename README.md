@@ -1,15 +1,20 @@
-py_ecc
-==========================
+# py_ecc
+
+[![Join the conversation on Discord](https://img.shields.io/discord/809793915578089484?color=blue&label=chat&logo=discord&logoColor=white)](https://discord.gg/GHryRvPB84)
+[![Build Status](https://circleci.com/gh/ethereum/py_ecc.svg?style=shield)](https://circleci.com/gh/ethereum/py_ecc)
+[![PyPI version](https://badge.fury.io/py/py-ecc.svg)](https://badge.fury.io/py/py-ecc)
+[![Python versions](https://img.shields.io/pypi/pyversions/py-ecc.svg)](https://pypi.python.org/pypi/py-ecc)
+
 Elliptic curve crypto in python including secp256k1, alt_bn128, and bls12_381.
 
 > **Warning**: This library contains some experimental codes that have **NOT** been audited.
 
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ethereum/py_ecc) [![Build Status](https://circleci.com/gh/ethereum/py_ecc.svg?style=shield)](https://circleci.com/gh/ethereum/py_ecc) [![PyPI version](https://badge.fury.io/py/py-ecc.svg)](https://badge.fury.io/py/py-ecc)
+Read more in the documentation below. [View the change log](https://github.com/ethereum/py_ecc/blob/main/CHANGELOG.rst)
 
 ## Quickstart
 
 ```sh
-pip install py_ecc
+python -m pip install py_ecc
 ```
 
 ## BLS Signatures
@@ -66,22 +71,33 @@ assert bls_pop.AggregateVerify(public_keys, messages, agg_sig)
 
 ## Developer Setup
 
-If you would like to hack on py_ecc, please check out the [Ethereum Development Tactical Manual](https://github.com/ethereum/ethereum-dev-tactical-manual) for information on how we do:
+If you would like to hack on py_ecc, please check out the [Snake Charmers
+Tactical Manual](https://github.com/ethereum/snake-charmers-tactical-manual)
+for information on how we do:
 
 - Testing
 - Pull Requests
-- Code Style
 - Documentation
 
-## Got bug?
+We use [pre-commit](https://pre-commit.com/) to maintain consistent code style. Once
+installed, it will run automatically with every commit. You can also run it manually
+with `make lint`. If you need to make a commit that skips the `pre-commit` checks, you
+can do so with `git commit --no-verify`.
 
-Feel free to create issue under https://github.com/ethereum/py_ecc/issues
+### Development Environment Setup
 
-## Copyright and Licensing
+You can set up your dev environment with:
 
-Project is licensed under the MIT license.
+```sh
+git clone git@github.com:ethereum/py_ecc.git
+cd py_ecc
+virtualenv -p python3 venv
+. venv/bin/activate
+python -m pip install -e ".[dev]"
+pre-commit install
+```
 
-## Release setup
+### Release setup
 
 To release a new version:
 
@@ -95,7 +111,9 @@ The version format for this repo is `{major}.{minor}.{patch}` for stable, and
 `{major}.{minor}.{patch}-{stage}.{devnum}` for unstable (`stage` can be alpha or beta).
 
 To issue the next version in line, specify which part to bump,
-like `make release bump=minor` or `make release bump=devnum`.
+like `make release bump=minor` or `make release bump=devnum`. This is typically done from the
+main branch, except when releasing a beta (in which case the beta is released from main,
+and the previous stable branch is released from said branch).
 
 If you are in a beta version, `make release bump=stage` will switch to a stable.
 

@@ -1,11 +1,15 @@
-from typing import (
-    Sequence,
+import abc
+from hashlib import (
+    sha256,
 )
 from math import (
     ceil,
     log2,
 )
-import abc
+from typing import (
+    Sequence,
+)
+
 from eth_typing import (
     BLSPubkey,
     BLSSignature,
@@ -13,40 +17,43 @@ from eth_typing import (
 from eth_utils import (
     ValidationError,
 )
-from hashlib import sha256
 
-from py_ecc.fields import optimized_bls12_381_FQ12 as FQ12
+from py_ecc.fields import (
+    optimized_bls12_381_FQ12 as FQ12,
+)
 from py_ecc.optimized_bls12_381 import (
+    G1,
+    Z1,
+    Z2,
     add,
     curve_order,
     final_exponentiate,
-    G1,
     multiply,
     neg,
     pairing,
-    Z1,
-    Z2,
 )
 
+from .g2_primitives import (
+    G1_to_pubkey,
+    G2_to_signature,
+    is_inf,
+    pubkey_to_G1,
+    signature_to_G2,
+    subgroup_check,
+)
 from .hash import (
     hkdf_expand,
     hkdf_extract,
     i2osp,
     os2ip,
 )
-from .hash_to_curve import hash_to_G2
-from .g2_primitives import (
-    G1_to_pubkey,
-    G2_to_signature,
-    pubkey_to_G1,
-    signature_to_G2,
-    subgroup_check,
-    is_inf,
+from .hash_to_curve import (
+    hash_to_G2,
 )
 
 
 class BaseG2Ciphersuite(abc.ABC):
-    DST = b''
+    DST = b""
     xmd_hash_function = sha256
 
     #
@@ -91,12 +98,12 @@ class BaseG2Ciphersuite(abc.ABC):
         return G1_to_pubkey(multiply(G1, privkey))
 
     @classmethod
-    def KeyGen(cls, IKM: bytes, key_info: bytes = b'') -> int:
-        salt = b'BLS-SIG-KEYGEN-SALT-'
+    def KeyGen(cls, IKM: bytes, key_info: bytes = b"") -> int:
+        salt = b"BLS-SIG-KEYGEN-SALT-"
         SK = 0
         while SK == 0:
             salt = cls.xmd_hash_function(salt).digest()
-            prk = hkdf_extract(salt, IKM + b'\x00')
+            prk = hkdf_extract(salt, IKM + b"\x00")
             l = ceil((1.5 * ceil(log2(curve_order))) / 8)  # noqa: E741
             okm = hkdf_expand(prk, key_info + i2osp(l, 2), l)
             SK = os2ip(okm) % curve_order
@@ -138,8 +145,9 @@ class BaseG2Ciphersuite(abc.ABC):
         return G2_to_signature(signature_point)
 
     @classmethod
-    def _CoreVerify(cls, PK: BLSPubkey, message: bytes,
-                    signature: BLSSignature, DST: bytes) -> bool:
+    def _CoreVerify(
+        cls, PK: BLSPubkey, message: bytes, signature: BLSSignature, DST: bytes
+    ) -> bool:
         try:
             # Inputs validation
             assert cls._is_valid_pubkey(PK)
@@ -156,7 +164,8 @@ class BaseG2Ciphersuite(abc.ABC):
                     signature_point,
                     G1,
                     final_exponentiate=False,
-                ) * pairing(
+                )
+                * pairing(
                     hash_to_G2(message, DST, cls.xmd_hash_function),
                     neg(pubkey_to_G1(PK)),
                     final_exponentiate=False,
@@ -191,8 +200,13 @@ class BaseG2Ciphersuite(abc.ABC):
         return G2_to_signature(aggregate)
 
     @classmethod
-    def _CoreAggregateVerify(cls, PKs: Sequence[BLSPubkey], messages: Sequence[bytes],
-                             signature: BLSSignature, DST: bytes) -> bool:
+    def _CoreAggregateVerify(
+        cls,
+        PKs: Sequence[BLSPubkey],
+        messages: Sequence[bytes],
+        signature: BLSSignature,
+        DST: bytes,
+    ) -> bool:
         try:
             # Inputs validation
             for pk in PKs:
@@ -214,7 +228,9 @@ class BaseG2Ciphersuite(abc.ABC):
                 assert cls.KeyValidate(pk)
                 pubkey_point = pubkey_to_G1(pk)
                 message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
-                aggregate *= pairing(message_point, pubkey_point, final_exponentiate=False)
+                aggregate *= pairing(
+                    message_point, pubkey_point, final_exponentiate=False
+                )
             aggregate *= pairing(signature_point, neg(G1), final_exponentiate=False)
             return final_exponentiate(aggregate) == FQ12.one()
 
@@ -230,24 +246,32 @@ class BaseG2Ciphersuite(abc.ABC):
         return cls._CoreVerify(PK, message, signature, cls.DST)
 
     @abc.abstractclassmethod
-    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
-                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
+    def AggregateVerify(
+        cls,
+        PKs: Sequence[BLSPubkey],
+        messages: Sequence[bytes],
+        signature: BLSSignature,
+    ) -> bool:
         ...
 
 
 class G2Basic(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_'
+    DST = b"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_NUL_"
 
     @classmethod
-    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
-                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
+    def AggregateVerify(
+        cls,
+        PKs: Sequence[BLSPubkey],
+        messages: Sequence[bytes],
+        signature: BLSSignature,
+    ) -> bool:
         if len(messages) != len(set(messages)):  # Messages are not unique
             return False
         return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
 
 class G2MessageAugmentation(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_'
+    DST = b"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_AUG_"
 
     @classmethod
     def Sign(cls, SK: int, message: bytes) -> BLSSignature:
@@ -259,8 +283,12 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
         return cls._CoreVerify(PK, PK + message, signature, cls.DST)
 
     @classmethod
-    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
-                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
+    def AggregateVerify(
+        cls,
+        PKs: Sequence[BLSPubkey],
+        messages: Sequence[bytes],
+        signature: BLSSignature,
+    ) -> bool:
         if len(PKs) != len(messages):
             return False
         messages = [pk + msg for pk, msg in zip(PKs, messages)]
@@ -268,8 +296,8 @@ class G2MessageAugmentation(BaseG2Ciphersuite):
 
 
 class G2ProofOfPossession(BaseG2Ciphersuite):
-    DST = b'BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
-    POP_TAG = b'BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_'
+    DST = b"BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"
+    POP_TAG = b"BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_"
 
     @classmethod
     def _is_valid_pubkey(cls, pubkey: bytes) -> bool:
@@ -277,15 +305,20 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
         Note: PopVerify is a precondition for -Verify APIs
         However, it's difficult to verify it with the API interface in runtime.
         To ensure KeyValidate has been checked, we check it in the input validation.
-        See https://github.com/cfrg/draft-irtf-cfrg-bls-signature/issues/27 for the discussion.
+        See https://github.com/cfrg/draft-irtf-cfrg-bls-signature/issues/27 for
+        the discussion.
         """
         if not super()._is_valid_pubkey(pubkey):
             return False
         return cls.KeyValidate(BLSPubkey(pubkey))
 
     @classmethod
-    def AggregateVerify(cls, PKs: Sequence[BLSPubkey],
-                        messages: Sequence[bytes], signature: BLSSignature) -> bool:
+    def AggregateVerify(
+        cls,
+        PKs: Sequence[BLSPubkey],
+        messages: Sequence[bytes],
+        signature: BLSSignature,
+    ) -> bool:
         return cls._CoreAggregateVerify(PKs, messages, signature, cls.DST)
 
     @classmethod
@@ -305,7 +338,7 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
         Raise `ValidationError` when there is input validation error.
         """
         try:
-            assert len(PKs) >= 1, 'Insufficient number of PKs. (n < 1)'
+            assert len(PKs) >= 1, "Insufficient number of PKs. (n < 1)"
         except Exception as e:
             raise ValidationError(e)
 
@@ -316,8 +349,9 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
         return G1_to_pubkey(aggregate)
 
     @classmethod
-    def FastAggregateVerify(cls, PKs: Sequence[BLSPubkey],
-                            message: bytes, signature: BLSSignature) -> bool:
+    def FastAggregateVerify(
+        cls, PKs: Sequence[BLSPubkey], message: bytes, signature: BLSSignature
+    ) -> bool:
         try:
             # Inputs validation
             for pk in PKs:

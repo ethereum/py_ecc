@@ -1,4 +1,6 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+)
 
 from py_ecc.fields import (
     bn128_FQ as FQ,
@@ -8,24 +10,22 @@ from py_ecc.fields import (
 from py_ecc.fields.field_properties import (
     field_properties,
 )
-
 from py_ecc.typing import (
     Field,
     Point2D,
 )
 
 from .bn128_curve import (
-    double,
+    G1,
     add,
-    multiply,
-    is_on_curve,
-    twist,
     b,
     b2,
     curve_order,
-    G1,
+    double,
+    is_on_curve,
+    multiply,
+    twist,
 )
-
 
 field_modulus = field_properties["bn128"]["field_modulus"]
 
@@ -35,9 +35,7 @@ log_ate_loop_count = 63
 
 # Create a function representing the line between P1 and P2,
 # and evaluate it at T
-def linefunc(P1: Point2D[Field],
-             P2: Point2D[Field],
-             T: Point2D[Field]) -> Field:
+def linefunc(P1: Point2D[Field], P2: Point2D[Field], T: Point2D[Field]) -> Field:
     assert P1 and P2 and T  # No points-at-infinity allowed, sorry
     x1, y1 = P1
     x2, y2 = P2
@@ -82,11 +80,10 @@ assert linefunc(one, one, negtwo) == FQ(0)
 
 
 # Main miller loop
-def miller_loop(Q: Point2D[FQ12],
-                P: Point2D[FQ12]) -> FQ12:
+def miller_loop(Q: Point2D[FQ12], P: Point2D[FQ12]) -> FQ12:
     if Q is None or P is None:
         return FQ12.one()
-    R = Q   # type: Point2D[FQ12]
+    R = Q  # type: Point2D[FQ12]
     f = FQ12.one()
     for i in range(log_ate_loop_count, -1, -1):
         f = f * f * linefunc(R, R, P)
@@ -102,8 +99,8 @@ def miller_loop(Q: Point2D[FQ12],
     f = f * linefunc(R, Q1, P)
     R = add(R, Q1)
     f = f * linefunc(R, nQ2, P)
-    # R = add(R, nQ2) This line is in many specifications but it technically does nothing
-    return f ** ((field_modulus ** 12 - 1) // curve_order)
+    # R = add(R, nQ2) This line is in many specifications but technically does nothing
+    return f ** ((field_modulus**12 - 1) // curve_order)
 
 
 # Pairing computation
@@ -114,4 +111,4 @@ def pairing(Q: Point2D[FQ2], P: Point2D[FQ]) -> FQ12:
 
 
 def final_exponentiate(p: Field) -> Field:
-    return p ** ((field_modulus ** 12 - 1) // curve_order)
+    return p ** ((field_modulus**12 - 1) // curve_order)

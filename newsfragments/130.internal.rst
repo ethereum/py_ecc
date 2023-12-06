@@ -1,0 +1,1 @@
+Merge changes from python project template, including using pre-commit for linting and change the name of the ``master`` branch to ``main``

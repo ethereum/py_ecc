@@ -1,5 +1,11 @@
 import pytest
 
+from py_ecc.bls.constants import (
+    POW_2_381,
+    POW_2_382,
+    POW_2_383,
+    POW_2_384,
+)
 from py_ecc.bls.point_compression import (
     compress_G1,
     compress_G2,
@@ -10,27 +16,21 @@ from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
 )
-from py_ecc.bls.constants import (
-    POW_2_381,
-    POW_2_382,
-    POW_2_383,
-    POW_2_384,
-)
 from py_ecc.optimized_bls12_381 import (
     G1,
     G2,
     Z1,
     Z2,
     b,
-    is_on_curve,
-    normalize,
-    multiply,
     field_modulus as q,
+    is_on_curve,
+    multiply,
+    normalize,
 )
 
 
 @pytest.mark.parametrize(
-    'pt,on_curve,is_infinity',
+    "pt,on_curve,is_infinity",
     [
         # On curve points
         (G1, True, False),
@@ -39,7 +39,7 @@ from py_ecc.optimized_bls12_381 import (
         (Z1, True, True),
         # Not on curve
         ((FQ(5566), FQ(5566), FQ.one()), False, None),
-    ]
+    ],
 )
 def test_G1_compress_and_decompress_flags(pt, on_curve, is_infinity):
     assert on_curve == is_on_curve(pt, b)
@@ -60,7 +60,7 @@ def test_G1_compress_and_decompress_flags(pt, on_curve, is_infinity):
             assert a_flag == (pt_y.n * 2) // q
             assert x == pt_x.n
         # Correct flags should decompress correct x, y
-        normalize(decompress_G1(z)) == normalize(pt)
+        assert normalize(decompress_G1(z)) == normalize(pt)
     else:
         with pytest.raises(ValueError):
             decompress_G1(z)
@@ -71,15 +71,21 @@ compressed_z1 = compress_G1(Z1)
 
 
 @pytest.mark.parametrize(
-    'z, error_message',
+    "z, error_message",
     [
         (compressed_g1, None),  # baseline
-        (compressed_g1 & ~(1<<383), "c_flag should be 1"),  # set c_flag to 0
-        (compressed_g1 | (1<<382), "b_flag should be 0"),  # set b_flag to 1
-        (compressed_z1 & ~(1<<382), "b_flag should be 1"),  # set b_flag to 0
-        (compressed_z1 | (1<<381), "a point at infinity should have a_flag == 0"),  # set a_flag to 1
-        (q | (1<<383), "Point value should be less than field modulus."),  # field modulus and c_flag
-    ]
+        (compressed_g1 & ~(1 << 383), "c_flag should be 1"),  # set c_flag to 0
+        (compressed_g1 | (1 << 382), "b_flag should be 0"),  # set b_flag to 1
+        (compressed_z1 & ~(1 << 382), "b_flag should be 1"),  # set b_flag to 0
+        (
+            compressed_z1 | (1 << 381),
+            "a point at infinity should have a_flag == 0",
+        ),  # set a_flag to 1
+        (
+            q | (1 << 383),
+            "Point value should be less than field modulus.",
+        ),  # field modulus and c_flag
+    ],
 )
 def test_decompress_G1_edge_case(z, error_message):
     if error_message is None:
@@ -90,7 +96,7 @@ def test_decompress_G1_edge_case(z, error_message):
 
 
 @pytest.mark.parametrize(
-    'pt,on_curve,is_infinity',
+    "pt,on_curve,is_infinity",
     [
         # On curve points
         (G2, True, False),
@@ -99,7 +105,7 @@ def test_decompress_G1_edge_case(z, error_message):
         (Z2, True, True),
         # Not on curve
         ((FQ2([5566, 5566]), FQ2([5566, 5566]), FQ2.one()), False, None),
-    ]
+    ],
 )
 def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
     if on_curve:
@@ -126,7 +132,7 @@ def test_G2_compress_and_decompress_flags(pt, on_curve, is_infinity):
             # TODO: need a case for y_im == 0
             assert a_flag1 == (y_im * 2) // q
         # Correct flags should decompress correct x, y
-        normalize(decompress_G2((z1, z2))) == normalize(pt)
+        assert normalize(decompress_G2((z1, z2))) == normalize(pt)
     else:
         with pytest.raises(ValueError):
             compress_G2(pt)
@@ -137,19 +143,46 @@ compressed_z2 = compress_G2(Z2)
 
 
 @pytest.mark.parametrize(
-    'z, error_message',
+    "z, error_message",
     [
         (compressed_g2, None),  # baseline
-        ((compressed_g2[0] & ~(1<<383), compressed_g2[1]), "c_flag should be 1"),  # set c_flag1 to 0
-        ((compressed_g2[0] | (1<<382), compressed_g2[1]), "b_flag should be 0"),  # set b_flag1 to 1
-        ((compressed_z2[0] & ~(1<<382), compressed_z2[1]), "b_flag should be 1"),  # set b_flag1 to 0
-        ((q | (1<<383), compressed_z2[1]), "x1 value should be less than field modulus."),  # x1 == q
-        ((compressed_z2[0] | (1<<381), compressed_z2[1]), "a point at infinity should have a_flag == 0"),  # set a_flag1 to 1
-        ((compressed_g2[0], compressed_z2[1] | (1<<383)), "z2 point value should be less than field modulus."),  # set c_flag2 to 1
-        ((compressed_g2[0], compressed_z2[1] | (1<<382)), "z2 point value should be less than field modulus."),  # set b_flag2 to 1
-        ((compressed_g2[0], compressed_z2[1] | (1<<381)), "z2 point value should be less than field modulus."),  # set a_flag2 to 1
-        ((compressed_g2[0], compressed_g2[1] + q), "z2 point value should be less than field modulus."),  # z2 value >= field modulus
-    ]
+        (
+            (compressed_g2[0] & ~(1 << 383), compressed_g2[1]),
+            "c_flag should be 1",
+        ),  # set c_flag1 to 0
+        (
+            (compressed_g2[0] | (1 << 382), compressed_g2[1]),
+            "b_flag should be 0",
+        ),  # set b_flag1 to 1
+        (
+            (compressed_z2[0] & ~(1 << 382), compressed_z2[1]),
+            "b_flag should be 1",
+        ),  # set b_flag1 to 0
+        (
+            (q | (1 << 383), compressed_z2[1]),
+            "x1 value should be less than field modulus.",
+        ),  # x1 == q
+        (
+            (compressed_z2[0] | (1 << 381), compressed_z2[1]),
+            "a point at infinity should have a_flag == 0",
+        ),  # set a_flag1 to 1
+        (
+            (compressed_g2[0], compressed_z2[1] | (1 << 383)),
+            "z2 point value should be less than field modulus.",
+        ),  # set c_flag2 to 1
+        (
+            (compressed_g2[0], compressed_z2[1] | (1 << 382)),
+            "z2 point value should be less than field modulus.",
+        ),  # set b_flag2 to 1
+        (
+            (compressed_g2[0], compressed_z2[1] | (1 << 381)),
+            "z2 point value should be less than field modulus.",
+        ),  # set a_flag2 to 1
+        (
+            (compressed_g2[0], compressed_g2[1] + q),
+            "z2 point value should be less than field modulus.",
+        ),  # z2 value >= field modulus
+    ],
 )
 def test_decompress_G2_edge_case(z, error_message):
     if error_message is None:

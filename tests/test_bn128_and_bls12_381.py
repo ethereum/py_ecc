@@ -1,14 +1,11 @@
-import time
-
 import pytest
 
 from py_ecc import (
-    bn128,
-    optimized_bn128,
     bls12_381,
+    bn128,
     optimized_bls12_381,
+    optimized_bn128,
 )
-
 from py_ecc.fields import (
     bls12_381_FQ,
     bls12_381_FQ2,
@@ -193,7 +190,7 @@ def test_FQ2_object(FQ2, field_modulus):
     assert f / f == one
     assert one / f + x / f == (one + x) / f
     assert one * f + x * f == (one + x) * f
-    assert x ** (field_modulus ** 2 - 1) == one
+    assert x ** (field_modulus**2 - 1) == one
     if isinstance(z1, int):
         assert z1 > 0
         assert z2 > 0
@@ -207,7 +204,7 @@ def test_FQ12_object(FQ12, field_modulus):
     f = FQ12([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     fpx = FQ12([2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
     one = FQ12.one()
-    zs = FQ12([-1]*12).coeffs
+    zs = FQ12([-1] * 12).coeffs
     assert x + f == fpx
     assert f / f == one
     assert one / f + x / f == (one + x) / f
@@ -223,23 +220,34 @@ def test_FQ12_object(FQ12, field_modulus):
 def test_G1_object(G1, eq, double, add, multiply, curve_order, is_inf):
     assert eq(add(add(double(G1), G1), G1), double(double(G1)))
     assert not eq(double(G1), G1)
-    assert eq(add(multiply(G1, 9), multiply(G1, 5)), add(multiply(G1, 12), multiply(G1, 2)))
+    assert eq(
+        add(multiply(G1, 9), multiply(G1, 5)), add(multiply(G1, 12), multiply(G1, 2))
+    )
     assert is_inf(multiply(G1, curve_order))
 
 
-def test_G2_object(G2, b2, eq, add, double, multiply, is_inf, curve_order, field_modulus, is_on_curve):
+def test_G2_object(
+    G2, b2, eq, add, double, multiply, is_inf, curve_order, field_modulus, is_on_curve
+):
     assert eq(add(add(double(G2), G2), G2), double(double(G2)))
     assert not eq(double(G2), G2)
-    assert eq(add(multiply(G2, 9), multiply(G2, 5)), add(multiply(G2, 12), multiply(G2, 2)))
+    assert eq(
+        add(multiply(G2, 9), multiply(G2, 5)), add(multiply(G2, 12), multiply(G2, 2))
+    )
     assert is_inf(multiply(G2, curve_order))
     assert not is_inf(multiply(G2, 2 * field_modulus - curve_order))
     assert is_on_curve(multiply(G2, 9), b2)
 
 
-def test_G12_object(G12, b12, eq, add, double, multiply, is_on_curve, is_inf, curve_order):
+def test_G12_object(
+    G12, b12, eq, add, double, multiply, is_on_curve, is_inf, curve_order
+):
     assert eq(add(add(double(G12), G12), G12), double(double(G12)))
     assert not eq(double(G12), G12)
-    assert eq(add(multiply(G12, 9), multiply(G12, 5)), add(multiply(G12, 12), multiply(G12, 2)))
+    assert eq(
+        add(multiply(G12, 9), multiply(G12, 5)),
+        add(multiply(G12, 12), multiply(G12, 2)),
+    )
     assert is_on_curve(multiply(G12, 9), b12)
     assert is_inf(multiply(G12, curve_order))
 
@@ -268,9 +276,13 @@ def test_Z2_object(add, eq, double, FQ2, G2, is_inf, multiply, neg, twist, Z2):
 def test_none_point(lib, neg, twist):
     if lib not in [optimized_bn128, optimized_bls12_381]:
         pytest.skip()
-    with pytest.raises(Exception):
+    with pytest.raises(
+        expected_exception=TypeError, match="cannot unpack non-iterable NoneType object"
+    ):
         neg(None)
-    with pytest.raises(Exception):
+    with pytest.raises(
+        expected_exception=TypeError, match="cannot unpack non-iterable NoneType object"
+    ):
         twist(None)
 
 
@@ -293,13 +305,13 @@ def test_pairing_negative_G2(pairing, G1, G2, FQ12, curve_order, multiply, neg):
 def test_pairing_output_order(G1, G2, FQ12, pairing, curve_order):
     p1 = pairing(G2, G1)
 
-    assert p1 ** curve_order == FQ12.one()
+    assert p1**curve_order == FQ12.one()
 
 
 def test_pairing_bilinearity_on_G1(G1, G2, neg, multiply, pairing):
     p1 = pairing(G2, G1)
     p2 = pairing(G2, multiply(G1, 2))
-    np1 = pairing(neg(G2), G1)
+    pairing(neg(G2), G1)
 
     assert p1 * p1 == p2
 
@@ -325,7 +337,7 @@ def test_pairing_composit_check(G1, G2, multiply, pairing):
     assert p3 == po3
 
 
-"""
+r"""
 for lib in (bn128, optimized_bn128):
     FQ, FQ2, FQ12, field_modulus = lib.FQ, lib.FQ2, lib.FQ12, lib.field_modulus
     assert FQ(2) * FQ(2) == FQ(4)
@@ -357,18 +369,18 @@ for lib in (bn128, optimized_bn128):
     # assert x ** (field_modulus ** 12 - 1) == one
     print('FQ12 works fine')
 
-    G1, G2, G12, b, b2, b12, is_inf, is_on_curve, eq, add, double, curve_order, multiply = \
-      lib.G1, lib.G2, lib.G12, lib.b, lib.b2, lib.b12, lib.is_inf, lib.is_on_curve, lib.eq, lib.add, lib.double, lib.curve_order, lib.multiply
+    G1, G2, G12, b, b2, b12, is_inf, is_on_curve, eq, add, double, curve_order, multiply = \  # noqa: E501
+      lib.G1, lib.G2, lib.G12, lib.b, lib.b2, lib.b12, lib.is_inf, lib.is_on_curve, lib.eq, lib.add, lib.double, lib.curve_order, lib.multiply  # noqa: E501
 
     assert eq(add(add(double(G1), G1), G1), double(double(G1)))
     assert not eq(double(G1), G1)
-    assert eq(add(multiply(G1, 9), multiply(G1, 5)), add(multiply(G1, 12), multiply(G1, 2)))
+    assert eq(add(multiply(G1, 9), multiply(G1, 5)), add(multiply(G1, 12), multiply(G1, 2)))  # noqa: E501
     assert is_inf(multiply(G1, curve_order))
     print('G1 works fine')
 
     assert eq(add(add(double(G2), G2), G2), double(double(G2)))
     assert not eq(double(G2), G2)
-    assert eq(add(multiply(G2, 9), multiply(G2, 5)), add(multiply(G2, 12), multiply(G2, 2)))
+    assert eq(add(multiply(G2, 9), multiply(G2, 5)), add(multiply(G2, 12), multiply(G2, 2)))  # noqa: E501
     assert is_inf(multiply(G2, curve_order))
     assert not is_inf(multiply(G2, 2 * field_modulus - curve_order))
     assert is_on_curve(multiply(G2, 9), b2)
@@ -376,7 +388,7 @@ for lib in (bn128, optimized_bn128):
 
     assert eq(add(add(double(G12), G12), G12), double(double(G12)))
     assert not eq(double(G12), G12)
-    assert eq(add(multiply(G12, 9), multiply(G12, 5)), add(multiply(G12, 12), multiply(G12, 2)))
+    assert eq(add(multiply(G12, 9), multiply(G12, 5)), add(multiply(G12, 12), multiply(G12, 2)))  # noqa: E501
     assert is_on_curve(multiply(G12, 9), b12)
     assert is_inf(multiply(G12, curve_order))
     print('G12 works fine')

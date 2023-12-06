@@ -1,4 +1,6 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+)
 
 from py_ecc.fields import (
     bn128_FQ as FQ,
@@ -9,21 +11,21 @@ from py_ecc.fields import (
 from py_ecc.fields.field_properties import (
     field_properties,
 )
-
 from py_ecc.typing import (
     Field,
     GeneralPoint,
     Point2D,
 )
 
-
 field_modulus = field_properties["bn128"]["field_modulus"]
-curve_order = 21888242871839275222246405745257275088548364400416034343698204186575808495617
+curve_order = (
+    21888242871839275222246405745257275088548364400416034343698204186575808495617
+)
 
 # Curve order should be prime
 assert pow(2, curve_order, curve_order) == 2
 # Curve order should be a factor of field_modulus**12 - 1
-assert (field_modulus ** 12 - 1) % curve_order == 0
+assert (field_modulus**12 - 1) % curve_order == 0
 
 # Curve is y**2 = x**3 + 3
 b = FQ(3)
@@ -36,14 +38,18 @@ b12 = FQ12([3] + [0] * 11)
 G1 = (FQ(1), FQ(2))
 # Generator for twisted curve over FQ2
 G2 = (
-    FQ2([
-        10857046999023057135944570762232829481370756359578518086990519993285655852781,
-        11559732032986387107991004021392285783925812861821192530917403151452391805634,
-    ]),
-    FQ2([
-        8495653923123431417604973247489272438418190587263600148770280649306958101930,
-        4082367875863433681332203403145435568316851327593401208105741076214120093531,
-    ]),
+    FQ2(
+        [
+            10857046999023057135944570762232829481370756359578518086990519993285655852781,  # noqa: E501
+            11559732032986387107991004021392285783925812861821192530917403151452391805634,  # noqa: E501
+        ]
+    ),
+    FQ2(
+        [
+            8495653923123431417604973247489272438418190587263600148770280649306958101930,  # noqa: E501
+            4082367875863433681332203403145435568316851327593401208105741076214120093531,  # noqa: E501
+        ]
+    ),
 )
 # Point at infinity over FQ
 Z1 = None
@@ -80,8 +86,7 @@ def double(pt: Point2D[Field]) -> Point2D[Field]:
 
 
 # Elliptic curve addition
-def add(p1: Point2D[Field],
-        p2: Point2D[Field]) -> Point2D[Field]:
+def add(p1: Point2D[Field], p2: Point2D[Field]) -> Point2D[Field]:
     if p1 is None or p2 is None:
         return p1 if p2 is None else p2
     x1, y1 = p1
@@ -138,7 +143,7 @@ def twist(pt: Point2D[FQP]) -> Point2D[FQ12]:
     nx = FQ12([int(xcoeffs[0])] + [0] * 5 + [int(xcoeffs[1])] + [0] * 5)
     ny = FQ12([int(ycoeffs[0])] + [0] * 5 + [int(ycoeffs[1])] + [0] * 5)
     # Divide x coord by w**2 and y coord by w**3
-    return (nx * w ** 2, ny * w**3)
+    return (nx * w**2, ny * w**3)
 
 
 G12 = twist(G2)

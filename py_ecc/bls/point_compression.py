@@ -1,4 +1,7 @@
-from typing import Optional, Tuple
+from typing import (
+    Optional,
+    Tuple,
+)
 
 from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
@@ -16,11 +19,11 @@ from py_ecc.optimized_bls12_381 import (
 )
 
 from .constants import (
+    EIGHTH_ROOTS_OF_UNITY,
+    FQ2_ORDER,
     POW_2_381,
     POW_2_382,
     POW_2_383,
-    EIGTH_ROOTS_OF_UNITY,
-    FQ2_ORDER,
 )
 from .typing import (
     G1Compressed,
@@ -57,8 +60,8 @@ def is_point_at_infinity(z1: int, z2: Optional[int] = None) -> bool:
 #
 def compress_G1(pt: G1Uncompressed) -> G1Compressed:
     """
-    A compressed point is a 384-bit integer with the bit order (c_flag, b_flag, a_flag, x),
-    where the c_flag bit is always set to 1,
+    A compressed point is a 384-bit integer with the bit order
+    (c_flag, b_flag, a_flag, x), where the c_flag bit is always set to 1,
     the b_flag bit indicates infinity when set to 1,
     the a_flag bit helps determine the y-coordinate when decompressing,
     and the 381-bit integer x is the x-coordinate of the point.
@@ -88,7 +91,7 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     is_inf_pt = is_point_at_infinity(z)
 
     if b_flag != is_inf_pt:
-        raise ValueError("b_flag should be %d" % int(is_inf_pt))
+        raise ValueError(f"b_flag should be {int(is_inf_pt)}")
 
     if is_inf_pt:
         # 3 MSBs should be 110
@@ -100,16 +103,14 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     # 3 MSBs should be 100 or 101
     x = z % POW_2_381
     if x >= q:
-        raise ValueError("Point value should be less than field modulus. Got %d", x)
+        raise ValueError(f"Point value should be less than field modulus. Got {x}")
 
     # Try solving y coordinate from the equation Y^2 = X^3 + b
     # using quadratic residue
     y = pow((x**3 + b.n) % q, (q + 1) // 4, q)
 
     if pow(y, 2, q) != (x**3 + b.n) % q:
-        raise ValueError(
-            "The given point is not on G1: y**2 = x**3 + b"
-        )
+        raise ValueError("The given point is not on G1: y**2 = x**3 + b")
     # Choose the y whose leftmost bit is equal to the a_flag
     if (y * 2) // q != int(a_flag):
         y = q - y
@@ -121,16 +122,19 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
 #
 def modular_squareroot_in_FQ2(value: FQ2) -> Optional[FQ2]:
     """
-    ``modular_squareroot_in_FQ2(x)`` returns the value ``y`` such that ``y**2 % q == x``,
+    Given value=``x``, returns the value ``y`` such that ``y**2 % q == x``,
     and None if this is not possible. In cases where there are two solutions,
     the value with higher imaginary component is favored;
     if both solutions have equal imaginary component the value with higher real
     component is favored.
     """
     candidate_squareroot = value ** ((FQ2_ORDER + 8) // 16)
-    check = candidate_squareroot ** 2 / value
-    if check in EIGTH_ROOTS_OF_UNITY[::2]:
-        x1 = candidate_squareroot / EIGTH_ROOTS_OF_UNITY[EIGTH_ROOTS_OF_UNITY.index(check) // 2]
+    check = candidate_squareroot**2 / value
+    if check in EIGHTH_ROOTS_OF_UNITY[::2]:
+        x1 = (
+            candidate_squareroot
+            / EIGHTH_ROOTS_OF_UNITY[EIGHTH_ROOTS_OF_UNITY.index(check) // 2]
+        )
         x2 = -x1
         x1_re, x1_im = x1.coeffs
         x2_re, x2_im = x2.coeffs
@@ -150,9 +154,7 @@ def compress_G2(pt: G2Uncompressed) -> G2Compressed:
     - a_flag2, b_flag2, and c_flag2 are always set to 0
     """
     if not is_on_curve(pt, b2):
-        raise ValueError(
-            "The given point is not on the twisted curve over FQ**2"
-        )
+        raise ValueError("The given point is not on the twisted curve over FQ**2")
     if is_inf(pt):
         return G2Compressed((POW_2_383 + POW_2_382, 0))
     x, y = normalize(pt)
@@ -185,7 +187,7 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     is_inf_pt = is_point_at_infinity(z1, z2)
 
     if b_flag1 != is_inf_pt:
-        raise ValueError("b_flag should be %d" % int(is_inf_pt))
+        raise ValueError(f"b_flag should be {int(is_inf_pt)}")
 
     if is_inf_pt:
         # 3 MSBs should be 110
@@ -198,11 +200,11 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     x1 = z1 % POW_2_381
     # Ensure that x1 is less than the field modulus.
     if x1 >= q:
-        raise ValueError("x1 value should be less than field modulus. Got %d", x1)
+        raise ValueError(f"x1 value should be less than field modulus. Got {x1}")
 
     # Ensure that z2 is less than the field modulus.
     if z2 >= q:
-        raise ValueError("z2 point value should be less than field modulus. Got %d", z2)
+        raise ValueError(f"z2 point value should be less than field modulus. Got {z2}")
 
     x2 = z2
     # x1 is the imaginary part, x2 is the real part
@@ -214,14 +216,11 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     # Choose the y whose leftmost bit of the imaginary part is equal to the a_flag1
     # If y_im happens to be zero, then use the bit of y_re
     y_re, y_im = y.coeffs
-    if (
-        (y_im > 0 and (y_im * 2) // q != int(a_flag1)) or
-        (y_im == 0 and (y_re * 2) // q != int(a_flag1))
+    if (y_im > 0 and (y_im * 2) // q != int(a_flag1)) or (
+        y_im == 0 and (y_re * 2) // q != int(a_flag1)
     ):
         y = FQ2((y * -1).coeffs)
 
     if not is_on_curve((x, y, FQ2([1, 0])), b2):
-        raise ValueError(
-            "The given point is not on the twisted curve over FQ**2"
-        )
+        raise ValueError("The given point is not on the twisted curve over FQ**2")
     return (x, y, FQ2([1, 0]))

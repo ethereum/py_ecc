@@ -1,40 +1,43 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+)
 
-from py_ecc.fields import (  # noqa: F401
+from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
-    optimized_bls12_381_FQP as FQP,
     optimized_bls12_381_FQ2 as FQ2,
     optimized_bls12_381_FQ12 as FQ12,
+    optimized_bls12_381_FQP as FQP,
 )
-from .optimized_curve import (  # noqa: F401
-    field_modulus,
+
+from .optimized_clear_cofactor import (
+    multiply_clear_cofactor_G2,
+)
+from .optimized_curve import (
+    G1,
+    G2,
+    G12,
+    Z1,
+    Z2,
     add,
-    double,
-    multiply,
-    is_inf,
-    is_on_curve,
-    eq,
-    neg,
-    twist,
     b,
     b2,
     b12,
     curve_order,
-    G1,
-    G2,
-    Z1,
-    Z2,
-    G12,
+    double,
+    eq,
+    field_modulus,
+    is_inf,
+    is_on_curve,
+    multiply,
+    neg,
     normalize,
+    twist,
 )
-from .optimized_pairing import (  # noqa: F401
-    pairing,
+from .optimized_pairing import (
     final_exponentiate,
+    pairing,
 )
-from .optimized_swu import (   # noqa: F401
-    optimized_swu_G2,
+from .optimized_swu import (
     iso_map_G2,
-)
-from .optimized_clear_cofactor import (   # noqa: F401
-    multiply_clear_cofactor_G2,
+    optimized_swu_G2,
 )

@@ -1,4 +1,4 @@
-from .ciphersuites import (  # noqa: F401
+from .ciphersuites import (
     G2Basic,
     G2MessageAugmentation,
     G2ProofOfPossession,

@@ -1,29 +1,31 @@
-from __future__ import absolute_import
+from __future__ import (
+    absolute_import,
+)
 
 from py_ecc.fields import (
     optimized_bn128_FQ as FQ,
-    optimized_bn128_FQP as FQP,
     optimized_bn128_FQ2 as FQ2,
     optimized_bn128_FQ12 as FQ12,
+    optimized_bn128_FQP as FQP,
 )
 from py_ecc.fields.field_properties import (
     field_properties,
 )
-
 from py_ecc.typing import (
     Optimized_Field,
     Optimized_Point2D,
     Optimized_Point3D,
 )
 
-
 field_modulus = field_properties["bn128"]["field_modulus"]
-curve_order = 21888242871839275222246405745257275088548364400416034343698204186575808495617
+curve_order = (
+    21888242871839275222246405745257275088548364400416034343698204186575808495617
+)
 
 # Curve order should be prime
 assert pow(2, curve_order, curve_order) == 2
 # Curve order should be a factor of field_modulus**12 - 1
-assert (field_modulus ** 12 - 1) % curve_order == 0
+assert (field_modulus**12 - 1) % curve_order == 0
 
 # Curve is y**2 = x**3 + 3
 b = FQ(3)
@@ -36,14 +38,18 @@ b12 = FQ12([3] + [0] * 11)
 G1 = (FQ(1), FQ(2), FQ(1))
 # Generator for twisted curve over FQ2
 G2 = (
-    FQ2([
-        10857046999023057135944570762232829481370756359578518086990519993285655852781,
-        11559732032986387107991004021392285783925812861821192530917403151452391805634
-    ]),
-    FQ2([
-        8495653923123431417604973247489272438418190587263600148770280649306958101930,
-        4082367875863433681332203403145435568316851327593401208105741076214120093531,
-    ]),
+    FQ2(
+        [
+            10857046999023057135944570762232829481370756359578518086990519993285655852781,  # noqa: E501
+            11559732032986387107991004021392285783925812861821192530917403151452391805634,  # noqa: E501
+        ]
+    ),
+    FQ2(
+        [
+            8495653923123431417604973247489272438418190587263600148770280649306958101930,  # noqa: E501
+            4082367875863433681332203403145435568316851327593401208105741076214120093531,  # noqa: E501
+        ]
+    ),
     FQ2.one(),
 )
 # Point at infinity over FQ
@@ -70,7 +76,9 @@ assert is_on_curve(G2, b2)
 
 
 # Elliptic curve doubling
-def double(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
+def double(
+    pt: Optimized_Point3D[Optimized_Field],
+) -> Optimized_Point3D[Optimized_Field]:
     x, y, z = pt
     W = 3 * x * x
     S = y * z
@@ -84,8 +92,9 @@ def double(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimize
 
 
 # Elliptic curve addition
-def add(p1: Optimized_Point3D[Optimized_Field],
-        p2: Optimized_Point3D[Optimized_Field]) -> Optimized_Point3D[Optimized_Field]:
+def add(
+    p1: Optimized_Point3D[Optimized_Field], p2: Optimized_Point3D[Optimized_Field]
+) -> Optimized_Point3D[Optimized_Field]:
     one, zero = p1[0].one(), p1[0].zero()
     if p1[2] == zero or p2[2] == zero:
         return p1 if p2[2] == zero else p2
@@ -113,7 +122,9 @@ def add(p1: Optimized_Point3D[Optimized_Field],
 
 
 # Elliptic curve point multiplication
-def multiply(pt: Optimized_Point3D[Optimized_Field], n: int) -> Optimized_Point3D[Optimized_Field]:
+def multiply(
+    pt: Optimized_Point3D[Optimized_Field], n: int
+) -> Optimized_Point3D[Optimized_Field]:
     if n == 0:
         return (pt[0].one(), pt[0].one(), pt[0].zero())
     elif n == 1:
@@ -124,13 +135,17 @@ def multiply(pt: Optimized_Point3D[Optimized_Field], n: int) -> Optimized_Point3
         return add(multiply(double(pt), int(n // 2)), pt)
 
 
-def eq(p1: Optimized_Point3D[Optimized_Field], p2: Optimized_Point3D[Optimized_Field]) -> bool:
+def eq(
+    p1: Optimized_Point3D[Optimized_Field], p2: Optimized_Point3D[Optimized_Field]
+) -> bool:
     x1, y1, z1 = p1
     x2, y2, z2 = p2
     return x1 * z2 == x2 * z1 and y1 * z2 == y2 * z1
 
 
-def normalize(pt: Optimized_Point3D[Optimized_Field]) -> Optimized_Point2D[Optimized_Field]:
+def normalize(
+    pt: Optimized_Point3D[Optimized_Field],
+) -> Optimized_Point2D[Optimized_Field]:
     x, y, z = pt
     return (x / z, y / z)
 
@@ -154,7 +169,7 @@ def twist(pt: Optimized_Point3D[FQP]) -> Optimized_Point3D[FQ12]:
     nx = FQ12([xcoeffs[0]] + [0] * 5 + [xcoeffs[1]] + [0] * 5)
     ny = FQ12([ycoeffs[0]] + [0] * 5 + [ycoeffs[1]] + [0] * 5)
     nz = FQ12([zcoeffs[0]] + [0] * 5 + [zcoeffs[1]] + [0] * 5)
-    return (nx * w ** 2, ny * w**3, nz)
+    return (nx * w**2, ny * w**3, nz)
 
 
 # Check that the twist creates a point that is on the curve

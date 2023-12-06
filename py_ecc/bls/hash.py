@@ -1,10 +1,13 @@
+import hashlib
 import hmac
 import math
 from typing import (
     Union,
 )
-import hashlib
-from _hashlib import HASH
+
+from _hashlib import (
+    HASH,
+)
 
 
 def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) -> bytes:
@@ -16,7 +19,9 @@ def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) ->
     return hmac.new(salt, ikm, hashlib.sha256).digest()
 
 
-def hkdf_expand(prk: Union[bytes, bytearray], info: Union[bytes, bytearray], length: int) -> bytes:
+def hkdf_expand(
+    prk: Union[bytes, bytearray], info: Union[bytes, bytearray], length: int
+) -> bytes:
     """
     HKDF-Expand
 
@@ -45,7 +50,7 @@ def i2osp(x: int, xlen: int) -> bytes:
     Convert a nonnegative integer `x` to an octet string of a specified length `xlen`.
     https://tools.ietf.org/html/rfc8017#section-4.1
     """
-    return x.to_bytes(xlen, byteorder='big', signed=False)
+    return x.to_bytes(xlen, byteorder="big", signed=False)
 
 
 def os2ip(x: bytes) -> int:
@@ -53,7 +58,7 @@ def os2ip(x: bytes) -> int:
     Convert an octet string `x` to a nonnegative integer.
     https://tools.ietf.org/html/rfc8017#section-4.2
     """
-    return int.from_bytes(x, byteorder='big', signed=False)
+    return int.from_bytes(x, byteorder="big", signed=False)
 
 
 def sha256(x: bytes) -> bytes:
@@ -64,20 +69,24 @@ def xor(a: bytes, b: bytes) -> bytes:
     return bytes(_a ^ _b for _a, _b in zip(a, b))
 
 
-def expand_message_xmd(msg: bytes, DST: bytes, len_in_bytes: int, hash_function: HASH) -> bytes:
+def expand_message_xmd(
+    msg: bytes, DST: bytes, len_in_bytes: int, hash_function: HASH
+) -> bytes:
     b_in_bytes = hash_function().digest_size
     r_in_bytes = hash_function().block_size
     if len(DST) > 255:
-        raise ValueError('DST must be <= 255 bytes')
+        raise ValueError("DST must be <= 255 bytes")
     ell = math.ceil(len_in_bytes / b_in_bytes)
     if ell > 255:
-        raise ValueError('invalid len in bytes for hash function')
-    DST_prime = DST + i2osp(len(DST), 1)  # Append the length of the DST as a single byte
-    Z_pad = b'\x00' * r_in_bytes
+        raise ValueError("invalid len in bytes for hash function")
+    DST_prime = DST + i2osp(
+        len(DST), 1
+    )  # Append the length of the DST as a single byte
+    Z_pad = b"\x00" * r_in_bytes
     l_i_b_str = i2osp(len_in_bytes, 2)
-    b_0 = hash_function(Z_pad + msg + l_i_b_str + b'\x00' + DST_prime).digest()
-    b = [hash_function(b_0 + b'\x01' + DST_prime).digest()]
+    b_0 = hash_function(Z_pad + msg + l_i_b_str + b"\x00" + DST_prime).digest()
+    b = [hash_function(b_0 + b"\x01" + DST_prime).digest()]
     for i in range(2, ell + 1):
         b.append(hash_function(xor(b_0, b[i - 2]) + i2osp(i, 1) + DST_prime).digest())
-    pseudo_random_bytes = b''.join(b)
+    pseudo_random_bytes = b"".join(b)
     return pseudo_random_bytes[:len_in_bytes]
