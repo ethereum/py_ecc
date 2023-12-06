@@ -1,6 +1,6 @@
 import pytest
 
-from py_ecc.bls.g2_primatives import (
+from py_ecc.bls.g2_primitives import (
     G1_to_pubkey,
     G2_to_signature,
     pubkey_to_G1,

@@ -3,7 +3,7 @@ import pytest
 from py_ecc.bls import (
     G2Basic,
 )
-from py_ecc.bls.g2_primatives import (
+from py_ecc.bls.g2_primitives import (
     G2_to_signature,
 )
 from py_ecc.optimized_bls12_381 import (
