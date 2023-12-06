@@ -61,9 +61,7 @@ class FQ(object):
             self.n = val % self.field_modulus
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}".format(
-                    type(val)
-                )
+                f"Expected an int or FQ object, but got object of type {type(val)}"
             )
 
     def __add__(self: T_FQ, other: IntOrFQ) -> T_FQ:
@@ -73,9 +71,7 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
         return type(self)((self.n + on) % self.field_modulus)
@@ -87,9 +83,7 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
         return type(self)((self.n * on) % self.field_modulus)
@@ -107,9 +101,7 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
         return type(self)((on - self.n) % self.field_modulus)
@@ -121,9 +113,7 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
         return type(self)((self.n - on) % self.field_modulus)
@@ -138,9 +128,7 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
         return type(self)(
@@ -157,9 +145,7 @@ class FQ(object):
             on = other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
         return type(self)(
@@ -186,9 +172,7 @@ class FQ(object):
             return self.n == other
         else:
             raise TypeError(
-                "Expected an int or FQ object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
     def __ne__(self: T_FQ, other: IntOrFQ) -> bool:
@@ -259,7 +243,7 @@ class FQP(object):
     def __add__(self: T_FQP, other: T_FQP) -> T_FQP:
         if not isinstance(other, type(self)):
             raise TypeError(
-                "Expected an FQP object, but got object of type {}".format(type(other))
+                f"Expected an FQP object, but got object of type {type(other)}"
             )
 
         return type(self)(
@@ -269,7 +253,7 @@ class FQP(object):
     def __sub__(self: T_FQP, other: T_FQP) -> T_FQP:
         if not isinstance(other, type(self)):
             raise TypeError(
-                "Expected an FQP object, but got object of type {}".format(type(other))
+                f"Expected an FQP object, but got object of type {type(other)}"
             )
 
         return type(self)(
@@ -298,9 +282,7 @@ class FQP(object):
             return type(self)([x % self.field_modulus for x in b])
         else:
             raise TypeError(
-                "Expected an int or FQP object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQP object, but got object of type {type(other)}"
             )
 
     def __rmul__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
@@ -320,9 +302,7 @@ class FQP(object):
             return self * other.inv()
         else:
             raise TypeError(
-                "Expected an int or FQP object, but got object of type {}".format(
-                    type(other)
-                )
+                f"Expected an int or FQP object, but got object of type {type(other)}"
             )
 
     def __truediv__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
@@ -382,7 +362,7 @@ class FQP(object):
     def __eq__(self: T_FQP, other: T_FQP) -> bool:  # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         if not isinstance(other, type(self)):
             raise TypeError(
-                "Expected an FQP object, but got object of type {}".format(type(other))
+                f"Expected an FQP object, but got object of type {type(other)}"
             )
 
         for c1, c2 in zip(self.coeffs, other.coeffs):

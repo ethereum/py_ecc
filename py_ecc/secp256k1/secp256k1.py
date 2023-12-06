@@ -153,7 +153,7 @@ def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> Tuple[int, int, int]:
 def ecdsa_raw_recover(msghash: bytes, vrs: Tuple[int, int, int]) -> "PlainPoint2D":
     v, r, s = vrs
     if not (27 <= v <= 34):
-        raise ValueError("%d must in range 27-31" % v)
+        raise ValueError(f"{v} must in range 27-31")
     x = r
     xcubedaxb = (x * x * x + A * x + B) % P
     beta = pow(xcubedaxb, (P + 1) // 4, P)
@@ -162,7 +162,7 @@ def ecdsa_raw_recover(msghash: bytes, vrs: Tuple[int, int, int]) -> "PlainPoint2
     # for a point on the curve, and so the sig is invalid
     if (xcubedaxb - y * y) % P != 0 or not (r % N) or not (s % N):
         raise ValueError(
-            "sig is invalid, %d cannot be the x coord for point on curve" % r
+            f"sig is invalid, {r} cannot be the x coord for point on curve"
         )
     z = bytes_to_int(msghash)
     Gz = jacobian_multiply(cast("PlainPoint3D", (Gx, Gy, 1)), (N - z) % N)

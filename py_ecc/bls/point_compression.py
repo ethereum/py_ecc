@@ -91,7 +91,7 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     is_inf_pt = is_point_at_infinity(z)
 
     if b_flag != is_inf_pt:
-        raise ValueError("b_flag should be %d" % int(is_inf_pt))
+        raise ValueError(f"b_flag should be {int(is_inf_pt)}")
 
     if is_inf_pt:
         # 3 MSBs should be 110
@@ -103,7 +103,7 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
     # 3 MSBs should be 100 or 101
     x = z % POW_2_381
     if x >= q:
-        raise ValueError("Point value should be less than field modulus. Got %d", x)
+        raise ValueError(f"Point value should be less than field modulus. Got {x}")
 
     # Try solving y coordinate from the equation Y^2 = X^3 + b
     # using quadratic residue
@@ -187,7 +187,7 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     is_inf_pt = is_point_at_infinity(z1, z2)
 
     if b_flag1 != is_inf_pt:
-        raise ValueError("b_flag should be %d" % int(is_inf_pt))
+        raise ValueError(f"b_flag should be {int(is_inf_pt)}")
 
     if is_inf_pt:
         # 3 MSBs should be 110
@@ -200,11 +200,11 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     x1 = z1 % POW_2_381
     # Ensure that x1 is less than the field modulus.
     if x1 >= q:
-        raise ValueError("x1 value should be less than field modulus. Got %d", x1)
+        raise ValueError(f"x1 value should be less than field modulus. Got {x1}")
 
     # Ensure that z2 is less than the field modulus.
     if z2 >= q:
-        raise ValueError("z2 point value should be less than field modulus. Got %d", z2)
+        raise ValueError(f"z2 point value should be less than field modulus. Got {z2}")
 
     x2 = z2
     # x1 is the imaginary part, x2 is the real part
