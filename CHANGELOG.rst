@@ -1,3 +1,24 @@
+py_ecc v7.0.0 (2023-12-06)
+--------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Drop support for python 3.6 and 3.7 (`#130 <https://github.com/ethereum/py_ecc/issues/130>`__)
+
+
+Features
+~~~~~~~~
+
+- Add support for python 3.11 (`#130 <https://github.com/ethereum/py_ecc/issues/130>`__)
+
+
+Internal Changes - for py_ecc Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Merge changes from python project template, including using pre-commit for linting and change the name of the ``master`` branch to ``main`` (`#130 <https://github.com/ethereum/py_ecc/issues/130>`__)
+
+
 6.0.0
 -----
 
