@@ -5,7 +5,6 @@ They should be removed and replaced with a final version when hash to curve is c
 from hashlib import (
     sha256,
 )
-
 import pytest
 
 from py_ecc.bls.hash_to_curve import (
@@ -165,7 +164,7 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
     assert g2_y == result_y
 
 
-# Tests taken from: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/master/draft-irtf-cfrg-hash-to-curve.md#bls12381g2_xmdsha-256_sswu_ro_  # noqa: E501
+# Tests taken from: https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/master/draft-irtf-cfrg-hash-to-curve.md#bls12381g2_xmdsha-256_sswu_ro_  # blocklint: URL pragma  # noqa: E501
 @pytest.mark.parametrize("H", [sha256])
 @pytest.mark.parametrize(
     "msg,x,y",

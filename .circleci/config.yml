@@ -222,6 +222,37 @@ jobs:
       - <<: *run-tox-step
       - <<: *save-cache-step
 
+  py38-bls:
+    <<: *common
+    docker:
+      - image: cimg/python:3.8
+        environment:
+          TOXENV: py38-bls
+  py39-bls:
+    <<: *common
+    docker:
+      - image: cimg/python:3.9
+        environment:
+          TOXENV: py39-bls
+  py310-bls:
+    <<: *common
+    docker:
+      - image: cimg/python:3.10
+        environment:
+          TOXENV: py310-bls
+  py311-bls:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+        environment:
+          TOXENV: py311-bls
+  py312-bls:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+        environment:
+          TOXENV: py312-bls
+
 define: &all_jobs
   - docs
   - py38-core
@@ -241,6 +272,11 @@ define: &all_jobs
   - py312-wheel
   - py311-windows-wheel
   - py312-windows-wheel
+  - py38-bls
+  - py39-bls
+  - py310-bls
+  - py311-bls
+  - py312-bls
 
 workflows:
   version: 2

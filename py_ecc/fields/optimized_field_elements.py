@@ -42,7 +42,7 @@ def mod_int(x: IntOrFQ, n: int) -> int:
         raise TypeError("Only int and T_FQ types are accepted: got %s" % type(x))
 
 
-class FQ(object):
+class FQ:
     """
     A class for field elements in FQ. Wrap a number in this class,
     and it becomes a field element.
@@ -209,7 +209,7 @@ class FQ(object):
         return cls(0)
 
 
-class FQP(object):
+class FQP:
     """
     A class for elements in polynomial extension fields
     """

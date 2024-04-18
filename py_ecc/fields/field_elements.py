@@ -31,7 +31,7 @@ T_FQ12 = TypeVar("T_FQ12", bound="FQ12")
 IntOrFQ = Union[int, T_FQ]
 
 
-class FQ(object):
+class FQ:
     """
     A class for field elements in FQ. Wrap a number in this class,
     and it becomes a field element.
@@ -185,7 +185,7 @@ class FQ(object):
 int_types_or_FQ = (int, FQ)
 
 
-class FQP(object):
+class FQP:
     """
     A class for elements in polynomial extension fields
     """

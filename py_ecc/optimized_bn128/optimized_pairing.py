@@ -1,7 +1,3 @@
-from __future__ import (
-    absolute_import,
-)
-
 from py_ecc.fields import (
     optimized_bn128_FQ as FQ,
     optimized_bn128_FQ2 as FQ2,
