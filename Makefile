@@ -9,6 +9,7 @@ help:
 	@echo "test - run tests quickly with the default Python"
 	@echo "docs - view draft of newsfragments to be added to CHANGELOG"
 	@echo "notes - consume towncrier newsfragments/ and update CHANGELOG"
+	@echo "autobuild-docs - live update docs when changes are saved"
 	@echo "release - package and upload a release (does not run notes target)"
 	@echo "dist - package"
 
@@ -31,7 +32,10 @@ lint:
 	)
 
 test:
-	pytest tests
+	python -m pytest tests
+
+autobuild-docs:
+	sphinx-autobuild --open-browser docs docs/_build/html
 
 docs:
 	python ./newsfragments/validate_files.py

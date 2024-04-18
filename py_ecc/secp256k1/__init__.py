@@ -1,7 +1,3 @@
-from __future__ import (
-    absolute_import,
-)
-
 from .secp256k1 import (
     G,
     N,
