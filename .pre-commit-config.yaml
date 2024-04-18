@@ -7,6 +7,11 @@ repos:
     -   id: check-toml
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py38-plus]
 -   repo: https://github.com/psf/black
     rev: 23.9.1
     hooks:
@@ -45,3 +50,8 @@ repos:
         # mypy checks are turned off for now, re-enable as typing is updated
         # see issue #131
         exclude: 'tests/|py_ecc/'
+-   repo: https://github.com/PrincetonUniversity/blocklint
+    rev: v0.2.5
+    hooks:
+    -   id: blocklint
+        exclude: 'docs/Makefile|docs/release_notes.rst|tox.ini'
