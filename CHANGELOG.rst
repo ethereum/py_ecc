@@ -1,3 +1,18 @@
+py_ecc v7.0.1 (2024-04-23)
+--------------------------
+
+Internal Changes - for py_ecc Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Template updates, notably adding python 3.12 support (`#138 <https://github.com/ethereum/py_ecc/issues/138>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#139 <https://github.com/ethereum/py_ecc/issues/139>`__
+
+
 py_ecc v7.0.0 (2023-12-06)
 --------------------------
 

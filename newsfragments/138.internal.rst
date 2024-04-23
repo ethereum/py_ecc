@@ -1,1 +1,0 @@
-Template updates, notably adding python 3.12 support
