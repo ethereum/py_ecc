@@ -37,7 +37,7 @@ def hash_to_G2(message: bytes, DST: bytes, hash_function: HASH) -> G2Uncompresse
 
     The idea is to first hash into FQ2 and then use SSWU to map the result into G2.
 
-    Contants and inputs follow the ciphersuite ``BLS12381G2_XMD:SHA-256_SSWU_RO_``
+    Contents and inputs follow the ciphersuite ``BLS12381G2_XMD:SHA-256_SSWU_RO_``
     defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-8.8.2
     """
