@@ -3,7 +3,7 @@ from py_ecc.fields import (
 )
 
 #
-# Ciphersuite BLS12381G2-SHA256-SSWU-RO paramters
+# Ciphersuite BLS12381G2-SHA256-SSWU-RO parameters
 #
 ISO_3_A = FQ2([0, 240])
 ISO_3_B = FQ2([1012, 1012])
