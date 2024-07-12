@@ -60,9 +60,11 @@ def to_jacobian(p: "PlainPoint2D") -> "PlainPoint3D":
     """
     Convert a 2D point to its corresponding Jacobian point representation.
 
-    :param point: the point to convert
+    :param p: the point to convert
+    :type p: PlainPoint2D
 
     :return: the Jacobian point representation
+    :rtype: PlainPoint3D
     """
     o = (p[0], p[1], 1)
     return cast("PlainPoint3D", o)
@@ -72,9 +74,11 @@ def jacobian_double(p: "PlainPoint3D") -> "PlainPoint3D":
     """
     Double a point in Jacobian coordinates and return the result.
 
-    :param point: the point to double
+    :param p: the point to double
+    :type p: PlainPoint3D
 
     :return: the resulting Jacobian point
+    :rtype: PlainPoint3D
     """
     if not p[1]:
         return cast("PlainPoint3D", (0, 0, 0))
@@ -91,10 +95,13 @@ def jacobian_add(p: "PlainPoint3D", q: "PlainPoint3D") -> "PlainPoint3D":
     """
     Add two points in Jacobian coordinates and return the result.
 
-    :param point1: the first point to add
-    :param point2: the second point to add
+    :param p: the first point to add
+    :type p: PlainPoint3D
+    :param q: the second point to add
+    :type q: PlainPoint3D
 
     :return: the resulting Jacobian point
+    :rtype: PlainPoint3D
     """
     if not p[1]:
         return q
@@ -123,9 +130,11 @@ def from_jacobian(p: "PlainPoint3D") -> "PlainPoint2D":
     """
     Convert a Jacobian point back to its corresponding 2D point representation.
 
-    :param point: the point to convert
+    :param p: the point to convert
+    :type p: PlainPoint3D
 
     :return: the 2D point representation
+    :rtype: PlainPoint2D
     """
     z = inv(p[2], P)
     return cast("PlainPoint2D", ((p[0] * z**2) % P, (p[1] * z**3) % P))
@@ -135,10 +144,13 @@ def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":  # type: ign
     """
     Multiply a point in Jacobian coordinates by an integer and return the result.
 
-    :param point: the point to multiply
+    :param a: the point to multiply
+    :type a: PlainPoint3D
     :param n: the integer to multiply the point by
+    :type n: int
 
     :return: the resulting Jacobian point
+    :rtype: PlainPoint3D
     """
     if a[1] == 0 or n == 0:
         return cast("PlainPoint3D", (0, 0, 1))
@@ -158,9 +170,12 @@ def multiply(a: "PlainPoint2D", n: int) -> "PlainPoint2D":
     and return the resulting 2D point in plain coordinates.
 
     :param a: a 2D point on the elliptic curve
+    :type a: PlainPoint2D
     :param n: an integer used for point multiplication
+    :type n: int
 
     :return: the resulting 2D point in plain coordinates
+    :rtype: PlainPoint2D
     """
     return from_jacobian(jacobian_multiply(to_jacobian(a), n))
 
@@ -171,9 +186,12 @@ def add(a: "PlainPoint2D", b: "PlainPoint2D") -> "PlainPoint2D":
     resulting 2D point in plain coordinates.
 
     :param a: a 2D point on the elliptic curve
+    :type a: PlainPoint2D
     :param b: another 2D point on the elliptic curve
+    :type b: PlainPoint2D
 
     :return: the resulting 2D point in plain coordinates
+    :rtype: PlainPoint2D
     """
     return from_jacobian(jacobian_add(to_jacobian(a), to_jacobian(b)))
 
@@ -190,12 +208,14 @@ def deterministic_generate_k(msghash: bytes, priv: bytes) -> int:
     protection against weak random number generation.
     https://datatracker.ietf.org/doc/html/rfc6979
 
-    :param message_hash: The hash of the message to be signed.
-    :param private_key: The private key to be used in the signature.
-    :param curve_order: The order of the elliptic curve used in the signature algorithm.
+    :param msghash: The hash of the message to be signed.
+    :type msghash: bytes
+    :param priv: The private key to be used in the signature.
+    :type priv: bytes
 
-    :return: A deterministic value k that can be used as the ephemeral private key in
-    the signature generation process.
+    :return: A deterministic value k (as an int) that can be used as the ephemeral
+    private key in the signature generation process.
+    :rtype: int
     """
     v = b"\x01" * 32
     k = b"\x00" * 32
@@ -212,10 +232,13 @@ def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> Tuple[int, int, int]:
     Return a raw ECDSA signature of the provided `data`, using the provided
     `private_key`.
 
-    :param data: the data to sign, as a byte string
-    :param private_key: the private key to use for signing, as an integer
+    :param msghash: the data to sign
+    :type msghash: bytes
+    :param priv: the private key to use for signing
+    :type priv: bytes
 
-    :return: a tuple of two integers `(v, r, s)`, representing the raw ECDSA signature
+    :return: a tuple of integers `(v, r, s)`, representing the raw ECDSA signature
+    :rtype: Tuple[int, int, int]
     """
     z = bytes_to_int(msghash)
     k = deterministic_generate_k(msghash, priv)
@@ -231,10 +254,13 @@ def ecdsa_raw_recover(msghash: bytes, vrs: Tuple[int, int, int]) -> "PlainPoint2
     """
     Recover the public key from the signature and message hash.
 
-    :param message_hash: the hash of the message to be signed
-    :param signature: the signature generated by the `ecdsa_raw_sign` function
+    :param msghash: the hash of the message to be signed
+    :type msghash: bytes
+    :param vrs: the signature generated by the `ecdsa_raw_sign` function
+    :type vrs: Tuple[int, int, int]
 
     :return: the recovered public key
+    :rtype: PlainPoint2D
     """
     v, r, s = vrs
     if not (27 <= v <= 34):
