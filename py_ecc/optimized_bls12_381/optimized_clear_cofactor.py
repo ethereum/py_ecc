@@ -4,11 +4,18 @@ from py_ecc.typing import (
 )
 
 from .constants import (
-    H_EFF,
+    H_EFF_G1,
+    H_EFF_G2,
 )
 from .optimized_curve import (
     multiply,
 )
+
+
+def multiply_clear_cofactor_G1(
+    p: Optimized_Point3D[Optimized_Field],
+) -> Optimized_Point3D[Optimized_Field]:
+    return multiply(p, H_EFF_G1)
 
 
 # Cofactor Clearing Method by Multiplication
@@ -17,4 +24,4 @@ from .optimized_curve import (
 def multiply_clear_cofactor_G2(
     p: Optimized_Point3D[Optimized_Field],
 ) -> Optimized_Point3D[Optimized_Field]:
-    return multiply(p, H_EFF)
+    return multiply(p, H_EFF_G2)
