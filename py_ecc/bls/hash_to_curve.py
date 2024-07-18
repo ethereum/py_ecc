@@ -7,13 +7,17 @@ from _hashlib import (
 )
 
 from py_ecc.fields import (
+    optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
 )
 from py_ecc.optimized_bls12_381 import (
     add,
     field_modulus,
+    iso_map_G1,
     iso_map_G2,
+    multiply_clear_cofactor_G1,
     multiply_clear_cofactor_G2,
+    optimized_swu_G1,
     optimized_swu_G2,
 )
 
@@ -94,3 +98,27 @@ def clear_cofactor_G2(p: G2Uncompressed) -> G2Uncompressed:
     Ensure a point falls in the correct sub group of the curve.
     """
     return multiply_clear_cofactor_G2(p)
+
+
+def map_to_curve_G1(u: FQ) -> G2Uncompressed:
+    """
+    Map To Curve for G1
+
+    First, convert FQ1 point to a point on the 3-Isogeny curve.
+    SWU Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-6.6.3
+
+    Second, map 3-Isogeny curve to BLS12-381-G2 curve.
+    3-Isogeny Map:
+    https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-09#name-11-isogeny-map-for-bls12-38
+    """
+    (x, y, z) = optimized_swu_G1(u)
+    return iso_map_G1(x, y, z)
+
+
+def clear_cofactor_G1(p: G2Uncompressed) -> G2Uncompressed:
+    """
+    Clear Cofactor via Multiplication
+
+    Ensure a point falls in the correct subgroup of the curve.
+    """
+    return multiply_clear_cofactor_G1(p)
