@@ -19,9 +19,11 @@ curve_order = (
 )
 
 # Curve order should be prime
-assert pow(2, curve_order, curve_order) == 2
+if not pow(2, curve_order, curve_order) == 2:
+    raise ValueError("Curve order is not prime")
 # Curve order should be a factor of field_modulus**12 - 1
-assert (field_modulus**12 - 1) % curve_order == 0
+if not (field_modulus**12 - 1) % curve_order == 0:
+    raise ValueError("Curve order is not a factor of field_modulus**12 - 1")
 
 # Curve is y**2 = x**3 + 3
 b = FQ(3)
@@ -66,8 +68,10 @@ def is_on_curve(pt: Point2D[Field], b: Field) -> bool:
     return y**2 - x**3 == b
 
 
-assert is_on_curve(G1, b)
-assert is_on_curve(G2, b2)
+if not is_on_curve(G1, b):
+    raise ValueError("G1 is not on the curve")
+if not is_on_curve(G2, b2):
+    raise ValueError("G2 is not on the curve")
 
 
 # Elliptic curve doubling
@@ -95,7 +99,8 @@ def add(p1: Point2D[Field], p2: Point2D[Field]) -> Point2D[Field]:
         m = (y2 - y1) / (x2 - x1)
     newx = m**2 - x1 - x2
     newy = -m * newx + m * x1 - y1
-    assert newy == (-m * newx + m * x2 - y2)
+    if not newy == (-m * newx + m * x2 - y2):
+        raise ValueError("Point addition is incorrect")
     return (newx, newy)
 
 
@@ -144,4 +149,5 @@ def twist(pt: Point2D[FQP]) -> Point2D[FQ12]:
 
 G12 = twist(G2)
 # Check that the twist creates a point that is on the curve
-assert is_on_curve(G12, b12)
+if not is_on_curve(G12, b12):
+    raise ValueError("Twist creates a point not on curve")

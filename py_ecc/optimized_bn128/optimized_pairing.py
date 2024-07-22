@@ -99,7 +99,10 @@ pseudo_binary_encoding = [
 ]
 
 
-assert sum([e * 2**i for i, e in enumerate(pseudo_binary_encoding)]) == ate_loop_count
+if not (
+    sum([e * 2**i for i, e in enumerate(pseudo_binary_encoding)]) == ate_loop_count
+):
+    raise ValueError("Pseudo binary encoding is incorrect")
 
 
 def normalize1(
@@ -160,17 +163,21 @@ negone, negtwo, negthree = (
     multiply(G1, curve_order - 3),
 )
 
+conditions = [
+    linefunc(one, two, one)[0] == FQ(0),
+    linefunc(one, two, two)[0] == FQ(0),
+    linefunc(one, two, three)[0] != FQ(0),
+    linefunc(one, two, negthree)[0] == FQ(0),
+    linefunc(one, negone, one)[0] == FQ(0),
+    linefunc(one, negone, negone)[0] == FQ(0),
+    linefunc(one, negone, two)[0] != FQ(0),
+    linefunc(one, one, one)[0] == FQ(0),
+    linefunc(one, one, two)[0] != FQ(0),
+    linefunc(one, one, negtwo)[0] == FQ(0),
+]
 
-assert linefunc(one, two, one)[0] == FQ(0)
-assert linefunc(one, two, two)[0] == FQ(0)
-assert linefunc(one, two, three)[0] != FQ(0)
-assert linefunc(one, two, negthree)[0] == FQ(0)
-assert linefunc(one, negone, one)[0] == FQ(0)
-assert linefunc(one, negone, negone)[0] == FQ(0)
-assert linefunc(one, negone, two)[0] != FQ(0)
-assert linefunc(one, one, one)[0] == FQ(0)
-assert linefunc(one, one, two)[0] != FQ(0)
-assert linefunc(one, one, negtwo)[0] == FQ(0)
+if not all(conditions):
+    raise ValueError("Line function is inconsistent")
 
 
 # Main miller loop
@@ -221,8 +228,10 @@ def miller_loop(
 def pairing(
     Q: Optimized_Point3D[FQ2], P: Optimized_Point3D[FQ], final_exponentiate: bool = True
 ) -> FQ12:
-    assert is_on_curve(Q, b2)
-    assert is_on_curve(P, b)
+    if not is_on_curve(Q, b2):
+        raise ValueError("Invalid input - point Q is not on the correct curve")
+    if not is_on_curve(P, b):
+        raise ValueError("Invalid input - point P is not on the correct curves")
     if P[-1] == (P[-1].zero()) or Q[-1] == (Q[-1].zero()):
         return FQ12.one()
     return miller_loop(

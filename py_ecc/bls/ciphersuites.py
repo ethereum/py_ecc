@@ -88,11 +88,8 @@ class BaseG2Ciphersuite(abc.ABC):
 
         Raise `ValidationError` when there is input validation error.
         """
-        try:
-            # Inputs validation
-            assert cls._is_valid_privkey(privkey)
-        except Exception as e:
-            raise ValidationError(e)
+        if not cls._is_valid_privkey(privkey):
+            raise ValidationError("Invalid private key")
 
         # Procedure
         return G1_to_pubkey(multiply(G1, privkey))
@@ -132,12 +129,11 @@ class BaseG2Ciphersuite(abc.ABC):
 
         Raise `ValidationError` when there is input validation error.
         """
-        try:
-            # Inputs validation
-            assert cls._is_valid_privkey(SK)
-            assert cls._is_valid_message(message)
-        except Exception as e:
-            raise ValidationError(e)
+        # Inputs validation
+        if not cls._is_valid_privkey(SK):
+            raise ValidationError("Invalid secret key")
+        if not cls._is_valid_message(message):
+            raise ValidationError("Invalid message")
 
         # Procedure
         message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
@@ -150,12 +146,16 @@ class BaseG2Ciphersuite(abc.ABC):
     ) -> bool:
         try:
             # Inputs validation
-            assert cls._is_valid_pubkey(PK)
-            assert cls._is_valid_message(message)
-            assert cls._is_valid_signature(signature)
+            if not cls._is_valid_pubkey(PK):
+                raise ValidationError("Invalid public key")
+            if not cls._is_valid_message(message):
+                raise ValidationError("Invalid message")
+            if not cls._is_valid_signature(signature):
+                raise ValidationError("Invalid signature")
 
             # Procedure
-            assert cls.KeyValidate(PK)
+            if not cls.KeyValidate(PK):
+                raise ValidationError("Invalid public key")
             signature_point = signature_to_G2(signature)
             if not subgroup_check(signature_point):
                 return False
@@ -182,15 +182,14 @@ class BaseG2Ciphersuite(abc.ABC):
 
         Raise `ValidationError` when there is input validation error.
         """
-        try:
-            # Inputs validation
-            for signature in signatures:
-                assert cls._is_valid_signature(signature)
+        # Preconditions
+        if len(signatures) < 1:
+            raise ValidationError("Insufficient number of signatures. (n < 1)")
 
-            # Preconditions
-            assert len(signatures) >= 1
-        except Exception as e:
-            raise ValidationError(e)
+        # Inputs validation
+        for signature in signatures:
+            if not cls._is_valid_signature(signature):
+                raise ValidationError("Invalid signature")
 
         # Procedure
         aggregate = Z2  # Seed with the point at infinity
@@ -210,14 +209,19 @@ class BaseG2Ciphersuite(abc.ABC):
         try:
             # Inputs validation
             for pk in PKs:
-                assert cls._is_valid_pubkey(pk)
+                if not cls._is_valid_pubkey(pk):
+                    raise ValidationError("Invalid public key")
             for message in messages:
-                assert cls._is_valid_message(message)
-            assert len(PKs) == len(messages)
-            assert cls._is_valid_signature(signature)
+                if not cls._is_valid_message(message):
+                    raise ValidationError("Invalid message")
+            if not len(PKs) == len(messages):
+                raise ValidationError("Inconsistent number of PKs and messages")
+            if not cls._is_valid_signature(signature):
+                raise ValidationError("Invalid signature")
 
             # Preconditions
-            assert len(PKs) >= 1
+            if len(PKs) < 1:
+                raise ValidationError("Insufficient number of PKs. (n < 1)")
 
             # Procedure
             signature_point = signature_to_G2(signature)
@@ -225,7 +229,8 @@ class BaseG2Ciphersuite(abc.ABC):
                 return False
             aggregate = FQ12.one()
             for pk, message in zip(PKs, messages):
-                assert cls.KeyValidate(pk)
+                if not cls.KeyValidate(pk):
+                    raise ValidationError("Invalid public key")
                 pubkey_point = pubkey_to_G1(pk)
                 message_point = hash_to_G2(message, DST, cls.xmd_hash_function)
                 aggregate *= pairing(
@@ -337,10 +342,8 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
 
         Raise `ValidationError` when there is input validation error.
         """
-        try:
-            assert len(PKs) >= 1, "Insufficient number of PKs. (n < 1)"
-        except Exception as e:
-            raise ValidationError(e)
+        if len(PKs) < 1:
+            raise ValidationError("Insufficient number of PKs. (n < 1)")
 
         aggregate = Z1  # Seed with the point at infinity
         for pk in PKs:
@@ -355,12 +358,16 @@ class G2ProofOfPossession(BaseG2Ciphersuite):
         try:
             # Inputs validation
             for pk in PKs:
-                assert cls._is_valid_pubkey(pk)
-            assert cls._is_valid_message(message)
-            assert cls._is_valid_signature(signature)
+                if not cls._is_valid_pubkey(pk):
+                    raise ValidationError("Invalid public key")
+            if not cls._is_valid_message(message):
+                raise ValidationError("Invalid message")
+            if not cls._is_valid_signature(signature):
+                raise ValidationError("Invalid signature")
 
             # Preconditions
-            assert len(PKs) >= 1
+            if len(PKs) < 1:
+                raise ValidationError("Insufficient number of PKs. (n < 1)")
 
             # Procedure
             aggregate_pubkey = cls._AggregatePKs(PKs)

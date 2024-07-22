@@ -32,7 +32,8 @@ log_ate_loop_count = 62
 # Create a function representing the line between P1 and P2,
 # and evaluate it at T
 def linefunc(P1: Point2D[Field], P2: Point2D[Field], T: Point2D[Field]) -> Field:
-    assert P1 and P2 and T  # No points-at-infinity allowed, sorry
+    if not P1 and P2 and T:  # No points-at-infinity allowed, sorry
+        raise ValueError("Invalid input - no points-at-infinity allowed")
     x1, y1 = P1
     x2, y2 = P2
     xt, yt = T
@@ -62,16 +63,21 @@ negone, negtwo, negthree = (
 )
 
 
-assert linefunc(one, two, one) == FQ(0)
-assert linefunc(one, two, two) == FQ(0)
-assert linefunc(one, two, three) != FQ(0)
-assert linefunc(one, two, negthree) == FQ(0)
-assert linefunc(one, negone, one) == FQ(0)
-assert linefunc(one, negone, negone) == FQ(0)
-assert linefunc(one, negone, two) != FQ(0)
-assert linefunc(one, one, one) == FQ(0)
-assert linefunc(one, one, two) != FQ(0)
-assert linefunc(one, one, negtwo) == FQ(0)
+conditions = [
+    linefunc(one, two, one) == FQ(0),
+    linefunc(one, two, two) == FQ(0),
+    linefunc(one, two, three) != FQ(0),
+    linefunc(one, two, negthree) == FQ(0),
+    linefunc(one, negone, one) == FQ(0),
+    linefunc(one, negone, negone) == FQ(0),
+    linefunc(one, negone, two) != FQ(0),
+    linefunc(one, one, one) == FQ(0),
+    linefunc(one, one, two) != FQ(0),
+    linefunc(one, one, negtwo) == FQ(0),
+]
+
+if not all(conditions):
+    raise ValueError("Line function is inconsistent")
 
 
 # Main miller loop
@@ -100,8 +106,10 @@ def miller_loop(Q: Point2D[FQ12], P: Point2D[FQ12]) -> FQ12:
 
 # Pairing computation
 def pairing(Q: Point2D[FQ2], P: Point2D[FQ]) -> FQ12:
-    assert is_on_curve(Q, b2)
-    assert is_on_curve(P, b)
+    if not is_on_curve(Q, b2):
+        raise ValueError("Invalid input - point Q is not on the correct curve")
+    if not is_on_curve(P, b):
+        raise ValueError("Invalid input - point P is not on the correct curves")
     return miller_loop(twist(Q), cast_point_to_fq12(P))
 
 
