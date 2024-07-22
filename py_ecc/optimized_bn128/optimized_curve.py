@@ -19,9 +19,11 @@ curve_order = (
 )
 
 # Curve order should be prime
-assert pow(2, curve_order, curve_order) == 2
+if not pow(2, curve_order, curve_order) == 2:
+    raise ValueError("Curve order is not prime")
 # Curve order should be a factor of field_modulus**12 - 1
-assert (field_modulus**12 - 1) % curve_order == 0
+if not (field_modulus**12 - 1) % curve_order == 0:
+    raise ValueError("Curve order is not a factor of field_modulus**12 - 1")
 
 # Curve is y**2 = x**3 + 3
 b = FQ(3)
@@ -67,8 +69,10 @@ def is_on_curve(pt: Optimized_Point3D[Optimized_Field], b: Optimized_Field) -> b
     return y**2 * z - x**3 == b * z**3
 
 
-assert is_on_curve(G1, b)
-assert is_on_curve(G2, b2)
+if not is_on_curve(G1, b):
+    raise ValueError("Generator is not on curve")
+if not is_on_curve(G2, b2):
+    raise ValueError("Generator is not on twisted curve")
 
 
 # Elliptic curve doubling
@@ -170,4 +174,5 @@ def twist(pt: Optimized_Point3D[FQP]) -> Optimized_Point3D[FQ12]:
 
 # Check that the twist creates a point that is on the curve
 G12 = twist(G2)
-assert is_on_curve(G12, b12)
+if not is_on_curve(G12, b12):
+    raise ValueError("Twist creates a point not on curve")
