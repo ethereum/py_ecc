@@ -1,4 +1,7 @@
-import abc
+from abc import (
+    ABC,
+    abstractmethod,
+)
 from hashlib import (
     sha256,
 )
@@ -52,7 +55,7 @@ from .hash_to_curve import (
 )
 
 
-class BaseG2Ciphersuite(abc.ABC):
+class BaseG2Ciphersuite(ABC):
     DST = b""
     xmd_hash_function = sha256
 
@@ -250,7 +253,8 @@ class BaseG2Ciphersuite(abc.ABC):
     def Verify(cls, PK: BLSPubkey, message: bytes, signature: BLSSignature) -> bool:
         return cls._CoreVerify(PK, message, signature, cls.DST)
 
-    @abc.abstractclassmethod
+    @classmethod
+    @abstractmethod
     def AggregateVerify(
         cls,
         PKs: Sequence[BLSPubkey],

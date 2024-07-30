@@ -19,7 +19,7 @@ class Curve_Field_Properties(TypedDict):
 
 Field_Properties = Dict[str, Curve_Field_Properties]
 
-field_properties = {
+field_properties: Field_Properties = {
     "bn128": {
         "field_modulus": 21888242871839275222246405745257275088696311157297823662689037894645226208583,  # noqa: E501
         "fq2_modulus_coeffs": (1, 0),
@@ -30,4 +30,4 @@ field_properties = {
         "fq2_modulus_coeffs": (1, 0),
         "fq12_modulus_coeffs": (2, 0, 0, 0, 0, 0, -2, 0, 0, 0, 0, 0),  # Implied + [1]
     },
-}  # type: Field_Properties
+}

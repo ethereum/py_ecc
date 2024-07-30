@@ -188,7 +188,7 @@ def miller_loop(
 ) -> FQ12:
     if Q is None or P is None:
         return FQ12.one()
-    R = Q  # type: Optimized_Point3D[FQ12]
+    R: Optimized_Point3D[FQ12] = Q
     f_num, f_den = FQ12.one(), FQ12.one()
     # for i in range(log_ate_loop_count, -1, -1):
     for v in pseudo_binary_encoding[63::-1]:
