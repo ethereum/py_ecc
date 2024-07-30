@@ -1,6 +1,8 @@
 from typing import (  # noqa: F401
     TYPE_CHECKING,
+    Any,
     List,
+    Optional,
     Sequence,
     Tuple,
     Type,
@@ -37,11 +39,11 @@ class FQ:
     and it becomes a field element.
     """
 
-    n = None  # type: int
-    field_modulus = None  # type: int
+    n: int
+    field_modulus: int
 
-    def __init__(self: T_FQ, val: IntOrFQ) -> None:
-        if self.field_modulus is None:
+    def __init__(self: T_FQ, val: IntOrFQ[T_FQ]) -> None:
+        if not hasattr(self, "field_modulus"):
             raise AttributeError("Field Modulus hasn't been specified")
 
         if isinstance(val, FQ):
@@ -53,7 +55,7 @@ class FQ:
                 f"Expected an int or FQ object, but got object of type {type(val)}"
             )
 
-    def __add__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __add__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -65,7 +67,7 @@ class FQ:
 
         return type(self)((self.n + on) % self.field_modulus)
 
-    def __mul__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __mul__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -77,13 +79,13 @@ class FQ:
 
         return type(self)((self.n * on) % self.field_modulus)
 
-    def __rmul__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rmul__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         return self * other
 
-    def __radd__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __radd__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         return self + other
 
-    def __rsub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rsub__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -95,7 +97,7 @@ class FQ:
 
         return type(self)((on - self.n) % self.field_modulus)
 
-    def __sub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __sub__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -107,7 +109,7 @@ class FQ:
 
         return type(self)((self.n - on) % self.field_modulus)
 
-    def __div__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __div__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -121,10 +123,10 @@ class FQ:
             self.n * prime_field_inv(on, self.field_modulus) % self.field_modulus
         )
 
-    def __truediv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __truediv__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         return self.__div__(other)
 
-    def __rdiv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rdiv__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -138,7 +140,7 @@ class FQ:
             prime_field_inv(self.n, self.field_modulus) * on % self.field_modulus
         )
 
-    def __rtruediv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rtruediv__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         return self.__rdiv__(other)
 
     def __pow__(self: T_FQ, other: int) -> T_FQ:
@@ -151,7 +153,7 @@ class FQ:
         else:
             return ((self * self) ** int(other // 2)) * self
 
-    def __eq__(self: T_FQ, other: IntOrFQ) -> bool:
+    def __eq__(self: T_FQ, other: Any) -> bool:
         if isinstance(other, FQ):
             return self.n == other.n
         elif isinstance(other, int):
@@ -161,7 +163,7 @@ class FQ:
                 f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
-    def __ne__(self: T_FQ, other: IntOrFQ) -> bool:
+    def __ne__(self: T_FQ, other: Any) -> bool:
         return not self == other
 
     def __neg__(self: T_FQ) -> T_FQ:
@@ -190,13 +192,13 @@ class FQP:
     A class for elements in polynomial extension fields
     """
 
-    degree = 0
-    field_modulus = None  # type: int
+    degree: int = 0
+    field_modulus: int
 
     def __init__(
-        self, coeffs: Sequence[IntOrFQ], modulus_coeffs: Sequence[IntOrFQ] = ()
+        self, coeffs: Sequence[IntOrFQ], modulus_coeffs: Sequence[IntOrFQ[T_FQ]] = ()
     ) -> None:
-        if self.field_modulus is None:
+        if not hasattr(self, "field_modulus"):
             raise AttributeError("Field Modulus hasn't been specified")
 
         if len(coeffs) != len(modulus_coeffs):
@@ -204,12 +206,12 @@ class FQP:
         # Encoding all coefficients in the corresponding type FQ
         self.FQP_corresponding_FQ_class = type(
             "FQP_corresponding_FQ_class", (FQ,), {"field_modulus": self.field_modulus}
-        )  # type: Type[FQ]
-        self.coeffs = tuple(
+        )
+        self.coeffs: Tuple[IntOrFQ, ...] = tuple(
             self.FQP_corresponding_FQ_class(c) for c in coeffs
-        )  # type: Tuple[IntOrFQ, ...]
+        )
         # The coefficients of the modulus, without the leading [1]
-        self.modulus_coeffs = tuple(modulus_coeffs)  # type: Tuple[IntOrFQ, ...]
+        self.modulus_coeffs: Tuple[IntOrFQ, ...] = tuple(modulus_coeffs)
         # The degree of the extension field
         self.degree = len(self.modulus_coeffs)
 
@@ -284,8 +286,6 @@ class FQP:
             [0] * (self.degree + 1),
         )
         low, high = (
-            # Ignore mypy yelling about the inner types for the tuples being
-            # incompatible
             cast(List[IntOrFQ], list(self.coeffs + (0,))),
             cast(List[IntOrFQ], list(self.modulus_coeffs + (1,))),
         )
@@ -318,7 +318,7 @@ class FQP:
     def __repr__(self: T_FQP) -> str:
         return repr(self.coeffs)
 
-    def __eq__(self: T_FQP, other: T_FQP) -> bool:  # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __eq__(self: T_FQP, other: Any) -> bool:
         if not isinstance(other, type(self)):
             raise TypeError(
                 f"Expected an FQP object, but got object of type {type(other)}"
@@ -329,7 +329,7 @@ class FQP:
                 return False
         return True
 
-    def __ne__(self: T_FQP, other: T_FQP) -> bool:  # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __ne__(self: T_FQP, other: Any) -> bool:
         return not self == other
 
     def __neg__(self: T_FQP) -> T_FQP:
@@ -349,11 +349,11 @@ class FQ2(FQP):
     The quadratic extension field
     """
 
-    degree = 2
-    FQ2_MODULUS_COEFFS = None  # type: FQ2_modulus_coeffs_type
+    degree: int = 2
+    FQ2_MODULUS_COEFFS: "FQ2_modulus_coeffs_type"
 
-    def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
-        if self.FQ2_MODULUS_COEFFS is None:
+    def __init__(self, coeffs: Sequence[IntOrFQ[T_FQ]]) -> None:
+        if not hasattr(self, "FQ2_MODULUS_COEFFS"):
             raise AttributeError("FQ2 Modulus Coeffs haven't been specified")
 
         super().__init__(coeffs, self.FQ2_MODULUS_COEFFS)
@@ -364,11 +364,11 @@ class FQ12(FQP):
     The 12th-degree extension field
     """
 
-    degree = 12
-    FQ12_MODULUS_COEFFS = None  # type: FQ12_modulus_coeffs_type
+    degree: int = 12
+    FQ12_MODULUS_COEFFS: "FQ12_modulus_coeffs_type"
 
-    def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
-        if self.FQ12_MODULUS_COEFFS is None:
+    def __init__(self, coeffs: Sequence[IntOrFQ[T_FQ]]) -> None:
+        if not hasattr(self, "FQ12_MODULUS_COEFFS"):
             raise AttributeError("FQ12 Modulus Coeffs haven't been specified")
 
         super().__init__(coeffs, self.FQ12_MODULUS_COEFFS)
