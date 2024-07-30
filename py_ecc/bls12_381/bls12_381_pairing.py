@@ -32,7 +32,7 @@ log_ate_loop_count = 62
 # Create a function representing the line between P1 and P2,
 # and evaluate it at T
 def linefunc(P1: Point2D[Field], P2: Point2D[Field], T: Point2D[Field]) -> Field:
-    if not P1 and P2 and T:  # No points-at-infinity allowed, sorry
+    if P1 is None or P2 is None or T is None:  # No points-at-infinity allowed, sorry
         raise ValueError("Invalid input - no points-at-infinity allowed")
     x1, y1 = P1
     x2, y2 = P2
