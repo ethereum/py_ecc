@@ -1,6 +1,7 @@
 from typing import (  # noqa: F401
     TYPE_CHECKING,
     List,
+    Optional,
     Sequence,
     Tuple,
     Type,
@@ -37,8 +38,8 @@ class FQ:
     and it becomes a field element.
     """
 
-    n = None  # type: int
-    field_modulus = None  # type: int
+    n: Optional[int] = None
+    field_modulus: Optional[int] = None
 
     def __init__(self: T_FQ, val: IntOrFQ) -> None:
         if self.field_modulus is None:
@@ -190,8 +191,8 @@ class FQP:
     A class for elements in polynomial extension fields
     """
 
-    degree = 0
-    field_modulus = None  # type: int
+    degree: int = 0
+    field_modulus: Optional[int] = None
 
     def __init__(
         self, coeffs: Sequence[IntOrFQ], modulus_coeffs: Sequence[IntOrFQ] = ()
@@ -202,14 +203,14 @@ class FQP:
         if len(coeffs) != len(modulus_coeffs):
             raise Exception("coeffs and modulus_coeffs aren't of the same length")
         # Encoding all coefficients in the corresponding type FQ
-        self.FQP_corresponding_FQ_class = type(
+        self.FQP_corresponding_FQ_class: Type[FQ] = type(
             "FQP_corresponding_FQ_class", (FQ,), {"field_modulus": self.field_modulus}
-        )  # type: Type[FQ]
-        self.coeffs = tuple(
+        )
+        self.coeffs: Tuple[IntOrFQ, ...] = tuple(
             self.FQP_corresponding_FQ_class(c) for c in coeffs
-        )  # type: Tuple[IntOrFQ, ...]
+        )
         # The coefficients of the modulus, without the leading [1]
-        self.modulus_coeffs = tuple(modulus_coeffs)  # type: Tuple[IntOrFQ, ...]
+        self.modulus_coeffs: Tuple[IntOrFQ, ...] = tuple(modulus_coeffs)
         # The degree of the extension field
         self.degree = len(self.modulus_coeffs)
 
@@ -350,7 +351,7 @@ class FQ2(FQP):
     """
 
     degree = 2
-    FQ2_MODULUS_COEFFS = None  # type: FQ2_modulus_coeffs_type
+    FQ2_MODULUS_COEFFS: Optional[FQ2_modulus_coeffs_type] = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.FQ2_MODULUS_COEFFS is None:
@@ -365,7 +366,7 @@ class FQ12(FQP):
     """
 
     degree = 12
-    FQ12_MODULUS_COEFFS = None  # type: FQ12_modulus_coeffs_type
+    FQ12_MODULUS_COEFFS: FQ12_modulus_coeffs_type = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.FQ12_MODULUS_COEFFS is None:

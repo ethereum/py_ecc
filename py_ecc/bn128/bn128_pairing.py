@@ -85,7 +85,7 @@ if not all(conditions):
 def miller_loop(Q: Point2D[FQ12], P: Point2D[FQ12]) -> FQ12:
     if Q is None or P is None:
         return FQ12.one()
-    R = Q  # type: Point2D[FQ12]
+    R: Point2D[FQ12] = Q
     f = FQ12.one()
     for i in range(log_ate_loop_count, -1, -1):
         f = f * f * linefunc(R, R, P)
