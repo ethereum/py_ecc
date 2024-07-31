@@ -351,7 +351,7 @@ class FQ2(FQP):
     """
 
     degree = 2
-    FQ2_MODULUS_COEFFS: Optional[FQ2_modulus_coeffs_type] = None
+    FQ2_MODULUS_COEFFS: Optional["FQ2_modulus_coeffs_type"] = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.FQ2_MODULUS_COEFFS is None:
@@ -366,7 +366,7 @@ class FQ12(FQP):
     """
 
     degree = 12
-    FQ12_MODULUS_COEFFS: FQ12_modulus_coeffs_type = None
+    FQ12_MODULUS_COEFFS: "FQ12_modulus_coeffs_type" = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.FQ12_MODULUS_COEFFS is None:

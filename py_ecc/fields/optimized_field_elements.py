@@ -34,13 +34,13 @@ T_FQ12 = TypeVar("T_FQ12", bound="FQ12")
 IntOrFQ = Union[int, T_FQ]
 
 
-def mod_int(x: IntOrFQ, n: int) -> int:
+def mod_int(x: IntOrFQ[T_FQ], n: int) -> int:
     if isinstance(x, int):
         return x % n
     elif isinstance(x, FQ):
         return x.n % n
     else:
-        raise TypeError("Only int and T_FQ types are accepted: got %s" % type(x))
+        raise TypeError(f"Only int and T_FQ types are accepted: got {type(x)}")
 
 
 class FQ:
@@ -410,7 +410,7 @@ class FQ2(FQP):
     """
 
     degree = 2
-    FQ2_MODULUS_COEFFS: Optional[FQ2_modulus_coeffs_type] = None
+    FQ2_MODULUS_COEFFS: Optional["FQ2_modulus_coeffs_type"] = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.FQ2_MODULUS_COEFFS is None:
@@ -443,7 +443,7 @@ class FQ12(FQP):
     """
 
     degree = 12
-    FQ12_MODULUS_COEFFS: Optional[FQ12_modulus_coeffs_type] = None
+    FQ12_MODULUS_COEFFS: Optional["FQ12_modulus_coeffs_type"] = None
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
         if self.FQ12_MODULUS_COEFFS is None:
