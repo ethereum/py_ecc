@@ -62,7 +62,7 @@ def is_inf(pt: GeneralPoint[Field]) -> bool:
 
 # Check that a point is on the curve defined by y**2 == x**3 + b
 def is_on_curve(pt: Point2D[Field], b: Field) -> bool:
-    if is_inf(pt):
+    if is_inf(pt) or pt is None:
         return True
     x, y = pt
     return y**2 - x**3 == b
@@ -76,7 +76,7 @@ if not is_on_curve(G2, b2):
 
 # Elliptic curve doubling
 def double(pt: Point2D[Field]) -> Point2D[Field]:
-    if is_inf(pt):
+    if is_inf(pt) or pt is None:
         return pt
     x, y = pt
     m = 3 * x**2 / (2 * y)

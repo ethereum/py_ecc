@@ -19,7 +19,7 @@ if sys.version_info.major == 2:
     safe_ord = ord
 else:
 
-    def safe_ord(value: Any) -> int:  # type: ignore
+    def safe_ord(value: Any) -> int:
         if isinstance(value, int):
             return value
         else:
