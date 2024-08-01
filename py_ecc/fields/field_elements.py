@@ -354,7 +354,7 @@ class FQ2(FQP):
     degree = 2
     FQ2_MODULUS_COEFFS: "FQ2_modulus_coeffs_type"
 
-    def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
+    def __init__(self, coeffs: Sequence[IntOrFQ[T_FQ]]) -> None:
         if not hasattr(self, "FQ2_MODULUS_COEFFS"):
             raise AttributeError("FQ2 Modulus Coeffs haven't been specified")
 
@@ -369,7 +369,7 @@ class FQ12(FQP):
     degree: int = 12
     FQ12_MODULUS_COEFFS: "FQ12_modulus_coeffs_type"
 
-    def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
+    def __init__(self, coeffs: Sequence[IntOrFQ[T_FQ]]) -> None:
         if not hasattr(self, "FQ12_MODULUS_COEFFS"):
             raise AttributeError("FQ12 Modulus Coeffs haven't been specified")
 
