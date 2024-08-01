@@ -351,10 +351,10 @@ class FQ2(FQP):
     """
 
     degree = 2
-    FQ2_MODULUS_COEFFS: Optional["FQ2_modulus_coeffs_type"] = None
+    FQ2_MODULUS_COEFFS: "FQ2_modulus_coeffs_type"
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
-        if self.FQ2_MODULUS_COEFFS is None:
+        if not hasattr(self, "FQ2_MODULUS_COEFFS"):
             raise AttributeError("FQ2 Modulus Coeffs haven't been specified")
 
         super().__init__(coeffs, self.FQ2_MODULUS_COEFFS)
@@ -365,11 +365,11 @@ class FQ12(FQP):
     The 12th-degree extension field
     """
 
-    degree = 12
-    FQ12_MODULUS_COEFFS: "FQ12_modulus_coeffs_type" = None
+    degree: int = 12
+    FQ12_MODULUS_COEFFS: "FQ12_modulus_coeffs_type"
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
-        if self.FQ12_MODULUS_COEFFS is None:
+        if not hasattr(self, "FQ12_MODULUS_COEFFS"):
             raise AttributeError("FQ12 Modulus Coeffs haven't been specified")
 
         super().__init__(coeffs, self.FQ12_MODULUS_COEFFS)

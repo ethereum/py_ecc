@@ -4,7 +4,6 @@ from functools import (
 from typing import (
     TYPE_CHECKING,
     List,
-    Optional,
     Sequence,
     Tuple,
     Type,
@@ -217,7 +216,7 @@ class FQP:
 
     degree: int = 0
     field_modulus: int
-    mc_tuples: Optional[List[Tuple[int, int]]] = None
+    mc_tuples: List[Tuple[int, int]]
 
     def __init__(
         self, coeffs: Sequence[IntOrFQ], modulus_coeffs: Sequence[IntOrFQ] = ()
@@ -410,10 +409,10 @@ class FQ2(FQP):
     """
 
     degree = 2
-    FQ2_MODULUS_COEFFS: Optional["FQ2_modulus_coeffs_type"] = None
+    FQ2_MODULUS_COEFFS: "FQ2_modulus_coeffs_type"
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
-        if self.FQ2_MODULUS_COEFFS is None:
+        if not hasattr(self, "FQ2_MODULUS_COEFFS"):
             raise AttributeError("FQ2 Modulus Coeffs haven't been specified")
 
         self.mc_tuples = [(i, c) for i, c in enumerate(self.FQ2_MODULUS_COEFFS) if c]
@@ -443,10 +442,10 @@ class FQ12(FQP):
     """
 
     degree = 12
-    FQ12_MODULUS_COEFFS: Optional["FQ12_modulus_coeffs_type"] = None
+    FQ12_MODULUS_COEFFS: "FQ12_modulus_coeffs_type"
 
     def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
-        if self.FQ12_MODULUS_COEFFS is None:
+        if not hasattr(self, "FQ12_MODULUS_COEFFS"):
             raise AttributeError("FQ12 Modulus Coeffs haven't been specified")
 
         self.mc_tuples = [(i, c) for i, c in enumerate(self.FQ12_MODULUS_COEFFS) if c]
