@@ -49,11 +49,11 @@ class FQ:
     and it becomes a field element.
     """
 
-    n: Optional[int] = None
-    field_modulus: Optional[int] = None
+    n: int
+    field_modulus: int
 
     def __init__(self: T_FQ, val: IntOrFQ) -> None:
-        if self.field_modulus is None:
+        if not hasattr(self, "field_modulus"):
             raise AttributeError("Field Modulus hasn't been specified")
 
         if isinstance(val, FQ):
@@ -215,14 +215,14 @@ class FQP:
     A class for elements in polynomial extension fields
     """
 
-    degree: Optional[int] = 0
-    field_modulus: Optional[int] = None
+    degree: int = 0
+    field_modulus: int
     mc_tuples: Optional[List[Tuple[int, int]]] = None
 
     def __init__(
         self, coeffs: Sequence[IntOrFQ], modulus_coeffs: Sequence[IntOrFQ] = ()
     ) -> None:
-        if self.field_modulus is None:
+        if not hasattr(self, "field_modulus"):
             raise AttributeError("Field Modulus hasn't been specified")
 
         if len(coeffs) != len(modulus_coeffs):
