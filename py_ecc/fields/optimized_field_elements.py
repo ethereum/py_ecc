@@ -3,6 +3,7 @@ from functools import (
 )
 from typing import (
     TYPE_CHECKING,
+    Any,
     List,
     Sequence,
     Tuple,
@@ -165,7 +166,7 @@ class FQ:
         else:
             return ((self * self) ** int(other // 2)) * self
 
-    def __eq__(self: T_FQ, other: IntOrFQ[T_FQ]) -> bool:
+    def __eq__(self: T_FQ, other: Any) -> bool:
         if isinstance(other, FQ):
             return self.n == other.n
         elif isinstance(other, int):
@@ -175,7 +176,7 @@ class FQ:
                 f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
-    def __ne__(self: T_FQ, other: IntOrFQ[T_FQ]) -> bool:
+    def __ne__(self: T_FQ, other: Any) -> bool:
         return not self == other
 
     def __neg__(self: T_FQ) -> T_FQ:
