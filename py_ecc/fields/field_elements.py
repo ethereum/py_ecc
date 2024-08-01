@@ -1,5 +1,6 @@
 from typing import (  # noqa: F401
     TYPE_CHECKING,
+    Any,
     List,
     Optional,
     Sequence,
@@ -41,7 +42,7 @@ class FQ:
     n: int
     field_modulus: int
 
-    def __init__(self: T_FQ, val: IntOrFQ) -> None:
+    def __init__(self: T_FQ, val: IntOrFQ[T_FQ]) -> None:
         if not hasattr(self, "field_modulus"):
             raise AttributeError("Field Modulus hasn't been specified")
 
@@ -54,7 +55,7 @@ class FQ:
                 f"Expected an int or FQ object, but got object of type {type(val)}"
             )
 
-    def __add__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __add__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -66,7 +67,7 @@ class FQ:
 
         return type(self)((self.n + on) % self.field_modulus)
 
-    def __mul__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __mul__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -78,13 +79,13 @@ class FQ:
 
         return type(self)((self.n * on) % self.field_modulus)
 
-    def __rmul__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rmul__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         return self * other
 
-    def __radd__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __radd__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         return self + other
 
-    def __rsub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rsub__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -96,7 +97,7 @@ class FQ:
 
         return type(self)((on - self.n) % self.field_modulus)
 
-    def __sub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __sub__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -108,7 +109,7 @@ class FQ:
 
         return type(self)((self.n - on) % self.field_modulus)
 
-    def __div__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __div__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -122,10 +123,10 @@ class FQ:
             self.n * prime_field_inv(on, self.field_modulus) % self.field_modulus
         )
 
-    def __truediv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __truediv__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         return self.__div__(other)
 
-    def __rdiv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rdiv__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -139,7 +140,7 @@ class FQ:
             prime_field_inv(self.n, self.field_modulus) * on % self.field_modulus
         )
 
-    def __rtruediv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rtruediv__(self: T_FQ, other: IntOrFQ[T_FQ]) -> T_FQ:
         return self.__rdiv__(other)
 
     def __pow__(self: T_FQ, other: int) -> T_FQ:
@@ -152,7 +153,7 @@ class FQ:
         else:
             return ((self * self) ** int(other // 2)) * self
 
-    def __eq__(self: T_FQ, other: IntOrFQ) -> bool:
+    def __eq__(self: T_FQ, other: Any) -> bool:
         if isinstance(other, FQ):
             return self.n == other.n
         elif isinstance(other, int):
@@ -162,7 +163,7 @@ class FQ:
                 f"Expected an int or FQ object, but got object of type {type(other)}"
             )
 
-    def __ne__(self: T_FQ, other: IntOrFQ) -> bool:
+    def __ne__(self: T_FQ, other: Any) -> bool:
         return not self == other
 
     def __neg__(self: T_FQ) -> T_FQ:
