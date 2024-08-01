@@ -196,7 +196,7 @@ class FQP:
     field_modulus: int
 
     def __init__(
-        self, coeffs: Sequence[IntOrFQ[T_FQ]], modulus_coeffs: Sequence[IntOrFQ[T_FQ]] = ()
+        self, coeffs: Sequence[IntOrFQ], modulus_coeffs: Sequence[IntOrFQ[T_FQ]] = ()
     ) -> None:
         if not hasattr(self, "field_modulus"):
             raise AttributeError("Field Modulus hasn't been specified")
@@ -207,11 +207,11 @@ class FQP:
         self.FQP_corresponding_FQ_class = type(
             "FQP_corresponding_FQ_class", (FQ,), {"field_modulus": self.field_modulus}
         )
-        self.coeffs: Tuple[IntOrFQ[T_FQ], ...] = tuple(
+        self.coeffs: Tuple[IntOrFQ, ...] = tuple(
             self.FQP_corresponding_FQ_class(c) for c in coeffs
         )
         # The coefficients of the modulus, without the leading [1]
-        self.modulus_coeffs: Tuple[IntOrFQ[T_FQ], ...] = tuple(modulus_coeffs)
+        self.modulus_coeffs: Tuple[IntOrFQ, ...] = tuple(modulus_coeffs)
         # The degree of the extension field
         self.degree = len(self.modulus_coeffs)
 
@@ -288,11 +288,11 @@ class FQP:
         low, high = (
             # Ignore mypy yelling about the inner types for the tuples being
             # incompatible
-            cast(List[IntOrFQ[T_FQ]], list(self.coeffs + (0,))),
-            cast(List[IntOrFQ[T_FQ]], list(self.modulus_coeffs + (1,))),
+            cast(List[IntOrFQ], list(self.coeffs + (0,))),
+            cast(List[IntOrFQ], list(self.modulus_coeffs + (1,))),
         )
         while deg(low):
-            r = cast(List[IntOrFQ[T_FQ]], list(poly_rounded_div(high, low)))
+            r = cast(List[IntOrFQ], list(poly_rounded_div(high, low)))
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
