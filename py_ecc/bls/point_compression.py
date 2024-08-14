@@ -162,14 +162,14 @@ def compress_G2(pt: G2Uncompressed) -> G2Compressed:
     y_re, y_im = y.coeffs
     # Record the leftmost bit of y_im to the a_flag1
     # If y_im happens to be zero, then use the bit of y_re
-    a_flag1 = (y_im * 2) // q if y_im > 0 else (y_re * 2) // q
+    a_flag1 = (int(y_im) * 2) // q if y_im > 0 else (int(y_re) * 2) // q
 
     # Imaginary part of x goes to z1, real part goes to z2
     # c_flag1 = 1, b_flag1 = 0
     z1 = x_im + a_flag1 * POW_2_381 + POW_2_383
     # a_flag2 = b_flag2 = c_flag2 = 0
     z2 = x_re
-    return G2Compressed((z1, z2))
+    return G2Compressed((int(z1), int(z2)))
 
 
 def decompress_G2(p: G2Compressed) -> G2Uncompressed:
@@ -216,8 +216,8 @@ def decompress_G2(p: G2Compressed) -> G2Uncompressed:
     # Choose the y whose leftmost bit of the imaginary part is equal to the a_flag1
     # If y_im happens to be zero, then use the bit of y_re
     y_re, y_im = y.coeffs
-    if (y_im > 0 and (y_im * 2) // q != int(a_flag1)) or (
-        y_im == 0 and (y_re * 2) // q != int(a_flag1)
+    if (y_im > 0 and (int(y_im) * 2) // q != int(a_flag1)) or (
+        y_im == 0 and (int(y_re) * 2) // q != int(a_flag1)
     ):
         y = FQ2((y * -1).coeffs)
 
