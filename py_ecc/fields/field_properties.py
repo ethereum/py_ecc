@@ -5,7 +5,7 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from py_ecc.typing import (  # noqa: F401
+    from py_ecc.typing import (
         FQ2_modulus_coeffs_type,
         FQ12_modulus_coeffs_type,
     )

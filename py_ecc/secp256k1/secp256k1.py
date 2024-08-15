@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-import sys
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -9,21 +8,17 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from py_ecc.typing import (  # noqa: F401
+    from py_ecc.typing import (
         PlainPoint2D,
         PlainPoint3D,
     )
 
 
-if sys.version_info.major == 2:
-    safe_ord = ord
-else:
-
-    def safe_ord(value: Any) -> int:
-        if isinstance(value, int):
-            return value
-        else:
-            return ord(value)
+def safe_ord(value: Any) -> int:
+    if isinstance(value, int):
+        return value
+    else:
+        return ord(value)
 
 
 # Elliptic curve parameters (secp256k1)
@@ -39,7 +34,7 @@ G = cast("PlainPoint2D", (Gx, Gy))
 def bytes_to_int(x: bytes) -> int:
     o = 0
     for b in x:
-        o = (o << 8) + safe_ord(b)  # type: ignore
+        o = (o << 8) + safe_ord(b)
     return o
 
 
@@ -140,7 +135,7 @@ def from_jacobian(p: "PlainPoint3D") -> "PlainPoint2D":
     return cast("PlainPoint2D", ((p[0] * z**2) % P, (p[1] * z**3) % P))
 
 
-def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":  # type: ignore
+def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":
     """
     Multiply a point in Jacobian coordinates by an integer and return the result.
 
@@ -162,6 +157,7 @@ def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":  # type: ign
         return jacobian_double(jacobian_multiply(a, n // 2))
     if (n % 2) == 1:
         return jacobian_add(jacobian_double(jacobian_multiply(a, n // 2)), a)
+    raise ValueError("Unexpected case in jacobian_multiply: This should never happen.")
 
 
 def multiply(a: "PlainPoint2D", n: int) -> "PlainPoint2D":

@@ -1,11 +1,10 @@
 from functools import (
     total_ordering,
 )
-from typing import (  # noqa: F401
+from typing import (
     TYPE_CHECKING,
     Any,
     List,
-    Optional,
     Sequence,
     Tuple,
     Type,
@@ -21,7 +20,7 @@ from py_ecc.utils import (
 )
 
 if TYPE_CHECKING:
-    from py_ecc.typing import (  # noqa: F401
+    from py_ecc.typing import (
         FQ2_modulus_coeffs_type,
         FQ12_modulus_coeffs_type,
     )

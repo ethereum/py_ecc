@@ -7,10 +7,10 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from py_ecc.fields.field_elements import (  # noqa: F401
+    from py_ecc.fields.field_elements import (
         FQ,
     )
-    from py_ecc.fields.optimized_field_elements import (  # noqa: F401
+    from py_ecc.fields.optimized_field_elements import (
         FQ as optimized_FQ,
     )
 
