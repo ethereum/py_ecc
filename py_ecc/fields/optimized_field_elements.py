@@ -20,7 +20,7 @@ from py_ecc.utils import (
 )
 
 if TYPE_CHECKING:
-    from py_ecc.typing import (  # noqa: F401
+    from py_ecc.typing import (
         FQ2_modulus_coeffs_type,
         FQ12_modulus_coeffs_type,
     )
@@ -373,7 +373,7 @@ class FQP:
     def __repr__(self) -> str:
         return repr(self.coeffs)
 
-    def __eq__(self: T_FQP, other: T_FQP) -> bool:  # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __eq__(self: T_FQP, other: Any) -> bool:
         if not isinstance(other, type(self)):
             raise TypeError(
                 f"Expected an FQP object, but got object of type {type(other)}"
@@ -384,7 +384,7 @@ class FQP:
                 return False
         return True
 
-    def __ne__(self: T_FQP, other: T_FQP) -> bool:  # type: ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __ne__(self: T_FQP, other: Any) -> bool:
         return not self == other
 
     def __neg__(self: T_FQP) -> T_FQP:
