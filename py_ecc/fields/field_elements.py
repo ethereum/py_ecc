@@ -266,15 +266,18 @@ class FQP:
                 f"but got object of type {type(other)}"
             )
 
-    def __rmul__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
+    def __rmul__(self: T_FQP, other: Union[int, T_FQ, T_FQP]) -> T_FQP:
         return self * other
 
-    def __div__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
-        if isinstance(other, int):
+    def __div__(self: T_FQP, other: Union[int, T_FQ, T_FQP]) -> T_FQP:
+        if isinstance(other, int_types_or_FQ):
             return type(self)(
-                [c / other if isinstance(c, FQ) else c // other for c in self.coeffs]
+                [
+                    c / other if isinstance(c, FQ) else c // int(other)
+                    for c in self.coeffs
+                ]
             )
-        elif isinstance(other, FQP):
+        elif isinstance(other, type(self)):
             return self * other.inv()
         else:
             raise TypeError(
@@ -282,7 +285,7 @@ class FQP:
                 f"but got object of type {type(other)}"
             )
 
-    def __truediv__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
+    def __truediv__(self: T_FQP, other: Union[int, T_FQ, T_FQP]) -> T_FQP:
         return self.__div__(other)
 
     def __pow__(self: T_FQP, other: int) -> T_FQP:
