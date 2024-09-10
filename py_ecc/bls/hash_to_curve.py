@@ -29,6 +29,7 @@ from .hash import (
     os2ip,
 )
 from .typing import (
+    G1Uncompressed,
     G2Uncompressed,
 )
 
@@ -100,7 +101,7 @@ def clear_cofactor_G2(p: G2Uncompressed) -> G2Uncompressed:
     return multiply_clear_cofactor_G2(p)
 
 
-def map_to_curve_G1(u: FQ) -> G2Uncompressed:
+def map_to_curve_G1(u: FQ) -> G1Uncompressed:
     """
     Map To Curve for G1
 
@@ -115,7 +116,7 @@ def map_to_curve_G1(u: FQ) -> G2Uncompressed:
     return iso_map_G1(x, y, z)
 
 
-def clear_cofactor_G1(p: G2Uncompressed) -> G2Uncompressed:
+def clear_cofactor_G1(p: G1Uncompressed) -> G1Uncompressed:
     """
     Clear Cofactor via Multiplication
 
