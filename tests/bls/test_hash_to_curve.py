@@ -8,6 +8,7 @@ from hashlib import (
 import pytest
 
 from py_ecc.bls.hash_to_curve import (
+    hash_to_G1,
     hash_to_G2,
 )
 from py_ecc.fields import (
@@ -17,12 +18,14 @@ from py_ecc.fields import (
     optimized_bls12_381_FQP as FQP,
 )
 from py_ecc.optimized_bls12_381 import (
+    b,
     b2,
     is_on_curve,
     iso_map_G2,
 )
 
-DST = b"QUUX-V01-CS02-with-BLS12381G2_XMD:SHA-256_SSWU_RO_"
+DST_G1 = b"QUUX-V01-CS02-with-BLS12381G1_XMD:SHA-256_SSWU_RO_"
+DST_G2 = b"QUUX-V01-CS02-with-BLS12381G2_XMD:SHA-256_SSWU_RO_"
 
 
 @pytest.mark.parametrize(
@@ -232,7 +235,7 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
     ],
 )
 def test_hash_to_G2(msg, x, y, H):
-    point = hash_to_G2(msg, DST, H)
+    point = hash_to_G2(msg, DST_G2, H)
     assert is_on_curve(point, b2)
 
     # Affine
@@ -286,3 +289,70 @@ def test_FQ2_sgn0(value, expected):
     x = FQ2(value)
     y = FQP(value, modulus_coeffs=FQ2.FQ2_MODULUS_COEFFS)
     assert x.sgn0 == y.sgn0 == expected
+
+
+# --- G1 ---
+
+
+# https://github.com/cfrg/draft-irtf-cfrg-hash-to-curve/blob/main/draft-irtf-cfrg-hash-to-curve.md#bls12381g1_xmdsha-256_sswu_ro_  # noqa: E501
+@pytest.mark.parametrize("H", [sha256])
+@pytest.mark.parametrize(
+    "msg,x,y",
+    [
+        (
+            b"",
+            FQ(
+                0x052926ADD2207B76CA4FA57A8734416C8DC95E24501772C814278700EED6D1E4E8CF62D9C09DB0FAC349612B759E79A1  # noqa: E501
+            ),
+            FQ(
+                0x8BA738453BFED09CB546DBB0783DBB3A5F1F566ED67BB6BE0E8C67E2E81A4CC68EE29813BB7994998F3EAE0C9C6A265  # noqa: E501
+            ),
+        ),
+        (
+            b"abc",
+            FQ(
+                0x03567BC5EF9C690C2AB2ECDF6A96EF1C139CC0B2F284DCA0A9A7943388A49A3AEE664BA5379A7655D3C68900BE2F6903  # noqa: E501
+            ),
+            FQ(
+                0x0B9C15F3FE6E5CF4211F346271D7B01C8F3B28BE689C8429C85B67AF215533311F0B8DFAAA154FA6B88176C229F2885D  # noqa: E501
+            ),
+        ),
+        (
+            b"abcdef0123456789",
+            FQ(
+                0x11E0B079DEA29A68F0383EE94FED1B940995272407E3BB916BBF268C263DDD57A6A27200A784CBC248E84F357CE82D98  # noqa: E501
+            ),
+            FQ(
+                0x03A87AE2CAF14E8EE52E51FA2ED8EEFE80F02457004BA4D486D6AA1F517C0889501DC7413753F9599B099EBCBBD2D709  # noqa: E501
+            ),
+        ),
+        (
+            b"q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",  # noqa: E501
+            FQ(
+                0x15F68EAA693B95CCB85215DC65FA81038D69629F70AEEE0D0F677CF22285E7BF58D7CB86EEFE8F2E9BC3F8CB84FAC488  # noqa: E501
+            ),
+            FQ(
+                0x1807A1D50C29F430B8CAFC4F8638DFEEADF51211E1602A5F184443076715F91BB90A48BA1E370EDCE6AE1062F5E6DD38  # noqa: E501
+            ),
+        ),
+        (
+            b"a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",  # noqa: E501
+            FQ(
+                0x082AABAE8B7DEDB0E78AEB619AD3BFD9277A2F77BA7FAD20EF6AABDC6C31D19BA5A6D12283553294C1825C4B3CA2DCFE  # noqa: E501
+            ),
+            FQ(
+                0x05B84AE5A942248EEA39E1D91030458C40153F3B654AB7872D779AD1E942856A20C438E8D99BC8ABFBF74729CE1F7AC8  # noqa: E501
+            ),
+        ),
+    ],
+)
+def test_hash_to_G1(msg, x, y, H):
+    point = hash_to_G1(msg, DST_G1, H)
+    assert is_on_curve(point, b)
+
+    # Affine
+    result_x = point[0] / point[2]  # X / Z
+    result_y = point[1] / point[2]  # Y / Z
+
+    assert x == result_x
+    assert y == result_y
