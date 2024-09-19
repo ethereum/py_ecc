@@ -6,6 +6,7 @@ from py_ecc.fields import (
 )
 
 from .optimized_clear_cofactor import (
+    multiply_clear_cofactor_G1,
     multiply_clear_cofactor_G2,
 )
 from .optimized_curve import (
@@ -34,6 +35,8 @@ from .optimized_pairing import (
     pairing,
 )
 from .optimized_swu import (
+    iso_map_G1,
     iso_map_G2,
+    optimized_swu_G1,
     optimized_swu_G2,
 )
