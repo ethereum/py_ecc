@@ -105,16 +105,15 @@ def clear_cofactor_G2(p: G2Uncompressed) -> G2Uncompressed:
 
 
 def hash_to_G1(message: bytes, DST: bytes, hash_function: HASH) -> G1Uncompressed:
-    # TODO update docstring
     """
-    Convert a message to a point on G2 as defined here:
+    Convert a message to a point on G1 as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-6.6.3
 
-    The idea is to first hash into FQ2 and then use SSWU to map the result into G2.
+    The idea is to first hash into FQ and then use SSWU to map the result into G1.
 
-    Contents and inputs follow the ciphersuite ``BLS12381G2_XMD:SHA-256_SSWU_RO_``
+    Contents and inputs follow the ciphersuite ``BLS12381G1_XMD:SHA-256_SSWU_RO_``
     defined here:
-    https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-8.8.2
+    https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-09#section-8.8.1
     """
     u0, u1 = hash_to_field_FQ(message, 2, DST, hash_function)
     q0 = map_to_curve_G1(u0)
@@ -127,7 +126,6 @@ def hash_to_G1(message: bytes, DST: bytes, hash_function: HASH) -> G1Uncompresse
 def hash_to_field_FQ(
     message: bytes, count: int, DST: bytes, hash_function: HASH
 ) -> Tuple[FQ, ...]:
-    # TODO update docstring
     """
     Hash To Base Field for FQ
 
@@ -149,11 +147,11 @@ def map_to_curve_G1(u: FQ) -> G1Uncompressed:
     """
     Map To Curve for G1
 
-    First, convert FQ1 point to a point on the 3-Isogeny curve.
+    First, convert FQ point to a point on the 11-Isogeny curve.
     SWU Map: https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-6.6.3
 
-    Second, map 3-Isogeny curve to BLS12-381-G2 curve.
-    3-Isogeny Map:
+    Second, map 11-Isogeny curve to BLS12-381-G1 curve.
+    11-Isogeny Map:
     https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-09#name-11-isogeny-map-for-bls12-38
     """
     (x, y, z) = optimized_swu_G1(u)
