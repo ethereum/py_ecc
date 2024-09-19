@@ -218,6 +218,21 @@ def test_iso_map_G2(iso_x, iso_y, iso_z, g2_x, g2_y):
             ),
         ),
         (
+            b"q128_qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",  # noqa: E501
+            FQ2(
+                [
+                    0x19A84DD7248A1066F737CC34502EE5555BD3C19F2ECDB3C7D9E24DC65D4E25E50D83F0F77105E955D78F4762D33C17DA,  # noqa: E501
+                    0x0934ABA516A52D8AE479939A91998299C76D39CC0C035CD18813BEC433F587E2D7A4FEF038260EEF0CEF4D02AAE3EB91,  # noqa: E501
+                ]
+            ),
+            FQ2(
+                [
+                    0x14F81CD421617428BC3B9FE25AFBB751D934A00493524BC4E065635B0555084DD54679DF1536101B2C979C0152D09192,  # noqa: E501
+                    0x09BCCCFA036B4847C9950780733633F13619994394C23FF0B32FA6B795844F4A0673E20282D07BC69641CEE04F5E5662,  # noqa: E501
+                ]
+            ),
+        ),
+        (
             b"a512_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",  # noqa: E501
             FQ2(
                 [
