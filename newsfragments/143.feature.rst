@@ -1,1 +1,0 @@
-Added ``__lt__`` to ``FQ`` classes

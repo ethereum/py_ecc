@@ -1,3 +1,38 @@
+py_ecc v8.0.0-beta.1 (2024-10-22)
+---------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Updated typing across the library (`#143 <https://github.com/ethereum/py_ecc/issues/143>`__)
+- Set ``ecdsa_raw_recover`` to only accept ``v`` values of 27 or 28 (`#145 <https://github.com/ethereum/py_ecc/issues/145>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add docstrings to ``secp256k1`` (`#141 <https://github.com/ethereum/py_ecc/issues/141>`__)
+
+
+Features
+~~~~~~~~
+
+- Added ``__lt__`` to ``FQ`` classes (`#143 <https://github.com/ethereum/py_ecc/issues/143>`__)
+- Add hash-to-curve functions for the G1 curve (`#146 <https://github.com/ethereum/py_ecc/issues/146>`__)
+
+
+Internal Changes - for py_ecc Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Replace non-test instances of ``assert`` statments with better validation (`#142 <https://github.com/ethereum/py_ecc/issues/142>`__)
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Lazy-load submodules to reduce initial import time (`#135 <https://github.com/ethereum/py_ecc/issues/135>`__)
+
+
 py_ecc v7.0.1 (2024-04-23)
 --------------------------
 

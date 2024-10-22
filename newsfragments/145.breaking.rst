@@ -1,1 +1,0 @@
-Set ``ecdsa_raw_recover`` to only accept ``v`` values of 27 or 28
