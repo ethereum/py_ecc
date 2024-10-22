@@ -1,0 +1,1 @@
+Drop python 3.8 and add 3.13 in CI and lib metadata
