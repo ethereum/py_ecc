@@ -121,12 +121,6 @@ jobs:
         environment:
           TOXENV: docs
 
-  py38-core:
-    <<: *common
-    docker:
-      - image: cimg/python:3.8
-        environment:
-          TOXENV: py38-core
   py39-core:
     <<: *common
     docker:
@@ -151,13 +145,13 @@ jobs:
       - image: cimg/python:3.12
         environment:
           TOXENV: py312-core
-
-  py38-lint:
+  py313-core:
     <<: *common
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.13
         environment:
-          TOXENV: py38-lint
+          TOXENV: py313-core
+
   py39-lint:
     <<: *common
     docker:
@@ -182,13 +176,13 @@ jobs:
       - image: cimg/python:3.12
         environment:
           TOXENV: py312-lint
-
-  py38-wheel:
+  py313-lint:
     <<: *common
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.13
         environment:
-          TOXENV: py38-wheel
+          TOXENV: py313-lint
+
   py39-wheel:
     <<: *common
     docker:
@@ -213,6 +207,12 @@ jobs:
       - image: cimg/python:3.12
         environment:
           TOXENV: py312-wheel
+  py313-wheel:
+    <<: *common
+    docker:
+      - image: cimg/python:3.13
+        environment:
+          TOXENV: py313-wheel
 
   py311-windows-wheel:
     <<: *windows-wheel-setup
@@ -239,13 +239,19 @@ jobs:
       - <<: *install-latest-python-step
       - <<: *run-tox-step
       - <<: *save-cache-step
+  py313-windows-wheel:
+    <<: *windows-wheel-setup
+    steps:
+      - checkout
+      - <<: *restore-cache-step
+      - <<: *install-pyenv-step
+      - run:
+          name: set minor version
+          command: echo "export MINOR_VERSION='3.13'" >> $BASH_ENV
+      - <<: *install-latest-python-step
+      - <<: *run-tox-step
+      - <<: *save-cache-step
 
-  py38-bls:
-    <<: *common
-    docker:
-      - image: cimg/python:3.8
-        environment:
-          TOXENV: py38-bls
   py39-bls:
     <<: *common
     docker:
@@ -270,31 +276,38 @@ jobs:
       - image: cimg/python:3.12
         environment:
           TOXENV: py312-bls
+  py313-bls:
+    <<: *common
+    docker:
+      - image: cimg/python:3.13
+        environment:
+          TOXENV: py313-bls
 
 define: &all_jobs
   - docs
-  - py38-core
   - py39-core
   - py310-core
   - py311-core
   - py312-core
-  - py38-lint
+  - py313-core
   - py39-lint
   - py310-lint
   - py311-lint
   - py312-lint
-  - py38-wheel
+  - py313-lint
   - py39-wheel
   - py310-wheel
   - py311-wheel
   - py312-wheel
+  - py313-wheel
   - py311-windows-wheel
   - py312-windows-wheel
-  - py38-bls
+  - py313-windows-wheel
   - py39-bls
   - py310-bls
   - py311-bls
   - py312-bls
+  - py313-bls
 
 workflows:
   version: 2
