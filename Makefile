@@ -78,9 +78,10 @@ package-test: clean
 	python -m build
 	python scripts/release/test_package.py
 
+# $(eval UPCOMING_VERSION=$(shell bump-my-version bump --dry-run $(bump) -v | sed -n "/New version will be '/{s/^.*New version will be '\([^']*\)'.*$/\1/;p;}"))
 notes: check-bump
 	# Let UPCOMING_VERSION be the version that is used for the current bump
-	$(eval UPCOMING_VERSION=$(shell bump-my-version show --increment $(bump) new_version))
+	$(eval UPCOMING_VERSION=$(shell bump-my-version bump --dry-run $(bump) -v | awk -F"'" '/New version will be / {print $$2}'))
 	# Now generate the release notes to have them included in the release commit
 	towncrier build --yes --version $(UPCOMING_VERSION)
 	# Before we bump the version, make sure that the towncrier-generated docs will build
