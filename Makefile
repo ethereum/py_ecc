@@ -9,8 +9,7 @@ help:
 	@echo "dist - build package and cat contents of the dist directory"
 	@echo "lint - fix linting issues with pre-commit"
 	@echo "test - run tests quickly with the default Python"
-	@echo "docs - view draft of newsfragments to be added to CHANGELOG"
-	@echo "notes - consume towncrier newsfragments/ and update CHANGELOG"
+	@echo "docs - generate docs and open in browser (linux-docs for version on linux)"
 	@echo "autobuild-docs - live update docs when changes are saved"
 	@echo "package-test - build package and install it in a venv for manual testing"
 	@echo "notes - consume towncrier newsfragments and update release notes in docs - requires bump to be set"
@@ -70,7 +69,6 @@ build-docs:
 check-docs-ci: build-docs build-docs-ci validate-newsfragments
 
 build-docs-ci:
-	$(MAKE) -C docs latexpdf
 	$(MAKE) -C docs epub
 
 # release commands
@@ -81,7 +79,7 @@ package-test: clean
 
 notes: check-bump
 	# Let UPCOMING_VERSION be the version that is used for the current bump
-	$(eval UPCOMING_VERSION=$(shell bump-my-version show --increment $(bump) new_version))
+	$(eval UPCOMING_VERSION=$(shell bump-my-version bump --dry-run $(bump) -v | awk -F"'" '/New version will be / {print $$2}'))
 	# Now generate the release notes to have them included in the release commit
 	towncrier build --yes --version $(UPCOMING_VERSION)
 	# Before we bump the version, make sure that the towncrier-generated docs will build
@@ -107,8 +105,8 @@ ifndef bump
 endif
 
 check-git:
-	# require that upstream is configured for ethereum/<REPO_NAME>
-	@if ! git remote -v | grep "upstream[[:space:]]git@github.com:ethereum/<REPO_NAME>.git (push)\|upstream[[:space:]]https://github.com/ethereum/<REPO_NAME> (push)"; then \
-		echo "Error: You must have a remote named 'upstream' that points to '<REPO_NAME>'"; \
+	# require that upstream is configured for ethereum/py_ecc
+	@if ! git remote -v | grep "upstream[[:space:]]git@github.com:ethereum/py_ecc.git (push)\|upstream[[:space:]]https://github.com/ethereum/py_ecc (push)"; then \
+		echo "Error: You must have a remote named 'upstream' that points to 'py_ecc'"; \
 		exit 1; \
 	fi

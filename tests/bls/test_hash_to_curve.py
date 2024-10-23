@@ -2,10 +2,10 @@
 These are temporary tests to check the functionality of helper functions in `hash_to_G2`
 They should be removed and replaced with a final version when hash to curve is complete.
 """
+import pytest
 from hashlib import (
     sha256,
 )
-import pytest
 
 from py_ecc.bls.hash_to_curve import (
     hash_to_G1,

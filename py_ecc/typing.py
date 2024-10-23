@@ -1,6 +1,5 @@
 from typing import (
     Optional,
-    Tuple,
     TypeVar,
     Union,
 )
@@ -39,8 +38,8 @@ from py_ecc.fields.optimized_field_elements import (
 #
 # These types are wrt Normal Integers
 #
-PlainPoint2D = Tuple[int, int]
-PlainPoint3D = Tuple[int, int, int]
+PlainPoint2D = tuple[int, int]
+PlainPoint3D = tuple[int, int, int]
 
 
 #
@@ -64,8 +63,8 @@ Field = TypeVar(
     bls12_381_FQ2,
     bls12_381_FQ12,
 )
-Point2D = Optional[Tuple[Field, Field]]  # Point at infinity is encoded as a None
-Point3D = Optional[Tuple[Field, Field, Field]]  # Point at infinity is encoded as a None
+Point2D = Optional[tuple[Field, Field]]  # Point at infinity is encoded as a None
+Point3D = Optional[tuple[Field, Field, Field]]  # Point at infinity is encoded as a None
 GeneralPoint = Union[Point2D[Field], Point3D[Field]]
 
 
@@ -90,8 +89,8 @@ Optimized_Field = TypeVar(
     optimized_bls12_381_FQ2,
     optimized_bls12_381_FQ12,
 )
-Optimized_Point2D = Tuple[Optimized_Field, Optimized_Field]
-Optimized_Point3D = Tuple[Optimized_Field, Optimized_Field, Optimized_Field]
+Optimized_Point2D = tuple[Optimized_Field, Optimized_Field]
+Optimized_Point3D = tuple[Optimized_Field, Optimized_Field, Optimized_Field]
 Optimized_GeneralPoint = Union[
     Optimized_Point2D[Optimized_Field],
     Optimized_Point3D[Optimized_Field],
@@ -100,7 +99,7 @@ Optimized_GeneralPoint = Union[
 #
 # Miscellaneous types
 #
-FQ2_modulus_coeffs_type = Tuple[int, int]
-FQ12_modulus_coeffs_type = Tuple[
+FQ2_modulus_coeffs_type = tuple[int, int]
+FQ12_modulus_coeffs_type = tuple[
     int, int, int, int, int, int, int, int, int, int, int, int
 ]

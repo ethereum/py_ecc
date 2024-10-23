@@ -1,21 +1,21 @@
-<PROJECT_NAME>
+py_ecc
 ==============================
 
-<SHORT_DESCRIPTION>
+Elliptic curve crypto in python including secp256k1, alt_bn128, and bls12_381
 
 Installation
 ------------
 
 .. code-block:: bash
 
-    python -m pip install <PROJECT_NAME>
+    python -m pip install py_ecc
 
 
 .. toctree::
     :maxdepth: 1
     :caption: General
 
-    Usage<<MODULE_NAME>>
+    Usage<py_ecc>
     release_notes
 
 .. toctree::

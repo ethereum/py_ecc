@@ -98,11 +98,6 @@ docs: &docs
           python -m pip install --upgrade pip
           python -m pip install tox
     - run:
-        name: install latexpdf dependencies
-        command: |
-          sudo apt-get update
-          sudo apt-get install latexmk tex-gyre texlive-fonts-extra texlive-xetex xindy
-    - run:
         name: run tox
         command: python -m tox run -r
     - store_artifacts:
@@ -119,7 +114,7 @@ jobs:
   docs:
     <<: *docs
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.10
         environment:
           TOXENV: docs
 
@@ -241,6 +236,7 @@ jobs:
       - <<: *install-latest-python-step
       - <<: *run-tox-step
       - <<: *save-cache-step
+
   py313-windows-wheel:
     <<: *windows-wheel-setup
     steps:

@@ -1,7 +1,3 @@
-from typing import (
-    Tuple,
-)
-
 from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
@@ -29,7 +25,7 @@ from .constants import (
 
 # Optimized SWU Map - FQ to G1'
 # Found in Section 4 of https://eprint.iacr.org/2019/403
-def optimized_swu_G1(t: FQ) -> Tuple[FQ, FQ, FQ]:
+def optimized_swu_G1(t: FQ) -> tuple[FQ, FQ, FQ]:
     t2 = t**2
     iso_11_z_t2 = ISO_11_Z * t2
     temp = iso_11_z_t2 + iso_11_z_t2**2
@@ -63,7 +59,7 @@ def optimized_swu_G1(t: FQ) -> Tuple[FQ, FQ, FQ]:
 
 # Optimized SWU Map - FQ2 to G2': y^2 = x^3 + 240i * x + 1012 + 1012i
 # Found in Section 4 of https://eprint.iacr.org/2019/403
-def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
+def optimized_swu_G2(t: FQ2) -> tuple[FQ2, FQ2, FQ2]:
     t2 = t**2
     iso_3_z_t2 = ISO_3_Z * t2
     temp = iso_3_z_t2 + iso_3_z_t2**2
@@ -115,7 +111,7 @@ def optimized_swu_G2(t: FQ2) -> Tuple[FQ2, FQ2, FQ2]:
     return (numerator, y, denominator)
 
 
-def sqrt_division_FQ(u: FQ, v: FQ) -> Tuple[bool, FQ]:
+def sqrt_division_FQ(u: FQ, v: FQ) -> tuple[bool, FQ]:
     temp = u * v
     result = temp * ((temp * v**2) ** P_MINUS_3_DIV_4)
     is_valid_root = (result**2 * v - u) == FQ.zero()
@@ -125,7 +121,7 @@ def sqrt_division_FQ(u: FQ, v: FQ) -> Tuple[bool, FQ]:
 # Square Root Division
 # Return: uv^7 * (uv^15)^((p^2 - 9) / 16) * root of unity
 # If valid square root is found return true, else false
-def sqrt_division_FQ2(u: FQ2, v: FQ2) -> Tuple[bool, FQ2]:
+def sqrt_division_FQ2(u: FQ2, v: FQ2) -> tuple[bool, FQ2]:
     temp1 = u * v**7
     temp2 = temp1 * v**8
 
