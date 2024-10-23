@@ -55,4 +55,4 @@ repos:
     rev: v0.2.5
     hooks:
     -   id: blocklint
-        exclude: 'docs/Makefile|docs/release_notes.rst|tox.ini|CHANGELOG.rst'
+        exclude: 'docs/Makefile|docs/release_notes.rst|tox.ini'

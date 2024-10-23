@@ -210,7 +210,7 @@ def deterministic_generate_k(msghash: bytes, priv: bytes) -> int:
     :type priv: bytes
 
     :return: A deterministic value k (as an int) that can be used as the ephemeral
-    private key in the signature generation process.
+        private key in the signature generation process.
     :rtype: int
     """
     v = b"\x01" * 32

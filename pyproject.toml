@@ -73,7 +73,7 @@ xfail_strict = true
 [tool.towncrier]
 # Read https://github.com/ethereum/py_ecc/blob/main/newsfragments/README.md for instructions
 directory = "newsfragments"
-filename = "CHANGELOG.rst"
+filename = "docs/release_notes.rst"
 issue_format = "`#{issue} <https://github.com/ethereum/py_ecc/issues/{issue}>`__"
 package = "py_ecc"
 title_format = "py_ecc v{version} ({project_date})"
