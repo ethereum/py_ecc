@@ -1,0 +1,1 @@
+Merge template updates, notably moving from ``bumpversion`` to ``bump-my-version`` and moving docs from the ``README`` to ReadTheDocs
