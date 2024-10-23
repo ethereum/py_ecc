@@ -101,10 +101,12 @@ docs: &docs
         name: install latexpdf dependencies
         command: |
           sudo apt-get update
-          sudo apt-get install latexmk tex-gyre texlive-fonts-extra
+          sudo apt-get install latexmk tex-gyre texlive-fonts-extra texlive-xetex xindy
     - run:
         name: run tox
         command: python -m tox run -r
+    - store_artifacts:
+          path: /home/circleci/repo/docs/_build
     - save_cache:
         paths:
           - .tox
