@@ -107,8 +107,8 @@ ifndef bump
 endif
 
 check-git:
-	# require that upstream is configured for ethereum/<REPO_NAME>
-	@if ! git remote -v | grep "upstream[[:space:]]git@github.com:ethereum/<REPO_NAME>.git (push)\|upstream[[:space:]]https://github.com/ethereum/<REPO_NAME> (push)"; then \
-		echo "Error: You must have a remote named 'upstream' that points to '<REPO_NAME>'"; \
+	# require that upstream is configured for ethereum/py_ecc
+	@if ! git remote -v | grep "upstream[[:space:]]git@github.com:ethereum/py_ecc.git (push)\|upstream[[:space:]]https://github.com/ethereum/py_ecc (push)"; then \
+		echo "Error: You must have a remote named 'upstream' that points to 'py_ecc'"; \
 		exit 1; \
 	fi

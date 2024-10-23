@@ -3,10 +3,10 @@ Usage
 
 Example usage:
 
-<MODULE_NAME>
+py_ecc
 -------------
 
-.. automodule:: <MODULE_NAME>
+.. automodule:: py_ecc
     :members:
     :undoc-members:
     :show-inheritance:

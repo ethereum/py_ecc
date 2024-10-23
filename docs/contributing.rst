@@ -12,13 +12,13 @@ To get started, fork the repository to your own github account, then clone it to
 development machine:
 
 .. code:: sh
-    git clone git@github.com:your-github-username/<REPO_NAME>.git
+    git clone git@github.com:your-github-username/py_ecc.git
 
 Next, install the development dependencies. We recommend using a virtual environment,
 such as `virtualenv <https://virtualenv.pypa.io/en/stable/>`_.
 
 .. code:: sh
-    cd <REPO_NAME>
+    cd py_ecc
     virtualenv -p python venv
     . venv/bin/activate
     python -m pip install -e ".[dev]"
@@ -73,7 +73,7 @@ do not pass the CI build yet won't get reviewed unless explicitly requested.
 
 If the pull request introduces changes that should be reflected in the release notes,
 please add a `newsfragment` file as explained
-`here <https://github.com/ethereum/<REPO_NAME>/blob/main/newsfragments/README.md>`_.
+`here <https://github.com/ethereum/py_ecc/blob/main/newsfragments/README.md>`_.
 
 If possible, the change to the release notes file should be included in the commit that
 introduces the feature or bugfix.
