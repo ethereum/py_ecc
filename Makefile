@@ -78,7 +78,6 @@ package-test: clean
 	python -m build
 	python scripts/release/test_package.py
 
-# $(eval UPCOMING_VERSION=$(shell bump-my-version bump --dry-run $(bump) -v | sed -n "/New version will be '/{s/^.*New version will be '\([^']*\)'.*$/\1/;p;}"))
 notes: check-bump
 	# Let UPCOMING_VERSION be the version that is used for the current bump
 	$(eval UPCOMING_VERSION=$(shell bump-my-version bump --dry-run $(bump) -v | awk -F"'" '/New version will be / {print $$2}'))
