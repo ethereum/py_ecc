@@ -9,9 +9,9 @@ Elliptic curve crypto in python including secp256k1, alt_bn128, and bls12_381.
 
 > **Warning**: This library contains some experimental code and has **NOT** been audited.
 
-Read the [documentation](https://py_ecc.readthedocs.io/).
+Read the [documentation](https://py-ecc.readthedocs.io/).
 
-View the [change log](https://py_ecc.readthedocs.io/en/latest/release_notes.html).
+View the [change log](https://py-ecc.readthedocs.io/en/latest/release_notes.html).
 
 ## Installation
 
