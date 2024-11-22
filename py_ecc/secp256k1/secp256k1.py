@@ -3,7 +3,6 @@ import hmac
 from typing import (
     TYPE_CHECKING,
     Any,
-    Tuple,
     cast,
 )
 
@@ -210,7 +209,7 @@ def deterministic_generate_k(msghash: bytes, priv: bytes) -> int:
     :type priv: bytes
 
     :return: A deterministic value k (as an int) that can be used as the ephemeral
-    private key in the signature generation process.
+        private key in the signature generation process.
     :rtype: int
     """
     v = b"\x01" * 32
@@ -223,7 +222,7 @@ def deterministic_generate_k(msghash: bytes, priv: bytes) -> int:
 
 
 # bytes32, bytes32 -> v, r, s (as numbers)
-def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> Tuple[int, int, int]:
+def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> tuple[int, int, int]:
     """
     Return a raw ECDSA signature of the provided `data`, using the provided
     `private_key`.
@@ -246,7 +245,7 @@ def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> Tuple[int, int, int]:
     return v, r, s
 
 
-def ecdsa_raw_recover(msghash: bytes, vrs: Tuple[int, int, int]) -> "PlainPoint2D":
+def ecdsa_raw_recover(msghash: bytes, vrs: tuple[int, int, int]) -> "PlainPoint2D":
     """
     Recover the public key from the signature and message hash.
 

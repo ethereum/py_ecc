@@ -1,7 +1,7 @@
+import pytest
 from hashlib import (
     sha256,
 )
-import pytest
 
 from py_ecc.bls.hash import (
     expand_message_xmd,
