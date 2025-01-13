@@ -50,7 +50,6 @@ setup(
     install_requires=[
         "eth-typing>=3.0.0",
         "eth-utils>=2.0.0",
-        "cached-property>=1.5.1",
     ],
     python_requires=">=3.9, <4",
     extras_require=extras_require,
