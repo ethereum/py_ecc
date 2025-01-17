@@ -36,5 +36,5 @@ def __getattr__(name: str) -> ModuleType:
     raise AttributeError(f"module 'py_ecc' has no attribute '{name}'")
 
 
-def __dir__() -> list[str]:
+def __dir__() -> List[str]:
     return list(_lazy_imports.keys()) + list(globals().keys())

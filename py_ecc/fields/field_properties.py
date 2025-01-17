@@ -1,5 +1,6 @@
 from typing import (
     TYPE_CHECKING,
+    Dict,
     TypedDict,
 )
 
@@ -16,7 +17,7 @@ class Curve_Field_Properties(TypedDict):
     fq12_modulus_coeffs: "FQ12_modulus_coeffs_type"
 
 
-Field_Properties = dict[str, Curve_Field_Properties]
+Field_Properties = Dict[str, Curve_Field_Properties]
 
 field_properties: Field_Properties = {
     "bn128": {

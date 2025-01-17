@@ -1,5 +1,6 @@
 from typing import (
     Optional,
+    Tuple,
 )
 
 from py_ecc.fields import (
@@ -39,7 +40,7 @@ from .typing import (
 # The format: (c_flag, b_flag, a_flag, x)
 # https://github.com/zcash/librustzcash/blob/6e0364cd42a2b3d2b958a54771ef51a8db79dd29/pairing/src/bls12_381/README.md#bls12-381-instantiation  # noqa: E501
 #
-def get_flags(z: int) -> tuple[bool, bool, bool]:
+def get_flags(z: int) -> Tuple[bool, bool, bool]:
     c_flag = bool((z >> 383) & 1)  # The most significant bit.
     b_flag = bool((z >> 382) & 1)  # The second-most significant bit.
     a_flag = bool((z >> 381) & 1)  # The third-most significant bit.

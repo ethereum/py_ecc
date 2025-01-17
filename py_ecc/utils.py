@@ -1,8 +1,7 @@
-from collections.abc import (
-    Sequence,
-)
 from typing import (
     TYPE_CHECKING,
+    Sequence,
+    Tuple,
     Union,
     cast,
 )
@@ -48,7 +47,7 @@ def deg(p: Sequence[Union[int, "FQ", "optimized_FQ"]]) -> int:
     return d
 
 
-def poly_rounded_div(a: Sequence[IntOrFQ], b: Sequence[IntOrFQ]) -> tuple[IntOrFQ, ...]:
+def poly_rounded_div(a: Sequence[IntOrFQ], b: Sequence[IntOrFQ]) -> Tuple[IntOrFQ, ...]:
     dega = deg(a)
     degb = deg(b)
     temp = [x for x in a]
@@ -57,4 +56,4 @@ def poly_rounded_div(a: Sequence[IntOrFQ], b: Sequence[IntOrFQ]) -> tuple[IntOrF
         o[i] += int(temp[degb + i] / b[degb])
         for c in range(degb + 1):
             temp[c + i] -= o[c]
-    return cast(tuple[IntOrFQ, ...], tuple(o[: deg(o) + 1]))
+    return cast(Tuple[IntOrFQ, ...], tuple(o[: deg(o) + 1]))

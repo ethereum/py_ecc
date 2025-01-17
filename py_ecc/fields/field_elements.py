@@ -1,12 +1,13 @@
-from collections.abc import (
-    Sequence,
-)
 from functools import (
     total_ordering,
 )
 from typing import (
     TYPE_CHECKING,
     Any,
+    List,
+    Sequence,
+    Tuple,
+    Type,
     TypeVar,
     Union,
     cast,
@@ -189,11 +190,11 @@ class FQ:
         return self.n < on
 
     @classmethod
-    def one(cls: type[T_FQ]) -> T_FQ:
+    def one(cls: Type[T_FQ]) -> T_FQ:
         return cls(1)
 
     @classmethod
-    def zero(cls: type[T_FQ]) -> T_FQ:
+    def zero(cls: Type[T_FQ]) -> T_FQ:
         return cls(0)
 
 
@@ -220,11 +221,11 @@ class FQP:
         self.FQP_corresponding_FQ_class = type(
             "FQP_corresponding_FQ_class", (FQ,), {"field_modulus": self.field_modulus}
         )
-        self.coeffs: tuple[IntOrFQ, ...] = tuple(
+        self.coeffs: Tuple[IntOrFQ, ...] = tuple(
             self.FQP_corresponding_FQ_class(c) for c in coeffs
         )
         # The coefficients of the modulus, without the leading [1]
-        self.modulus_coeffs: tuple[IntOrFQ, ...] = tuple(modulus_coeffs)
+        self.modulus_coeffs: Tuple[IntOrFQ, ...] = tuple(modulus_coeffs)
         # The degree of the extension field
         self.degree = len(self.modulus_coeffs)
 
@@ -304,11 +305,11 @@ class FQP:
             [0] * (self.degree + 1),
         )
         low, high = (
-            cast(list[IntOrFQ], list(self.coeffs + (0,))),
-            cast(list[IntOrFQ], list(self.modulus_coeffs + (1,))),
+            cast(List[IntOrFQ], list(self.coeffs + (0,))),
+            cast(List[IntOrFQ], list(self.modulus_coeffs + (1,))),
         )
         while deg(low):
-            r = cast(list[IntOrFQ], list(poly_rounded_div(high, low)))
+            r = cast(List[IntOrFQ], list(poly_rounded_div(high, low)))
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
@@ -355,11 +356,11 @@ class FQP:
         return type(self)([-c for c in self.coeffs])
 
     @classmethod
-    def one(cls: type[T_FQP]) -> T_FQP:
+    def one(cls: Type[T_FQP]) -> T_FQP:
         return cls([1] + [0] * (cls.degree - 1))
 
     @classmethod
-    def zero(cls: type[T_FQP]) -> T_FQP:
+    def zero(cls: Type[T_FQP]) -> T_FQP:
         return cls([0] * cls.degree)
 
 

@@ -1,3 +1,7 @@
+from typing import (
+    Tuple,
+)
+
 from _hashlib import (
     HASH,
 )
@@ -52,7 +56,7 @@ def hash_to_G2(message: bytes, DST: bytes, hash_function: HASH) -> G2Uncompresse
 
 def hash_to_field_FQ2(
     message: bytes, count: int, DST: bytes, hash_function: HASH
-) -> tuple[FQ2, ...]:
+) -> Tuple[FQ2, ...]:
     """
     Hash To Base Field for FQ2
 
@@ -121,7 +125,7 @@ def hash_to_G1(message: bytes, DST: bytes, hash_function: HASH) -> G1Uncompresse
 
 def hash_to_field_FQ(
     message: bytes, count: int, DST: bytes, hash_function: HASH
-) -> tuple[FQ, ...]:
+) -> Tuple[FQ, ...]:
     """
     Hash To Base Field for FQ
 
