@@ -2,15 +2,15 @@ from abc import (
     ABC,
     abstractmethod,
 )
-from collections.abc import (
-    Sequence,
-)
 from hashlib import (
     sha256,
 )
 from math import (
     ceil,
     log2,
+)
+from typing import (
+    Sequence,
 )
 
 from eth_typing import (
