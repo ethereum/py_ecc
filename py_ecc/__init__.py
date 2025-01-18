@@ -23,6 +23,8 @@ _lazy_imports = {
     "secp256k1": "py_ecc.secp256k1",
 }
 
+__all__ = list(_lazy_imports.keys())
+
 
 def _import_module(name: str) -> ModuleType:
     module = importlib.import_module(_lazy_imports[name])
