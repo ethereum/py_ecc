@@ -3,6 +3,18 @@ Release notes
 
 .. towncrier release notes start
 
+py_ecc v8.0.0-beta.2 (2025-01-22)
+---------------------------------
+
+Internal Changes - for py_ecc Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Add support for 3.13 in CI and lib metadata. (`#148 <https://github.com/ethereum/py_ecc/issues/148>`__)
+- Merge template updates, notably moving from ``bumpversion`` to ``bump-my-version`` and moving docs from the ``README`` to ReadTheDocs (`#149 <https://github.com/ethereum/py_ecc/issues/149>`__)
+- Remove unused ``cached-property`` dependency. (`#152 <https://github.com/ethereum/py_ecc/issues/152>`__)
+- Reenable ``from py_ecc import *`` post-lazyloading. (`#153 <https://github.com/ethereum/py_ecc/issues/153>`__)
+
+
 py_ecc v8.0.0-beta.1 (2024-10-22)
 ---------------------------------
 
