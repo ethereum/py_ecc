@@ -39,7 +39,7 @@ with open("./README.md") as readme:
 setup(
     name="py-ecc",
     # *IMPORTANT*: Don't manually change the version here. Use `make bump`, as described in readme
-    version="8.0.0-beta.2",
+    version="8.0.0",
     description="""py-ecc: Elliptic curve crypto in python including secp256k1, alt_bn128, and bls12_381""",
     long_description=long_description,
     long_description_content_type="text/markdown",
