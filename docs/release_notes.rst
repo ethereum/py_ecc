@@ -3,6 +3,12 @@ Release notes
 
 .. towncrier release notes start
 
+py_ecc v8.0.0 (2025-04-14)
+--------------------------
+
+No significant changes.
+
+
 py_ecc v8.0.0-beta.2 (2025-01-22)
 ---------------------------------
 
