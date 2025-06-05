@@ -12,6 +12,8 @@ from typing import (
     Union,
     cast,
 )
+from weakref import WeakValueDictionary
+from threading import Lock
 
 from py_ecc.utils import (
     deg,
@@ -201,6 +203,33 @@ class FQ:
 int_types_or_FQ = (int, FQ)
 
 
+_FQ_TYPES = WeakValueDictionary()
+_FQ_LOCK = Lock()
+
+
+def _make_fq(field_modulus: int) -> Type[FQ]:
+    try:
+        return _FQ_TYPES[field_modulus]
+    except KeyError:
+        pass
+
+    _FQ_LOCK.acquire()
+    try:
+        try:
+            return _FQ_TYPES[field_modulus]
+        except KeyError:
+            pass
+
+        new_type = type(
+            "FQP_corresponding_FQ_class", (FQ,), {"field_modulus": field_modulus}
+        )
+        _FQ_TYPES[field_modulus] = new_type
+        return new_type
+    finally:
+        _FQ_LOCK.release()
+
+
+
 class FQP:
     """
     A class for elements in polynomial extension fields
@@ -218,9 +247,7 @@ class FQP:
         if len(coeffs) != len(modulus_coeffs):
             raise Exception("coeffs and modulus_coeffs aren't of the same length")
         # Encoding all coefficients in the corresponding type FQ
-        self.FQP_corresponding_FQ_class = type(
-            "FQP_corresponding_FQ_class", (FQ,), {"field_modulus": self.field_modulus}
-        )
+        self.FQP_corresponding_FQ_class = _make_fq(self.field_modulus)
         self.coeffs: Tuple[IntOrFQ, ...] = tuple(
             self.FQP_corresponding_FQ_class(c) for c in coeffs
         )
