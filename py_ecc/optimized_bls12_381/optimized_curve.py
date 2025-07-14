@@ -94,6 +94,9 @@ if not is_on_curve(G2, b2):
 def double(
     pt: Optimized_Point3D[Optimized_Field],
 ) -> Optimized_Point3D[Optimized_Field]:
+    if is_inf(pt):
+        return pt
+
     x, y, z = pt
     W = 3 * x * x
     S = y * z
