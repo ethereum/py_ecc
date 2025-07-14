@@ -18,6 +18,12 @@ curve_order = (
     52435875175126190479447740508185965837690552500527637822603658699938581184513
 )
 
+# Cache zero and one values for faster comparison and operations
+_FQ_ZERO = FQ.zero()
+_FQ_ONE = FQ.one()
+_FQ2_ZERO = FQ2.zero()
+_FQ2_ONE = FQ2.one()
+
 # Curve order should be prime
 if not pow(2, curve_order, curve_order) == 2:
     raise ValueError("Curve order is not prime")
@@ -56,12 +62,13 @@ G2 = (
             927553665492332455747201965776037880757740193453592970025027978793976877002675564980949289727957565575433344219582,  # noqa: E501
         )
     ),
-    FQ2.one(),
+    _FQ2_ONE,
 )
+
 # Point at infinity over FQ
-Z1 = (FQ.one(), FQ.one(), FQ.zero())
+Z1 = (_FQ_ONE, _FQ_ONE, _FQ_ZERO)
 # Point at infinity for twisted curve over FQ2
-Z2 = (FQ2.one(), FQ2.one(), FQ2.zero())
+Z2 = (_FQ2_ONE, _FQ2_ONE, _FQ2_ZERO)
 
 
 # Check if a point is the point at infinity
@@ -133,8 +140,9 @@ def add(
 def multiply(
     pt: Optimized_Point3D[Optimized_Field], n: int
 ) -> Optimized_Point3D[Optimized_Field]:
-    if n == 0:
-        return (pt[0].one(), pt[0].one(), pt[0].zero())
+    if n == 0 or is_inf(pt):
+        one, zero = pt[0].one(), pt[0].zero()
+        return (one, one, zero)
     elif n == 1:
         return pt
     elif not n % 2:

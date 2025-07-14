@@ -33,6 +33,7 @@ log_ate_loop_count = 62
 # and evaluate it at T
 def linefunc(P1: Point2D[Field], P2: Point2D[Field], T: Point2D[Field]) -> Field:
     if P1 is None or P2 is None or T is None:  # No points-at-infinity allowed, sorry
+        # points at infinity but mypy needs the `None` check
         raise ValueError("Invalid input - no points-at-infinity allowed")
     x1, y1 = P1
     x2, y2 = P2
@@ -49,6 +50,7 @@ def linefunc(P1: Point2D[Field], P2: Point2D[Field], T: Point2D[Field]) -> Field
 
 def cast_point_to_fq12(pt: Point2D[FQ]) -> Point2D[FQ12]:
     if pt is None:
+        # point at infinity but mypy needs the `None` check
         return None
     x, y = pt
     return (FQ12([x.n] + [0] * 11), FQ12([y.n] + [0] * 11))

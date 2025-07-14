@@ -62,7 +62,8 @@ def is_inf(pt: GeneralPoint[Field]) -> bool:
 
 # Check that a point is on the curve defined by y**2 == x**3 + b
 def is_on_curve(pt: Point2D[Field], b: Field) -> bool:
-    if is_inf(pt) or pt is None:
+    if pt is None:
+        # point at infinity but mypy needs the `None` check
         return True
     x, y = pt
     return y**2 - x**3 == b
@@ -76,7 +77,8 @@ if not is_on_curve(G2, b2):
 
 # Elliptic curve doubling
 def double(pt: Point2D[Field]) -> Point2D[Field]:
-    if is_inf(pt) or pt is None:
+    if pt is None:
+        # point at infinity but mypy needs the `None` check
         return pt
     x, y = pt
     m = 3 * x**2 / (2 * y)
@@ -88,6 +90,7 @@ def double(pt: Point2D[Field]) -> Point2D[Field]:
 # Elliptic curve addition
 def add(p1: Point2D[Field], p2: Point2D[Field]) -> Point2D[Field]:
     if p1 is None or p2 is None:
+        # points at infinity but mypy needs the `None` check
         return p1 if p2 is None else p2
     x1, y1 = p1
     x2, y2 = p2
@@ -106,7 +109,7 @@ def add(p1: Point2D[Field], p2: Point2D[Field]) -> Point2D[Field]:
 
 # Elliptic curve point multiplication
 def multiply(pt: Point2D[Field], n: int) -> Point2D[Field]:
-    if n == 0:
+    if n == 0 or is_inf(pt):
         return None
     elif n == 1:
         return pt
@@ -127,6 +130,7 @@ w = FQ12([0, 1] + [0] * 10)
 # Convert P => -P
 def neg(pt: Point2D[Field]) -> Point2D[Field]:
     if pt is None:
+        # point at infinity but mypy needs the `None` check
         return None
     x, y = pt
     return (x, -y)
@@ -134,6 +138,7 @@ def neg(pt: Point2D[Field]) -> Point2D[Field]:
 
 def twist(pt: Point2D[FQP]) -> Point2D[FQ12]:
     if pt is None:
+        # point at infinity but mypy needs the `None` check
         return None
     _x, _y = pt
     # Field isomorphism from Z[p] / x**2 to Z[p] / x**2 - 18*x + 82

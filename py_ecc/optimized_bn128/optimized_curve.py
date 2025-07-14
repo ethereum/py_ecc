@@ -125,7 +125,7 @@ def add(
 def multiply(
     pt: Optimized_Point3D[Optimized_Field], n: int
 ) -> Optimized_Point3D[Optimized_Field]:
-    if n == 0:
+    if n == 0 or is_inf(pt):
         return (pt[0].one(), pt[0].one(), pt[0].zero())
     elif n == 1:
         return pt
