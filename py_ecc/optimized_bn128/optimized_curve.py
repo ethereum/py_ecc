@@ -83,6 +83,12 @@ def double(
         return pt
 
     x, y, z = pt
+
+    if y == y.zero():
+        # Doubling a point with y = 0 results in the point at infinity. There should be
+        # never be a point on the curve with y = 0 but this serves as a safeguard.
+        return (x.one(), x.one(), x.zero())
+
     W = 3 * x * x
     S = y * z
     B = x * y * S

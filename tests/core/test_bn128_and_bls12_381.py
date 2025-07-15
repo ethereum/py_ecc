@@ -273,6 +273,24 @@ def test_Z2_object(add, eq, double, FQ2, G2, is_inf, multiply, neg, twist, Z2):
     assert is_inf(twist(Z2))
 
 
+def test_double_when_y_is_zero(lib, FQ, FQ2, double, is_inf, Z1, Z2):
+    if lib not in [optimized_bn128, optimized_bls12_381]:
+        pytest.skip("Only testing optimized libraries")
+
+    # Test G1 point with y=0
+    # This simulates a 2-torsion point (which may not exist on the actual curve)
+    g1_point_y_zero = (FQ(1), FQ(0), FQ(1))
+    result_g1 = double(g1_point_y_zero)
+    assert is_inf(result_g1), "Doubling G1 point with y=0 should return infinity"
+    assert result_g1 == Z1, "Result should be in standard infinity form"
+
+    # Test G2 point with y=0
+    g2_point_y_zero = (FQ2([1, 0]), FQ2([0, 0]), FQ2([1, 0]))
+    result_g2 = double(g2_point_y_zero)
+    assert is_inf(result_g2), "Doubling G2 point with y=0 should return infinity"
+    assert result_g2 == Z2, "Result should be in standard infinity form"
+
+
 def test_none_point(lib, neg, twist):
     if lib not in [optimized_bn128, optimized_bls12_381]:
         pytest.skip()
