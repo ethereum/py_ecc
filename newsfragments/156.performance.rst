@@ -1,0 +1,1 @@
+Return early for point at infinity when possible for ``double()`` and ``multiply()`` methods.
