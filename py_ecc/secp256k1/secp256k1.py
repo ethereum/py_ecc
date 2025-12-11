@@ -3,8 +3,6 @@ import hmac
 from typing import (
     TYPE_CHECKING,
     Any,
-    Tuple,
-    cast,
 )
 
 if TYPE_CHECKING:
@@ -28,7 +26,7 @@ A = 0
 B = 7
 Gx = 55066263022277343669578718895168534326250603453777594175500187360389116729240
 Gy = 32670510020758816978083085130507043184471273380659243275938904335757337482424
-G = cast("PlainPoint2D", (Gx, Gy))
+G = (Gx, Gy)
 
 
 def bytes_to_int(x: bytes) -> int:
@@ -61,8 +59,7 @@ def to_jacobian(p: "PlainPoint2D") -> "PlainPoint3D":
     :return: the Jacobian point representation
     :rtype: PlainPoint3D
     """
-    o = (p[0], p[1], 1)
-    return cast("PlainPoint3D", o)
+    return (p[0], p[1], 1)
 
 
 def jacobian_double(p: "PlainPoint3D") -> "PlainPoint3D":
@@ -76,14 +73,14 @@ def jacobian_double(p: "PlainPoint3D") -> "PlainPoint3D":
     :rtype: PlainPoint3D
     """
     if not p[1]:
-        return cast("PlainPoint3D", (0, 0, 0))
+        return (0, 0, 0)
     ysq = (p[1] ** 2) % P
     S = (4 * p[0] * ysq) % P
     M = (3 * p[0] ** 2 + A * p[2] ** 4) % P
     nx = (M**2 - 2 * S) % P
     ny = (M * (S - nx) - 8 * ysq**2) % P
     nz = (2 * p[1] * p[2]) % P
-    return cast("PlainPoint3D", (nx, ny, nz))
+    return (nx, ny, nz)
 
 
 def jacobian_add(p: "PlainPoint3D", q: "PlainPoint3D") -> "PlainPoint3D":
@@ -108,7 +105,7 @@ def jacobian_add(p: "PlainPoint3D", q: "PlainPoint3D") -> "PlainPoint3D":
     S2 = (q[1] * p[2] ** 3) % P
     if U1 == U2:
         if S1 != S2:
-            return cast("PlainPoint3D", (0, 0, 1))
+            return (0, 0, 1)
         return jacobian_double(p)
     H = U2 - U1
     R = S2 - S1
@@ -118,7 +115,7 @@ def jacobian_add(p: "PlainPoint3D", q: "PlainPoint3D") -> "PlainPoint3D":
     nx = (R**2 - H3 - 2 * U1H2) % P
     ny = (R * (U1H2 - nx) - S1 * H3) % P
     nz = (H * p[2] * q[2]) % P
-    return cast("PlainPoint3D", (nx, ny, nz))
+    return (nx, ny, nz)
 
 
 def from_jacobian(p: "PlainPoint3D") -> "PlainPoint2D":
@@ -132,7 +129,7 @@ def from_jacobian(p: "PlainPoint3D") -> "PlainPoint2D":
     :rtype: PlainPoint2D
     """
     z = inv(p[2], P)
-    return cast("PlainPoint2D", ((p[0] * z**2) % P, (p[1] * z**3) % P))
+    return ((p[0] * z**2) % P, (p[1] * z**3) % P)
 
 
 def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":
@@ -148,7 +145,7 @@ def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":
     :rtype: PlainPoint3D
     """
     if a[1] == 0 or n == 0:
-        return cast("PlainPoint3D", (0, 0, 1))
+        return (0, 0, 1)
     if n == 1:
         return a
     if n < 0 or n >= N:
@@ -223,7 +220,7 @@ def deterministic_generate_k(msghash: bytes, priv: bytes) -> int:
 
 
 # bytes32, bytes32 -> v, r, s (as numbers)
-def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> Tuple[int, int, int]:
+def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> tuple[int, int, int]:
     """
     Return a raw ECDSA signature of the provided `data`, using the provided
     `private_key`.
@@ -242,11 +239,15 @@ def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> Tuple[int, int, int]:
     r, y = multiply(G, k)
     s = inv(k, N) * (z + r * bytes_to_int(priv)) % N
 
-    v, r, s = 27 + ((y % 2) ^ (0 if s * 2 < N else 1)), r, s if s * 2 < N else N - s
+    v, r, s = (
+        27 + ((y % 2) ^ (0 if s * 2 < N else 1)),
+        r,
+        s if s * 2 < N else N - s,
+    )
     return v, r, s
 
 
-def ecdsa_raw_recover(msghash: bytes, vrs: Tuple[int, int, int]) -> "PlainPoint2D":
+def ecdsa_raw_recover(msghash: bytes, vrs: tuple[int, int, int]) -> "PlainPoint2D":
     """
     Recover the public key from the signature and message hash.
 
@@ -272,8 +273,8 @@ def ecdsa_raw_recover(msghash: bytes, vrs: Tuple[int, int, int]) -> "PlainPoint2
             f"sig is invalid, {r} cannot be the x coord for point on curve"
         )
     z = bytes_to_int(msghash)
-    Gz = jacobian_multiply(cast("PlainPoint3D", (Gx, Gy, 1)), (N - z) % N)
-    XY = jacobian_multiply(cast("PlainPoint3D", (x, y, 1)), s)
+    Gz = jacobian_multiply((Gx, Gy, 1), (N - z) % N)
+    XY = jacobian_multiply((x, y, 1), s)
     Qr = jacobian_add(Gz, XY)
     Q = jacobian_multiply(Qr, inv(r, N))
     Q_jacobian = from_jacobian(Q)
