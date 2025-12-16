@@ -1,16 +1,18 @@
+from collections.abc import (
+    Callable,
+)
 import hashlib
 import hmac
 import math
-from typing import (
-    Union,
-)
 
 from _hashlib import (
     HASH,
 )
 
+HashFunction = Callable[..., HASH]
 
-def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) -> bytes:
+
+def hkdf_extract(salt: bytes | bytearray, ikm: bytes | bytearray) -> bytes:
     """
     HKDF-Extract
 
@@ -19,9 +21,7 @@ def hkdf_extract(salt: Union[bytes, bytearray], ikm: Union[bytes, bytearray]) ->
     return hmac.new(salt, ikm, hashlib.sha256).digest()
 
 
-def hkdf_expand(
-    prk: Union[bytes, bytearray], info: Union[bytes, bytearray], length: int
-) -> bytes:
+def hkdf_expand(prk: bytes | bytearray, info: bytes | bytearray, length: int) -> bytes:
     """
     HKDF-Expand
 
@@ -70,7 +70,7 @@ def xor(a: bytes, b: bytes) -> bytes:
 
 
 def expand_message_xmd(
-    msg: bytes, DST: bytes, len_in_bytes: int, hash_function: HASH
+    msg: bytes, DST: bytes, len_in_bytes: int, hash_function: HashFunction
 ) -> bytes:
     b_in_bytes = hash_function().digest_size
     r_in_bytes = hash_function().block_size

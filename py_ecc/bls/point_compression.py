@@ -1,8 +1,3 @@
-from typing import (
-    Optional,
-    Tuple,
-)
-
 from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
@@ -40,14 +35,14 @@ from .typing import (
 # The format: (c_flag, b_flag, a_flag, x)
 # https://github.com/zcash/librustzcash/blob/6e0364cd42a2b3d2b958a54771ef51a8db79dd29/pairing/src/bls12_381/README.md#bls12-381-instantiation  # noqa: E501
 #
-def get_flags(z: int) -> Tuple[bool, bool, bool]:
+def get_flags(z: int) -> tuple[bool, bool, bool]:
     c_flag = bool((z >> 383) & 1)  # The most significant bit.
     b_flag = bool((z >> 382) & 1)  # The second-most significant bit.
     a_flag = bool((z >> 381) & 1)  # The third-most significant bit.
     return c_flag, b_flag, a_flag
 
 
-def is_point_at_infinity(z1: int, z2: Optional[int] = None) -> bool:
+def is_point_at_infinity(z1: int, z2: int | None = None) -> bool:
     """
     If z2 is None, the given z1 is a G1 point.
     Else, (z1, z2) is a G2 point.
@@ -120,7 +115,7 @@ def decompress_G1(z: G1Compressed) -> G1Uncompressed:
 #
 # G2
 #
-def modular_squareroot_in_FQ2(value: FQ2) -> Optional[FQ2]:
+def modular_squareroot_in_FQ2(value: FQ2) -> FQ2 | None:
     """
     Given value=``x``, returns the value ``y`` such that ``y**2 % q == x``,
     and None if this is not possible. In cases where there are two solutions,

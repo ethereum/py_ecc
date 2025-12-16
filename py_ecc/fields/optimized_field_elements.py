@@ -1,3 +1,6 @@
+from collections.abc import (
+    Sequence,
+)
 from functools import (
     cached_property,
     total_ordering,
@@ -5,10 +8,6 @@ from functools import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    List,
-    Sequence,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -215,11 +214,11 @@ class FQ:
         return self.n % 2
 
     @classmethod
-    def one(cls: Type[T_FQ]) -> T_FQ:
+    def one(cls: type[T_FQ]) -> T_FQ:
         return cls(1)
 
     @classmethod
-    def zero(cls: Type[T_FQ]) -> T_FQ:
+    def zero(cls: type[T_FQ]) -> T_FQ:
         return cls(0)
 
 
@@ -230,7 +229,7 @@ class FQP:
 
     degree: int = 0
     field_modulus: int
-    mc_tuples: List[Tuple[int, int]]
+    mc_tuples: list[tuple[int, int]]
 
     def __init__(
         self, coeffs: Sequence[IntOrFQ], modulus_coeffs: Sequence[IntOrFQ] = ()
@@ -244,13 +243,13 @@ class FQP:
         # Not converting coeffs to FQ or explicitly making them integers
         # for performance reasons
         if isinstance(coeffs[0], int):
-            self.coeffs: Tuple[IntOrFQ, ...] = tuple(
+            self.coeffs: tuple[IntOrFQ, ...] = tuple(
                 coeff % self.field_modulus for coeff in coeffs
             )
         else:
             self.coeffs = tuple(coeffs)
         # The coefficients of the modulus, without the leading [1]
-        self.modulus_coeffs: Tuple[IntOrFQ, ...] = tuple(modulus_coeffs)
+        self.modulus_coeffs: tuple[IntOrFQ, ...] = tuple(modulus_coeffs)
         # The degree of the extension field
         self.degree = len(self.modulus_coeffs)
 
@@ -274,10 +273,10 @@ class FQP:
             [int(x - y) % self.field_modulus for x, y in zip(self.coeffs, other.coeffs)]
         )
 
-    def __mod__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
+    def __mod__(self: T_FQP, other: int | T_FQP) -> T_FQP:
         raise NotImplementedError("Modulo Operation not yet supported by fields")
 
-    def __mul__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
+    def __mul__(self: T_FQP, other: int | T_FQP) -> T_FQP:
         if isinstance(other, int):
             return type(self)(
                 [int(c) * other % self.field_modulus for c in self.coeffs]
@@ -299,10 +298,10 @@ class FQP:
                 f"Expected an int or FQP object, but got object of type {type(other)}"
             )
 
-    def __rmul__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
+    def __rmul__(self: T_FQP, other: int | T_FQP) -> T_FQP:
         return self * other
 
-    def __div__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
+    def __div__(self: T_FQP, other: int | T_FQP) -> T_FQP:
         if isinstance(other, int):
             return type(self)(
                 [
@@ -319,7 +318,7 @@ class FQP:
                 f"Expected an int or FQP object, but got object of type {type(other)}"
             )
 
-    def __truediv__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
+    def __truediv__(self: T_FQP, other: int | T_FQP) -> T_FQP:
         return self.__div__(other)
 
     def __pow__(self: T_FQP, other: int) -> T_FQP:
@@ -352,11 +351,11 @@ class FQP:
     def inv(self: T_FQP) -> T_FQP:
         lm, hm = [1] + [0] * self.degree, [0] * (self.degree + 1)
         low, high = (
-            cast(List[IntOrFQ], list(self.coeffs + (0,))),
-            cast(List[IntOrFQ], list(self.modulus_coeffs + (1,))),
+            cast(list[IntOrFQ], list(self.coeffs + (0,))),
+            cast(list[IntOrFQ], list(self.modulus_coeffs + (1,))),
         )
         while deg(low):
-            r = cast(List[IntOrFQ], list(self.optimized_poly_rounded_div(high, low)))
+            r = cast(list[IntOrFQ], list(self.optimized_poly_rounded_div(high, low)))
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
@@ -409,11 +408,11 @@ class FQP:
         return sign
 
     @classmethod
-    def one(cls: Type[T_FQP]) -> T_FQP:
+    def one(cls: type[T_FQP]) -> T_FQP:
         return cls([1] + [0] * (cls.degree - 1))
 
     @classmethod
-    def zero(cls: Type[T_FQP]) -> T_FQP:
+    def zero(cls: type[T_FQP]) -> T_FQP:
         return cls([0] * cls.degree)
 
 

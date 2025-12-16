@@ -1,11 +1,3 @@
-from typing import (
-    Tuple,
-)
-
-from _hashlib import (
-    HASH,
-)
-
 from py_ecc.fields import (
     optimized_bls12_381_FQ as FQ,
     optimized_bls12_381_FQ2 as FQ2,
@@ -25,6 +17,7 @@ from .constants import (
     HASH_TO_FIELD_L,
 )
 from .hash import (
+    HashFunction,
     expand_message_xmd,
     os2ip,
 )
@@ -35,7 +28,9 @@ from .typing import (
 
 
 # Hash to G2
-def hash_to_G2(message: bytes, DST: bytes, hash_function: HASH) -> G2Uncompressed:
+def hash_to_G2(
+    message: bytes, DST: bytes, hash_function: HashFunction
+) -> G2Uncompressed:
     """
     Convert a message to a point on G2 as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-6.6.3
@@ -55,8 +50,8 @@ def hash_to_G2(message: bytes, DST: bytes, hash_function: HASH) -> G2Uncompresse
 
 
 def hash_to_field_FQ2(
-    message: bytes, count: int, DST: bytes, hash_function: HASH
-) -> Tuple[FQ2, ...]:
+    message: bytes, count: int, DST: bytes, hash_function: HashFunction
+) -> tuple[FQ2, ...]:
     """
     Hash To Base Field for FQ2
 
@@ -104,7 +99,9 @@ def clear_cofactor_G2(p: G2Uncompressed) -> G2Uncompressed:
 # --- G1 ---
 
 
-def hash_to_G1(message: bytes, DST: bytes, hash_function: HASH) -> G1Uncompressed:
+def hash_to_G1(
+    message: bytes, DST: bytes, hash_function: HashFunction
+) -> G1Uncompressed:
     """
     Convert a message to a point on G1 as defined here:
     https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#section-6.6.3
@@ -124,8 +121,8 @@ def hash_to_G1(message: bytes, DST: bytes, hash_function: HASH) -> G1Uncompresse
 
 
 def hash_to_field_FQ(
-    message: bytes, count: int, DST: bytes, hash_function: HASH
-) -> Tuple[FQ, ...]:
+    message: bytes, count: int, DST: bytes, hash_function: HashFunction
+) -> tuple[FQ, ...]:
     """
     Hash To Base Field for FQ
 
