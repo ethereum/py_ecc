@@ -3,6 +3,27 @@ Release notes
 
 .. towncrier release notes start
 
+py_ecc v9.0.0-beta.1 (2025-12-17)
+---------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Drop support for Python 3.8 and 3.9 (`#158 <https://github.com/ethereum/py_ecc/issues/158>`__)
+
+
+Features
+~~~~~~~~
+
+- Add support for Python 3.14 (`#158 <https://github.com/ethereum/py_ecc/issues/158>`__)
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Return early for point at infinity when possible for ``double()`` and ``multiply()`` methods. (`#156 <https://github.com/ethereum/py_ecc/issues/156>`__)
+
+
 py_ecc v8.0.0 (2025-04-14)
 --------------------------
 
