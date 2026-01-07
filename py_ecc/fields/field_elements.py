@@ -290,14 +290,19 @@ class FQP:
         return self.__div__(other)
 
     def __pow__(self: T_FQP, other: int) -> T_FQP:
-        o = type(self)([1] + [0] * (self.degree - 1))
-        t = self
-        while other > 0:
-            if other & 1:
-                o = o * t
-            other >>= 1
-            t = t * t
-        return o
+        if other < 0:
+            return self.inv() ** (-other)
+        res = type(self)([1] + [0] * (self.degree - 1))
+        base = self
+        exp = other
+
+        while exp > 0:
+            if exp % 2 == 1:
+                res = res * base
+            base = base * base
+            exp //= 2
+
+        return res
 
     # Extended euclidean algorithm used to find the modular inverse
     def inv(self: T_FQP) -> T_FQP:
