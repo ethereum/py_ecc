@@ -3,6 +3,7 @@ from collections.abc import (
 )
 from typing import (
     TYPE_CHECKING,
+    TypeGuard,
     Union,
     cast,
 )
@@ -19,14 +20,12 @@ if TYPE_CHECKING:
 IntOrFQ = Union[int, "FQ"]
 
 
-def is_integer(value: object) -> bool:
-    """
-    Return True if value is an int but not a bool.
+def is_integer(value: object) -> TypeGuard[int]:
+    """Return True iff value is an int but not a bool.
 
-    Python's bool is a subclass of int, so isinstance(True, int) returns True.
-    In cryptographic code this is dangerous - a boolean passed where an integer
-    is expected can produce incorrect results silently.  Use this helper wherever
-    an explicit integer (not a boolean) is required.
+    Python's bool is a subclass of int, so isinstance(True, int) is True.
+    In cryptographic code a boolean accepted as an integer can produce
+    incorrect results silently.  TypeGuard[int] preserves mypy type narrowing.
     """
     return isinstance(value, int) and not isinstance(value, bool)
 
