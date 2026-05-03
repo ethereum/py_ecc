@@ -24,6 +24,9 @@ from eth_utils import (
 from py_ecc.fields import (
     optimized_bls12_381_FQ12 as FQ12,
 )
+from py_ecc.utils import (
+    is_integer,
+)
 from py_ecc.optimized_bls12_381 import (
     G1,
     Z1,
@@ -64,7 +67,7 @@ class BaseG2Ciphersuite(ABC):
     #
     @staticmethod
     def _is_valid_privkey(privkey: int) -> bool:
-        return isinstance(privkey, int) and privkey > 0 and privkey < curve_order
+        return is_integer(privkey) and privkey > 0 and privkey < curve_order
 
     @staticmethod
     def _is_valid_pubkey(pubkey: bytes) -> bool:

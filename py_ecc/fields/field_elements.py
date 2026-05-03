@@ -14,6 +14,7 @@ from typing import (
 
 from py_ecc.utils import (
     deg,
+    is_integer,
     poly_rounded_div,
     prime_field_inv,
 )
@@ -50,7 +51,7 @@ class FQ:
 
         if isinstance(val, FQ):
             self.n = val.n
-        elif isinstance(val, int):
+        elif is_integer(val):
             self.n = val % self.field_modulus
         else:
             raise TypeError(
@@ -60,7 +61,7 @@ class FQ:
     def __add__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -72,7 +73,7 @@ class FQ:
     def __mul__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -90,7 +91,7 @@ class FQ:
     def __rsub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -102,7 +103,7 @@ class FQ:
     def __sub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -114,7 +115,7 @@ class FQ:
     def __div__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -131,7 +132,7 @@ class FQ:
     def __rdiv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -153,7 +154,7 @@ class FQ:
     def __eq__(self: T_FQ, other: Any) -> bool:
         if isinstance(other, FQ):
             return self.n == other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             return self.n == other
         else:
             raise TypeError(
@@ -175,7 +176,7 @@ class FQ:
     def __lt__(self: T_FQ, other: IntOrFQ) -> bool:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(

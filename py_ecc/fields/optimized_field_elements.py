@@ -15,6 +15,7 @@ from typing import (
 
 from py_ecc.utils import (
     deg,
+    is_integer,
     prime_field_inv,
 )
 
@@ -35,7 +36,7 @@ IntOrFQ = Union[int, "FQ"]
 
 
 def mod_int(x: IntOrFQ, n: int) -> int:
-    if isinstance(x, int):
+    if is_integer(x):
         return x % n
     elif isinstance(x, FQ):
         return x.n % n
@@ -59,7 +60,7 @@ class FQ:
 
         if isinstance(val, FQ):
             self.n = val.n
-        elif isinstance(val, int):
+        elif is_integer(val):
             self.n = val % self.field_modulus
         else:
             raise TypeError(
@@ -69,7 +70,7 @@ class FQ:
     def __add__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -81,7 +82,7 @@ class FQ:
     def __mul__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -99,7 +100,7 @@ class FQ:
     def __rsub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -111,7 +112,7 @@ class FQ:
     def __sub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -126,7 +127,7 @@ class FQ:
     def __div__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -143,7 +144,7 @@ class FQ:
     def __rdiv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -165,7 +166,7 @@ class FQ:
     def __eq__(self: T_FQ, other: Any) -> bool:
         if isinstance(other, FQ):
             return self.n == other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             return self.n == other
         else:
             raise TypeError(
@@ -187,7 +188,7 @@ class FQ:
     def __lt__(self: T_FQ, other: IntOrFQ) -> bool:
         if isinstance(other, FQ):
             on = other.n
-        elif isinstance(other, int):
+        elif is_integer(other):
             on = other
         else:
             raise TypeError(
@@ -237,7 +238,7 @@ class FQP:
 
         # Not converting coeffs to FQ or explicitly making them integers
         # for performance reasons
-        if isinstance(coeffs[0], int):
+        if is_integer(coeffs[0]):
             self.coeffs: tuple[IntOrFQ, ...] = tuple(
                 coeff % self.field_modulus for coeff in coeffs
             )
@@ -272,7 +273,7 @@ class FQP:
         raise NotImplementedError("Modulo Operation not yet supported by fields")
 
     def __mul__(self: T_FQP, other: int | T_FQP) -> T_FQP:
-        if isinstance(other, int):
+        if is_integer(other):
             return type(self)(
                 [int(c) * other % self.field_modulus for c in self.coeffs]
             )
@@ -297,7 +298,7 @@ class FQP:
         return self * other
 
     def __div__(self: T_FQP, other: int | T_FQP) -> T_FQP:
-        if isinstance(other, int):
+        if is_integer(other):
             return type(self)(
                 [
                     int(c)
