@@ -21,11 +21,12 @@ IntOrFQ = Union[int, "FQ"]
 
 
 def is_integer(value: object) -> TypeGuard[int]:
-    """Return True iff value is an int but not a bool.
+    """
+    Return True iff value is a strict integer (not a bool).
 
     Python's bool is a subclass of int, so isinstance(True, int) is True.
     In cryptographic code a boolean accepted as an integer can produce
-    incorrect results silently.  TypeGuard[int] preserves mypy type narrowing.
+    incorrect results silently. TypeGuard[int] preserves mypy type narrowing.
     """
     return isinstance(value, int) and not isinstance(value, bool)
 

@@ -24,9 +24,6 @@ from eth_utils import (
 from py_ecc.fields import (
     optimized_bls12_381_FQ12 as FQ12,
 )
-from py_ecc.utils import (
-    is_integer,
-)
 from py_ecc.optimized_bls12_381 import (
     G1,
     Z1,
@@ -37,6 +34,9 @@ from py_ecc.optimized_bls12_381 import (
     multiply,
     neg,
     pairing,
+)
+from py_ecc.utils import (
+    is_integer,
 )
 
 from .g2_primitives import (
