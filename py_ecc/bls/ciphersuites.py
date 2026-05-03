@@ -263,8 +263,7 @@ class BaseG2Ciphersuite(ABC):
         PKs: Sequence[BLSPubkey],
         messages: Sequence[bytes],
         signature: BLSSignature,
-    ) -> bool:
-        ...
+    ) -> bool: ...
 
 
 class G2Basic(BaseG2Ciphersuite):
