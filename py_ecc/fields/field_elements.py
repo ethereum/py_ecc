@@ -286,7 +286,7 @@ class FQP:
 
     def __pow__(self: T_FQP, other: int) -> T_FQP:
         if other < 0:
-            if all(int(c) == 0 for c in self.coeffs):
+            if self == type(self).zero():
                 raise ZeroDivisionError("Cannot raise zero to a negative power")
             return self.inv() ** -other
         o = type(self)([1] + [0] * (self.degree - 1))
