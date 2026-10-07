@@ -146,14 +146,9 @@ class FQ:
         return self.__rdiv__(other)
 
     def __pow__(self: T_FQ, other: int) -> T_FQ:
-        if other == 0:
-            return type(self)(1)
-        elif other == 1:
-            return type(self)(self.n)
-        elif other % 2 == 0:
-            return (self * self) ** (other // 2)
-        else:
-            return ((self * self) ** int(other // 2)) * self
+        if other < 0 and self.n == 0:
+            raise ZeroDivisionError("Cannot raise zero to a negative power")
+        return type(self)(pow(self.n, other, self.field_modulus))
 
     def __eq__(self: T_FQ, other: Any) -> bool:
         if isinstance(other, FQ):
@@ -290,6 +285,10 @@ class FQP:
         return self.__div__(other)
 
     def __pow__(self: T_FQP, other: int) -> T_FQP:
+        if other < 0:
+            if all(int(c) == 0 for c in self.coeffs):
+                raise ZeroDivisionError("Cannot raise zero to a negative power")
+            return self.inv() ** -other
         o = type(self)([1] + [0] * (self.degree - 1))
         t = self
         while other > 0:

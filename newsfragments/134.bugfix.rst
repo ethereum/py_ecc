@@ -1,0 +1,1 @@
+Fix stack overflow on Windows when raising ``FQ`` elements to large powers by computing ``FQ.__pow__`` iteratively, and support negative exponents in ``FQ`` and ``FQP`` (previously ``FQ`` recursed forever and ``FQP`` silently returned one).
