@@ -242,6 +242,11 @@ class FQP:
             self.coeffs: tuple[IntOrFQ, ...] = tuple(
                 coeff % self.field_modulus for coeff in coeffs
             )
+        elif isinstance(coeffs[0], bool):
+            raise TypeError(
+                "Expected an int or FQ object, "
+                f"but got object of type {type(coeffs[0])}"
+            )
         else:
             self.coeffs = tuple(coeffs)
         # The coefficients of the modulus, without the leading [1]

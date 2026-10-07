@@ -45,6 +45,7 @@ def test_aggregate_verify(SKs, messages, result):
         (1, True),
         (0, False),
         ("hello", False),  # wrong type
+        (True, False),  # bool is an int subclass, but not a valid key
     ],
 )
 def test_sk_to_pk(privkey, success):

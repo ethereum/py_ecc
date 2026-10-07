@@ -1,0 +1,1 @@
+Booleans are no longer accepted as integers: field elements raise ``TypeError`` for ``bool`` operands, including in comparisons such as ``FQ(1) == True``, and BLS private key validation rejects ``True``.
