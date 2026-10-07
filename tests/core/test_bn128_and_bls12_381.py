@@ -240,6 +240,17 @@ def test_FQP_pow_negative_exponent(FQ2, FQ12):
         FQ12.zero() ** -1
 
 
+def test_FQ_and_FQP_reject_bools(FQ, FQ2):
+    with pytest.raises(TypeError):
+        FQ(True)
+    with pytest.raises(TypeError):
+        FQ(1) + True
+    with pytest.raises(TypeError):
+        FQ2([True, 2])
+    with pytest.raises(TypeError):
+        FQ2([1, 2]) * True
+
+
 def test_G1_object(G1, eq, double, add, multiply, curve_order, is_inf):
     assert eq(add(add(double(G1), G1), G1), double(double(G1)))
     assert not eq(double(G1), G1)

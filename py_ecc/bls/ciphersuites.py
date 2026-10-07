@@ -35,6 +35,9 @@ from py_ecc.optimized_bls12_381 import (
     neg,
     pairing,
 )
+from py_ecc.utils import (
+    is_integer,
+)
 
 from .g2_primitives import (
     G1_to_pubkey,
@@ -64,7 +67,7 @@ class BaseG2Ciphersuite(ABC):
     #
     @staticmethod
     def _is_valid_privkey(privkey: int) -> bool:
-        return isinstance(privkey, int) and privkey > 0 and privkey < curve_order
+        return is_integer(privkey) and privkey > 0 and privkey < curve_order
 
     @staticmethod
     def _is_valid_pubkey(pubkey: bytes) -> bool:
