@@ -1,0 +1,1 @@
+Fix stack overflow on platforms with small C stacks (Windows, s390x) when raising ``FQ`` elements to large powers by using the built-in ``pow`` in ``FQ.__pow__``, and support negative exponents in ``FQ`` and ``FQP`` (previously ``FQ`` recursed forever and ``FQP`` silently returned one).

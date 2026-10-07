@@ -217,6 +217,29 @@ def test_FQ12_object(FQ12, field_modulus):
     # assert x ** (field_modulus ** 12 - 1) == one
 
 
+def test_FQ_pow_large_exponent(FQ, field_modulus):
+    # A 5000-bit exponent used to recurse once per bit and overflow the stack
+    exponent = 2**5000 - 1
+    assert FQ(3) ** exponent == FQ(pow(3, exponent, field_modulus))
+
+
+def test_FQ_pow_negative_exponent(FQ):
+    assert FQ(3) ** -1 == FQ(1) / FQ(3)
+    assert FQ(3) ** -2 * FQ(9) == FQ.one()
+    with pytest.raises(ZeroDivisionError):
+        FQ(0) ** -1
+
+
+def test_FQP_pow_negative_exponent(FQ2, FQ12):
+    for f in (FQ2([1, 2]), FQ12(list(range(1, 13)))):
+        assert f**-1 * f == type(f).one()
+        assert f**-3 * f**3 == type(f).one()
+    with pytest.raises(ZeroDivisionError):
+        FQ2.zero() ** -1
+    with pytest.raises(ZeroDivisionError):
+        FQ12.zero() ** -1
+
+
 def test_G1_object(G1, eq, double, add, multiply, curve_order, is_inf):
     assert eq(add(add(double(G1), G1), G1), double(double(G1)))
     assert not eq(double(G1), G1)
