@@ -286,6 +286,18 @@ def test_G12_object(
     assert is_inf(multiply(G12, curve_order))
 
 
+def test_multiply_by_negative_scalar(G1, G2, eq, is_inf, multiply, neg, curve_order):
+    # https://github.com/ethereum/py_ecc/issues/127
+    assert eq(multiply(G1, -1), neg(G1))
+    assert eq(multiply(G1, -5), neg(multiply(G1, 5)))
+    assert eq(multiply(G1, -5), multiply(G1, curve_order - 5))
+    assert eq(multiply(G2, -1), neg(G2))
+    assert eq(multiply(G2, -5), neg(multiply(G2, 5)))
+    assert eq(multiply(G2, -5), multiply(G2, curve_order - 5))
+    assert is_inf(multiply(G1, -curve_order))
+    assert is_inf(multiply(G2, -curve_order))
+
+
 def test_Z1_object(add, eq, double, FQ, G1, is_inf, multiply, neg, twist, Z1):
     assert eq(G1, add(G1, Z1))
     assert eq(Z1, double(Z1))

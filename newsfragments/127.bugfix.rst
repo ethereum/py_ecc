@@ -1,0 +1,1 @@
+``multiply()`` now accepts negative scalars and returns the negated point, instead of recursing until the interpreter crashes.
