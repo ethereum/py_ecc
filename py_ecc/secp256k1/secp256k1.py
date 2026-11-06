@@ -189,9 +189,31 @@ def add(a: "PlainPoint2D", b: "PlainPoint2D") -> "PlainPoint2D":
     return from_jacobian(jacobian_add(to_jacobian(a), to_jacobian(b)))
 
 
+def _private_key_to_int(privkey: bytes) -> int:
+    """
+    Convert a private key to an integer and check that it is in ``[1, N - 1]``.
+
+    ``0`` and multiples of ``N`` map to the point at infinity, and values of
+    ``N`` or above alias smaller keys, so neither is a valid secp256k1 private key.
+
+    :param privkey: the private key as big-endian bytes
+    :type privkey: bytes
+
+    :return: the private key as an integer
+    :rtype: int
+    """
+    d = bytes_to_int(privkey)
+    if not 0 < d < N:
+        raise ValueError(
+            "private key must be an integer in the range [1, N - 1] "
+            "when read as big-endian bytes"
+        )
+    return d
+
+
 # bytes32
 def privtopub(privkey: bytes) -> "PlainPoint2D":
-    return multiply(G, bytes_to_int(privkey))
+    return multiply(G, _private_key_to_int(privkey))
 
 
 def deterministic_generate_k(msghash: bytes, priv: bytes) -> int:
@@ -233,11 +255,12 @@ def ecdsa_raw_sign(msghash: bytes, priv: bytes) -> tuple[int, int, int]:
     :return: a tuple of integers `(v, r, s)`, representing the raw ECDSA signature
     :rtype: Tuple[int, int, int]
     """
+    d = _private_key_to_int(priv)
     z = bytes_to_int(msghash)
     k = deterministic_generate_k(msghash, priv)
 
     r, y = multiply(G, k)
-    s = inv(k, N) * (z + r * bytes_to_int(priv)) % N
+    s = inv(k, N) * (z + r * d) % N
 
     v, r, s = (
         27 + ((y % 2) ^ (0 if s * 2 < N else 1)),
