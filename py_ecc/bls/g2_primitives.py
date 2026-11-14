@@ -41,6 +41,11 @@ def G2_to_signature(pt: G2Uncompressed) -> BLSSignature:
 
 
 def signature_to_G2(signature: BLSSignature) -> G2Uncompressed:
+    # Without this check, extra leading bytes in either half are dropped
+    # by the flag and coordinate parsing, so different byte strings decode
+    # to the same point.
+    if len(signature) != 96:
+        raise ValueError(f"Signature must be 96 bytes. Got {len(signature)}")
     p = G2Compressed((os2ip(signature[:48]), os2ip(signature[48:])))
     signature_point = decompress_G2(p)
     return signature_point
@@ -52,5 +57,9 @@ def G1_to_pubkey(pt: G1Uncompressed) -> BLSPubkey:
 
 
 def pubkey_to_G1(pubkey: BLSPubkey) -> G1Uncompressed:
+    # Without this check, extra leading bytes are dropped by the flag and
+    # coordinate parsing, so different byte strings decode to the same point.
+    if len(pubkey) != 48:
+        raise ValueError(f"Public key must be 48 bytes. Got {len(pubkey)}")
     z = os2ip(pubkey)
     return decompress_G1(G1Compressed(z))
