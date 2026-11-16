@@ -1,0 +1,1 @@
+``pubkey_to_G1`` and ``signature_to_G2`` now reject encodings that are not 48 and 96 bytes long, so ``KeyValidate`` no longer accepts a public key with extra leading bytes.
