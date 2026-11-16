@@ -136,6 +136,8 @@ def multiply(
 ) -> Optimized_Point3D[Optimized_Field]:
     if n == 0 or is_inf(pt):
         return (pt[0].one(), pt[0].one(), pt[0].zero())
+    elif n < 0:
+        return multiply(neg(pt), -n)
     elif n == 1:
         return pt
     elif not n % 2:

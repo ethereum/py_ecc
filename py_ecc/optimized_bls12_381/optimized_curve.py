@@ -152,6 +152,8 @@ def multiply(
     if n == 0 or is_inf(pt):
         one, zero = pt[0].one(), pt[0].zero()
         return (one, one, zero)
+    elif n < 0:
+        return multiply(neg(pt), -n)
     elif n == 1:
         return pt
     elif not n % 2:

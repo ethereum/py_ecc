@@ -118,6 +118,8 @@ def add(p1: Point2D[Field], p2: Point2D[Field]) -> Point2D[Field]:
 def multiply(pt: Point2D[Field], n: int) -> Point2D[Field]:
     if n == 0 or is_inf(pt):
         return None
+    elif n < 0:
+        return multiply(neg(pt), -n)
     elif n == 1:
         return pt
     elif not n % 2:
