@@ -1,0 +1,1 @@
+Add tests for the identity public key and signature and for empty aggregation in ``G2MessageAugmentation``.
