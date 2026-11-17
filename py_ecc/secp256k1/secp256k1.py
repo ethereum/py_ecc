@@ -262,6 +262,10 @@ def ecdsa_raw_recover(msghash: bytes, vrs: tuple[int, int, int]) -> "PlainPoint2
     v, r, s = vrs
     if v not in (27, 28):
         raise ValueError(f"value of v was {v}, must be either 27 or 28")
+    if not 0 < r < N:
+        raise ValueError(f"value of r was {r}, must be in the range [1, N - 1]")
+    if not 0 < s < N:
+        raise ValueError(f"value of s was {s}, must be in the range [1, N - 1]")
     x = r
     xcubedaxb = (x * x * x + A * x + B) % P
     beta = pow(xcubedaxb, (P + 1) // 4, P)
