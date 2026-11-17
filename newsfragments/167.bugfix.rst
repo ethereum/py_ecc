@@ -1,0 +1,1 @@
+Reject private keys outside ``[1, N - 1]`` in ``secp256k1.privtopub`` and ``secp256k1.ecdsa_raw_sign``; ``0`` and ``N`` previously returned the point at infinity ``(0, 0)`` as a public key and produced signatures that recover to it.
