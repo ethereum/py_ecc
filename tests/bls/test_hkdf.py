@@ -60,3 +60,9 @@ def test_hkdf_extract(salt, ikm, prk):
 def test_hkdf_expand(prk, info, length, okm):
     result = hkdf_expand(bytes.fromhex(prk), bytes.fromhex(info), length)
     assert bytes.fromhex(okm) == result
+
+
+@pytest.mark.parametrize("length", [-1, 8161])
+def test_hkdf_expand_rejects_invalid_length(length):
+    with pytest.raises(ValueError, match="HKDF output length"):
+        hkdf_expand(b"secret", b"context", length)
