@@ -27,6 +27,8 @@ def hkdf_expand(prk: bytes | bytearray, info: bytes | bytearray, length: int) ->
 
     https://tools.ietf.org/html/rfc5869
     """
+    if not 0 <= length <= 255 * hashlib.sha256().digest_size:
+        raise ValueError("HKDF output length must be between 0 and 8160 bytes")
     n = math.ceil(length / 32)
 
     # okm = T(1) || T(2) || T(3) || ... || T(n)
